@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, toRef, watch, onMounted } from "vue";
+import { reactive, ref, toRef, watch, onMounted, nextTick } from "vue";
 import type { PaperConfig } from "./types/config";
 import { useSudoku } from "./composables/useSudoku";
 import { useExamTimer } from "./composables/useExamTimer";
@@ -230,6 +230,9 @@ function handleRegenerate() {
   exam.resetExam();
   timer.reset();
   keypad.close();
+  nextTick(() => {
+    scale.updateScale();
+  });
 }
 
 // 试卷结构改变（页数、行数、难度改变时自动重新生成）
@@ -275,6 +278,10 @@ onMounted(() => {
 
   // 预拉取云端记录
   cloudRecords.loadHistory();
+
+  nextTick(() => {
+    scale.updateScale();
+  });
 });
 </script>
 
@@ -285,5 +292,12 @@ onMounted(() => {
   display: flex;
   width: 100%;
   min-height: 100vh;
+  flex: 1;
+}
+
+@media (max-width: 960px) {
+  .app-layout {
+    flex-direction: column;
+  }
 }
 </style>

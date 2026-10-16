@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, watch, type Ref } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick, type Ref } from "vue";
 
 export function useResponsiveScale(
   previewAreaRef: Ref<HTMLElement | null>,
@@ -8,6 +8,7 @@ export function useResponsiveScale(
   const scale = ref(1);
   const containerHeight = ref<string>("auto");
   const containerMarginBottom = ref<string>("0px");
+  let resizeObserver: ResizeObserver | null = null;
 
   function updateScale() {
     if (!previewAreaRef.value) return;
@@ -40,7 +41,21 @@ export function useResponsiveScale(
   }
 
   onMounted(() => {
+    // 首次多重校准，确保布局稳定和首屏渲染完成
     updateScale();
+    nextTick(() => {
+      updateScale();
+      requestAnimationFrame(updateScale);
+    });
+
+    // 使用 ResizeObserver 监听 previewArea 真实容器尺寸变化
+    if (previewAreaRef.value && typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        updateScale();
+      });
+      resizeObserver.observe(previewAreaRef.value);
+    }
+
     window.addEventListener("resize", updateScale);
     window.addEventListener("orientationchange", () => {
       setTimeout(updateScale, 200);
@@ -48,12 +63,16 @@ export function useResponsiveScale(
   });
 
   onUnmounted(() => {
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
     window.removeEventListener("resize", updateScale);
   });
 
   // 当页数或答案设置改变时重新计算高度
   watch([pagesCount, appendAnswerPage], () => {
-    updateScale();
+    nextTick(updateScale);
   });
 
   return {

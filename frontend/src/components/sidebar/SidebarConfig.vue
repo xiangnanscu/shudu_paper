@@ -18,7 +18,7 @@
         >
           ✕
         </button>
-        <span class="title-badge">A4 打印优化 · 在线互动答题版</span>
+        <!-- <span class="title-badge">A4 打印优化 · 在线互动答题版</span> -->
         <h1>
           <svg
             width="22"
@@ -38,7 +38,7 @@
           </svg>
           四宫格数独试卷
         </h1>
-        <p>动态出题 · 唯一解算法 · 在线答题评分</p>
+        <!-- <p>动态出题 · 唯一解算法 · 在线答题评分</p> -->
       </div>
 
       <div class="sidebar-body">
