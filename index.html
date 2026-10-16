@@ -357,6 +357,47 @@
         background: var(--primary-light);
         padding: 4px 10px;
         border-radius: 9999px;
+        transition: all 0.2s ease;
+      }
+
+      .exam-status-badge.status-ready {
+        color: #b45309;
+        background: #fef3c7;
+        border: 1px solid #fde68a;
+      }
+
+      .exam-status-badge.status-doing {
+        color: #2563eb;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+      }
+
+      .exam-status-badge.status-submitted {
+        color: #059669;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+      }
+
+      .btn-start-exam {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+        transition: all 0.15s ease;
+      }
+
+      .btn-start-exam:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.45);
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
       }
 
       .exam-timer {
@@ -768,7 +809,7 @@
         font-weight: 600;
       }
 
-      /* 浮动数字输入面板 (Popover) */
+      /* 浮动数字输入面板 (Popover) - 确保不遮挡宫格区域，置于盘面外部合适位置 */
       .cell-keypad-popover {
         position: fixed;
         background: #ffffff;
@@ -779,8 +820,9 @@
         align-items: center;
         gap: 6px;
         z-index: 1000;
-        transform: translate(-50%, -100%) translateY(-10px);
-        animation: popoverFadeIn 0.15s ease-out;
+        transform: translateX(-50%);
+        user-select: none;
+        will-change: transform, opacity;
       }
 
       .cell-keypad-popover.active {
@@ -790,28 +832,56 @@
       .cell-keypad-popover::after {
         content: "";
         position: absolute;
-        bottom: -6px;
-        left: 50%;
+        left: var(--arrow-left, 50%);
         transform: translateX(-50%);
-        border-width: 6px 6px 0;
         border-style: solid;
-        border-color: #ffffff transparent transparent;
+        pointer-events: none;
       }
 
-      .cell-keypad-popover.flip-bottom {
-        transform: translate(-50%, 0) translateY(10px);
+      /* 位于宫格下方（默认首选）：指示箭头朝上指向宫格 */
+      .cell-keypad-popover.placement-bottom {
+        animation: popoverFadeInBottom 0.14s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
-      .cell-keypad-popover.flip-bottom::after {
-        bottom: auto;
+      .cell-keypad-popover.placement-bottom::after {
         top: -6px;
+        bottom: auto;
         border-width: 0 6px 6px;
         border-color: transparent transparent #ffffff;
       }
 
-      @keyframes popoverFadeIn {
-        from { opacity: 0; transform: translate(-50%, -100%) translateY(-2px); }
-        to { opacity: 1; transform: translate(-50%, -100%) translateY(-10px); }
+      /* 位于卡片/宫格上方：指示箭头朝下指向宫格 */
+      .cell-keypad-popover.placement-top {
+        animation: popoverFadeInTop 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .cell-keypad-popover.placement-top::after {
+        bottom: -6px;
+        top: auto;
+        border-width: 6px 6px 0;
+        border-color: #ffffff transparent transparent;
+      }
+
+      @keyframes popoverFadeInBottom {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      @keyframes popoverFadeInTop {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
       }
 
       .keypad-btn {
@@ -1113,6 +1183,42 @@
         color: #dc2626;
       }
 
+      .cloud-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.68rem;
+        color: #0284c7;
+        background: #e0f2fe;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .cloud-loading-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .cloud-spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid #e2e8f0;
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
       .record-empty-state {
         text-align: center;
         padding: 40px 20px;
@@ -1226,6 +1332,47 @@
         font-size: 0.75rem;
         color: #64748b;
         margin-top: 2px;
+      }
+
+      .cloud-sync-status-card {
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.825rem;
+        color: #475569;
+        transition: all 0.2s ease;
+      }
+
+      .cloud-sync-status-card.success {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+      }
+
+      .cloud-sync-status-card.error {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #991b1b;
+      }
+
+      .btn-retry-sync {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: #dc2626;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .btn-retry-sync:hover {
+        background: #b91c1c;
       }
 
       .score-modal-footer {
@@ -1681,8 +1828,8 @@
             出题设置
           </button>
 
-          <div class="exam-status-badge">
-            <span id="examStatusText">📝 在线作答中</span>
+          <div class="exam-status-badge status-ready">
+            <span id="examStatusText">⏸️ 待开始</span>
           </div>
 
           <div class="exam-timer" title="做题计时器">
@@ -1698,17 +1845,23 @@
         </div>
 
         <div class="exam-actions-group">
-          <button class="btn-submit-exam" id="btnSubmitExam" title="完成作答后交卷进行100分自动批改">
+          <button class="btn-start-exam" id="btnStartExam" title="点击确认开始计时做题">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            开始做题
+          </button>
+
+          <button class="btn-submit-exam" id="btnSubmitExam" style="display: none;" title="完成作答后交卷进行100分自动批改">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
             交卷评分
           </button>
 
-          <button class="btn-drawer-toggle" id="btnOpenDrawer" title="查看微信小程序风格的做题历史记录">
+          <button class="btn-drawer-toggle" id="btnOpenDrawer" title="查看微信小程序风格的云端做题历史记录">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
             </svg>
             做题记录
           </button>
@@ -1753,7 +1906,10 @@
         <div class="drawer-body">
           <!-- 顶部微信小程序风格大卡片 -->
           <div class="stat-summary-card">
-            <div class="summary-title">📈 学习统计看板</div>
+            <div class="summary-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>📈 学习统计看板</span>
+              <span style="font-size: 0.72rem; font-weight: normal; background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 9999px;">☁️ 云端数据同步</span>
+            </div>
             <div class="stat-grid">
               <div class="stat-item">
                 <div class="stat-num" id="statTotalCount">0</div>
@@ -1809,6 +1965,14 @@
               <div class="val" id="modalStatCorrectPuzzles">12 / 12</div>
               <div class="lbl">全对题目数</div>
             </div>
+          </div>
+
+          <div class="cloud-sync-status-card" id="cloudSyncStatusCard">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="sync-icon" id="syncIcon">☁️</span>
+              <span id="syncText">正在保存记录至云端...</span>
+            </div>
+            <button class="btn-retry-sync" id="btnRetrySync" style="display: none;">重试上传</button>
           </div>
         </div>
 
@@ -1985,7 +2149,7 @@
 
         // 做题状态
         examState: {
-          status: "doing", // 'doing' | 'submitted'
+          status: "ready", // 'ready' (待开始) | 'doing' (作答中) | 'submitted' (已交卷)
           startTime: null,
           timerInterval: null,
           elapsedSeconds: 0,
@@ -1998,6 +2162,11 @@
         activeCell: null, // { puzzleId, r, c, cellElem }
 
         init() {
+          // 清理历史遗留的本地做题记录缓存，确保所有记录均在云端存储
+          try {
+            localStorage.removeItem("shudu_local_records");
+          } catch (e) {}
+
           this.bindEvents();
           this.bindKeypadEvents();
           this.bindResponsiveScale();
@@ -2080,11 +2249,22 @@
               }
             });
 
-          // 交卷评分按钮
+          // 开始做题按钮 (用户主动确认开始计时)
+          document
+            .getElementById("btnStartExam")
+            ?.addEventListener("click", () => {
+              this.confirmStartExam();
+            });
+
+          // 交卷评分 / 重新作答按钮
           document
             .getElementById("btnSubmitExam")
             .addEventListener("click", () => {
-              this.submitExam();
+              if (this.examState.status === "submitted") {
+                this.restartCurrentExam();
+              } else {
+                this.submitExam();
+              }
             });
 
           // 做题记录抽屉交互
@@ -2156,6 +2336,25 @@
               this.closeKeypad();
             }
           });
+
+          // 页面滚动或缩放时关闭 Popover，避免浮动框与宫格脱节
+          const previewArea = document.getElementById("previewArea");
+          if (previewArea) {
+            previewArea.addEventListener(
+              "scroll",
+              () => {
+                if (this.activeCell) this.closeKeypad();
+              },
+              { passive: true }
+            );
+          }
+          window.addEventListener(
+            "scroll",
+            () => {
+              if (this.activeCell) this.closeKeypad();
+            },
+            { passive: true }
+          );
         },
 
         // 移动端竖屏 A4 试卷等比缩放计算
@@ -2330,7 +2529,7 @@
           if (this.updateScale) this.updateScale();
         },
 
-        // 重置做题状态和计时器
+        // 重置做题状态和计时器 (默认就绪待确认，不立即计时)
         resetExamState() {
           if (this.examState.timerInterval) {
             clearInterval(this.examState.timerInterval);
@@ -2347,8 +2546,8 @@
           });
 
           this.examState = {
-            status: "doing",
-            startTime: Date.now(),
+            status: "ready", // 'ready' (待开始) | 'doing' (作答中) | 'submitted' (已交卷)
+            startTime: null,
             timerInterval: null,
             elapsedSeconds: 0,
             userAnswers: {},
@@ -2359,7 +2558,74 @@
           this.closeKeypad();
           this.updateTimerDisplay();
           this.updateProgressDisplay();
-          document.getElementById("examStatusText").textContent = "📝 在线作答中";
+          this.updateExamUIState();
+        },
+
+        // 更新顶部状态栏与按钮状态
+        updateExamUIState() {
+          const statusTextElem = document.getElementById("examStatusText");
+          const statusBadgeElem = statusTextElem?.closest(".exam-status-badge");
+          const btnStart = document.getElementById("btnStartExam");
+          const btnSubmit = document.getElementById("btnSubmitExam");
+
+          if (statusBadgeElem) {
+            statusBadgeElem.classList.remove("status-ready", "status-doing", "status-submitted");
+          }
+
+          if (this.examState.status === "ready") {
+            if (statusTextElem) statusTextElem.textContent = "⏸️ 待开始";
+            if (statusBadgeElem) statusBadgeElem.classList.add("status-ready");
+            if (btnStart) btnStart.style.display = "inline-flex";
+            if (btnSubmit) btnSubmit.style.display = "none";
+          } else if (this.examState.status === "doing") {
+            if (statusTextElem) statusTextElem.textContent = "📝 在线作答中";
+            if (statusBadgeElem) statusBadgeElem.classList.add("status-doing");
+            if (btnStart) btnStart.style.display = "none";
+            if (btnSubmit) {
+              btnSubmit.style.display = "inline-flex";
+              btnSubmit.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                交卷评分
+              `;
+            }
+          } else if (this.examState.status === "submitted") {
+            if (statusTextElem) statusTextElem.textContent = "✅ 已交卷·已批改";
+            if (statusBadgeElem) statusBadgeElem.classList.add("status-submitted");
+            if (btnStart) btnStart.style.display = "none";
+            if (btnSubmit) {
+              btnSubmit.style.display = "inline-flex";
+              btnSubmit.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 4v6h6M23 20v-6h-6M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>
+                重新作答
+              `;
+            }
+          }
+        },
+
+        // 用户确认开始做题计时
+        confirmStartExam() {
+          if (this.examState.status === "doing") return;
+          if (this.examState.status === "submitted") {
+            this.restartCurrentExam();
+            return;
+          }
+          if (confirm("准备好开始做题了吗？点击【确定】立即开始计时。")) {
+            this.startExam();
+          }
+        },
+
+        // 启动做题与计时
+        startExam() {
+          if (this.examState.timerInterval) {
+            clearInterval(this.examState.timerInterval);
+          }
+          this.examState.status = "doing";
+          this.examState.startTime = Date.now();
+          this.updateExamUIState();
 
           this.examState.timerInterval = setInterval(() => {
             this.examState.elapsedSeconds++;
@@ -2719,6 +2985,18 @@
           emptyCells.forEach((cell) => {
             cell.addEventListener("click", (e) => {
               e.stopPropagation();
+              // 已交卷状态禁止修改
+              if (this.examState.status === "submitted") {
+                return;
+              }
+              // 未开始状态时，提示用户确认开始计时
+              if (this.examState.status === "ready") {
+                if (confirm("尚未开始做题计时，确定现在开始计时并答题吗？")) {
+                  this.startExam();
+                } else {
+                  return;
+                }
+              }
               const puzzleId = parseInt(cell.dataset.puzzleId, 10);
               const r = parseInt(cell.dataset.row, 10);
               const c = parseInt(cell.dataset.col, 10);
@@ -2774,37 +3052,62 @@
             });
           });
 
-          // 定位 Popover
+          // 核心：精准计算定位，确保填写框绝对不遮挡数独盘面（宫格区域）
+          popover.classList.remove("placement-top", "placement-bottom", "flip-bottom");
           popover.classList.add("active");
-          const rect = cellElem.getBoundingClientRect();
-          const popoverWidth = hasUserVal ? 256 : 210;
-          const popoverHeight = 56;
 
-          let left = rect.left + rect.width / 2;
-          let top = rect.top;
+          const cellRect = cellElem.getBoundingClientRect();
+          const boardElem = cellElem.closest(".sudoku-board");
+          const cardElem = cellElem.closest(".sudoku-card");
 
-          // 边界防溢出
-          if (left - popoverWidth / 2 < 10) {
-            left = popoverWidth / 2 + 10;
-          } else if (left + popoverWidth / 2 > window.innerWidth - 10) {
-            left = window.innerWidth - popoverWidth / 2 - 10;
-          }
+          const boardRect = boardElem ? boardElem.getBoundingClientRect() : cellRect;
+          const cardRect = cardElem ? cardElem.getBoundingClientRect() : boardRect;
 
-          // 若上方空间不够，则翻转到底部
-          if (top - popoverHeight < 60) {
-            popover.classList.add("flip-bottom");
-            top = rect.bottom;
+          // 获取弹窗实际渲染尺寸与安全间距
+          const popoverRect = popover.getBoundingClientRect();
+          const popoverWidth = popoverRect.width || (hasUserVal ? 256 : 210);
+          const popoverHeight = popoverRect.height || 56;
+          const gap = 8; // 与数独盘面边缘的间距
+
+          // 1. 水平定位：以数独盘面中心为基准居中，并防止屏幕两侧溢出
+          let popoverCenterX = boardRect.left + boardRect.width / 2;
+          const minCenterX = popoverWidth / 2 + 10;
+          const maxCenterX = window.innerWidth - popoverWidth / 2 - 10;
+          popoverCenterX = Math.max(minCenterX, Math.min(maxCenterX, popoverCenterX));
+
+          // 2. 指示箭头：精准指向当前点击方格的水平中心
+          const cellCenterX = cellRect.left + cellRect.width / 2;
+          const popoverLeft = popoverCenterX - popoverWidth / 2;
+          let arrowLeft = cellCenterX - popoverLeft;
+          arrowLeft = Math.max(16, Math.min(popoverWidth - 16, arrowLeft));
+          popover.style.setProperty("--arrow-left", `${arrowLeft}px`);
+
+          // 3. 垂直定位：绝对不遮挡 [boardRect.top, boardRect.bottom] 宫格区域
+          const spaceBelow = window.innerHeight - boardRect.bottom;
+          const spaceAbove = cardRect.top;
+          const needSpace = popoverHeight + gap + 10;
+
+          let top = 0;
+          // 优先放置在宫格正下方；下方空间不足且上方空间更宽敞时放置在上方
+          if (spaceBelow >= needSpace || spaceBelow >= spaceAbove) {
+            popover.classList.add("placement-bottom");
+            top = boardRect.bottom + gap;
           } else {
-            popover.classList.remove("flip-bottom");
+            popover.classList.add("placement-top");
+            // 放在卡片/盘面上方，完全避开题号和盘面
+            const anchorTop = cardRect.top >= (popoverHeight + gap + 8) ? cardRect.top : boardRect.top;
+            top = anchorTop - gap - popoverHeight;
           }
 
-          popover.style.left = `${left}px`;
+          popover.style.left = `${popoverCenterX}px`;
           popover.style.top = `${top}px`;
         },
 
         closeKeypad() {
           const popover = document.getElementById("keypadPopover");
-          if (popover) popover.classList.remove("active");
+          if (popover) {
+            popover.classList.remove("active", "placement-top", "placement-bottom", "flip-bottom");
+          }
           if (this.activeCell?.cellElem) {
             this.activeCell.cellElem.classList.remove("is-active");
           }
@@ -2912,7 +3215,7 @@
             clearInterval(this.examState.timerInterval);
           }
           this.examState.status = "submitted";
-          document.getElementById("examStatusText").textContent = "✅ 已交卷·已批改";
+          this.updateExamUIState();
 
           // 评分统计
           let correctHoles = 0;
@@ -2976,15 +3279,20 @@
           // 弹出成绩单
           this.openScoreModal(result);
 
-          // 保存到后端和本地
+          // 保存做题记录至云端
           this.saveExamRecord(result);
         },
 
-        // 保存做题记录 (后端 D1 + 本地 LocalStorage)
+        // 保存做题记录至云端 (Cloudflare D1 云数据库，不保存在本地)
         async saveExamRecord(result) {
           const clientUuid = getClientUuid();
+          const studentName = (document.getElementById("inputStudentName")?.value || "").trim();
+          const studentClass = (document.getElementById("inputStudentClass")?.value || "").trim();
+
           const recordPayload = {
             ...result,
+            studentName,
+            studentClass,
             clientUuid,
             detailJson: {
               puzzles: this.flatPuzzles,
@@ -2992,75 +3300,111 @@
             },
           };
 
-          // 本地缓存
-          try {
-            const localList = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
-            localList.unshift({
-              id: "local_" + Date.now(),
-              ...recordPayload,
-            });
-            localStorage.setItem("shudu_local_records", JSON.stringify(localList.slice(0, 100)));
-          } catch (e) {
-            console.error("Local save error:", e);
+          const statusCard = document.getElementById("cloudSyncStatusCard");
+          const syncText = document.getElementById("syncText");
+          const syncIcon = document.getElementById("syncIcon");
+          const btnRetry = document.getElementById("btnRetrySync");
+
+          if (statusCard) {
+            statusCard.className = "cloud-sync-status-card";
+            if (syncText) syncText.textContent = "正在同步保存到云端数据库...";
+            if (syncIcon) syncIcon.textContent = "⏳";
+            if (btnRetry) btnRetry.style.display = "none";
           }
 
-          // 发送至 Worker API
           try {
-            await fetch("/api/records", {
+            const res = await fetch("/api/records", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(recordPayload),
             });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || "云端存储未响应成功");
+
+            if (statusCard) {
+              statusCard.className = "cloud-sync-status-card success";
+              if (syncText) syncText.textContent = "☁️ 成绩已成功保存至云端数据库";
+              if (syncIcon) syncIcon.textContent = "✅";
+              if (btnRetry) btnRetry.style.display = "none";
+            }
           } catch (err) {
-            console.warn("Sync to cloud worker skipped:", err);
+            console.error("Save to cloud failed:", err);
+            if (statusCard) {
+              statusCard.className = "cloud-sync-status-card error";
+              if (syncText) syncText.textContent = "⚠️ 云端保存失败，请检查网络连接";
+              if (syncIcon) syncIcon.textContent = "❌";
+              if (btnRetry) {
+                btnRetry.style.display = "inline-block";
+                btnRetry.onclick = () => this.saveExamRecord(result);
+              }
+            }
           }
         },
 
-        // 加载历史做题记录 (类似微信小程序时间段展示)
+        // 从云端加载历史做题记录 (不使用本地 LocalStorage 存储)
         async loadHistoryRecords() {
           const clientUuid = getClientUuid();
+          const timelineContainer = document.getElementById("recordsTimelineList");
+
+          if (timelineContainer) {
+            timelineContainer.innerHTML = `
+              <div class="cloud-loading-state">
+                <div class="cloud-spinner"></div>
+                <p>正在从云端读取历史做题记录...</p>
+              </div>
+            `;
+          }
+
           let records = [];
           let stats = { totalRecords: 0, maxScore: 0, avgScore: 0, totalTimeSpent: 0 };
 
-          // 先从后端读取
           try {
             const res = await fetch(`/api/records?clientUuid=${clientUuid}`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.success) {
-                records = data.records || [];
-                stats = data.stats || stats;
-              }
-            }
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || "云端读取失败");
+
+            records = data.records || [];
+            stats = data.stats || stats;
           } catch (e) {
-            // 后端离线时读取本地
-            records = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
-            stats.totalRecords = records.length;
-            stats.maxScore = records.reduce((m, r) => Math.max(m, r.score || 0), 0);
-            stats.avgScore = records.length
-              ? Math.round(records.reduce((s, r) => s + (r.score || 0), 0) / records.length)
-              : 0;
-            stats.totalTimeSpent = records.reduce((s, r) => s + (r.time_spent || r.timeSpent || 0), 0);
+            console.error("Load history from cloud failed:", e);
+            if (timelineContainer) {
+              timelineContainer.innerHTML = `
+                <div class="record-empty-state" style="color: #ef4444;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <p>云端做题记录加载失败</p>
+                  <p style="font-size: 0.75rem; margin-top: 4px; opacity: 0.7;">请检查网络或后端服务连接</p>
+                  <button class="btn btn-secondary" style="margin-top: 10px; font-size: 0.8rem; padding: 6px 14px;" onclick="App.loadHistoryRecords()">
+                    重新拉取
+                  </button>
+                </div>
+              `;
+            }
+            return;
           }
 
           // 渲染顶部小程序大卡片
-          document.getElementById("statTotalCount").textContent = stats.totalRecords || records.length;
+          document.getElementById("statTotalCount").textContent = stats.totalRecords || 0;
           document.getElementById("statMaxScore").textContent = stats.maxScore || 0;
           document.getElementById("statAvgScore").textContent = stats.avgScore || 0;
           const mins = Math.round((stats.totalTimeSpent || 0) / 60);
           document.getElementById("statTotalTime").textContent = mins > 0 ? `${mins}分` : `${stats.totalTimeSpent || 0}秒`;
 
           // 按时间段智能聚类：今天、昨天、近7天、更早
-          const timelineContainer = document.getElementById("recordsTimelineList");
           if (!records || records.length === 0) {
             timelineContainer.innerHTML = `
               <div class="record-empty-state">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <circle cx="12" cy="14" r="3"></circle>
+                  <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
                 </svg>
-                <p>暂无做题记录</p>
-                <p style="font-size: 0.75rem; margin-top: 4px; opacity: 0.7;">完成试卷并交卷后，记录将自动在此呈现</p>
+                <p>暂无云端做题记录</p>
+                <p style="font-size: 0.75rem; margin-top: 4px; opacity: 0.7;">完成试卷并交卷后，记录将实时保存至云端</p>
               </div>
             `;
             return;
@@ -3129,6 +3473,7 @@
                     <div class="record-details">
                       <div class="record-title">
                         ${diffText} · ${totalP} 题
+                        <span class="cloud-tag">☁️ 云端</span>
                       </div>
                       <div class="record-meta">
                         <span>🕒 ${timeDisplay}</span>
@@ -3156,20 +3501,20 @@
           timelineContainer.innerHTML = timelineHtml;
         },
 
+        // 从云端删除做题记录
         async deleteRecord(id) {
-          if (!confirm("确定要删除这条做题记录吗？")) return;
+          if (!confirm("确定要从云端删除这条做题记录吗？此操作无法撤销。")) return;
 
-          // 本地删除
           try {
-            const list = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
-            const filtered = list.filter((r) => r.id !== id);
-            localStorage.setItem("shudu_local_records", JSON.stringify(filtered));
-          } catch (e) {}
-
-          // 远程删除
-          try {
-            await fetch(`/api/records/${id}`, { method: "DELETE" });
-          } catch (e) {}
+            const res = await fetch(`/api/records/${id}`, { method: "DELETE" });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+              throw new Error(data.error || "删除失败");
+            }
+          } catch (e) {
+            alert("云端删除失败: " + (e.message || "网络异常"));
+            return;
+          }
 
           this.loadHistoryRecords();
         },

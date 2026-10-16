@@ -55,14 +55,27 @@
 
 ```text
 shudu_paper/
-├── public/                     # 静态托管资源
-│   └── index.html              # 完整前端（做题、评分、小程序风抽屉、响应式、打印）
+├── frontend/                   # Vue 3 + TypeScript 前端源码工程
+│   ├── index.html              # 前端 SPA 入口
+│   ├── vite.config.ts          # Vite 构建配置（产物直接输出至 ../public）
+│   ├── tsconfig.json           # 前端独立 TypeScript 配置
+│   └── src/
+│       ├── main.ts             # 应用入口
+│       ├── App.vue             # 顶层布局与状态组装
+│       ├── core/               # 纯 TypeScript 算法层 (数独回溯引擎、难度策略、符号映射)
+│       ├── composables/        # 响应式状态管理 (useSudoku, useExam, useKeypad, useCloudRecords 等)
+│       ├── components/         # 细粒度组件 (Sidebar, Paper, Exam, Drawer 等)
+│       ├── styles/             # 模块化样式表 (variables, paper, sudoku, print 等)
+│       └── types/              # 领域模型与接口契约
+├── public/                     # Vite 生产构建产物（由 Cloudflare Workers Assets 托管）
+│   ├── index.html
+│   └── assets/
 ├── src/                        # 后端 Cloudflare Worker
-│   └── index.ts                # RESTful API (/api/records) 与静态资产透传
+│   └── index.ts                # RESTful API (/api/records) 与 D1 数据库交互
 ├── schema.sql                  # Cloudflare D1 数据库表结构与索引
 ├── wrangler.jsonc              # Cloudflare Workers + D1 + 域名配置
-├── package.json                # 工程配置与依赖
-├── tsconfig.json               # TypeScript 编译配置
+├── package.json                # 工程配置与统一脚本
+├── tsconfig.json               # Cloudflare Worker 后端 TS 配置
 └── README.md                   # 项目文档
 ```
 
@@ -71,12 +84,18 @@ shudu_paper/
 ## 🛠️ 本地开发与部署指令
 
 ```bash
-# 安装依赖
+# 1. 安装项目依赖
 npm install
 
-# 本地联调开发 (同时启动 Worker API 与静态服务)
+# 2. 启动前端 Vite 极速热更新开发服务 (默认端口 5173，自动反代 /api 至后端)
 npm run dev
 
-# 一键部署至 Cloudflare 生产环境
+# 3. 启动本地 Worker + D1 数据库服务
+npm run dev:worker
+
+# 4. 执行前端生产打包 (自动输出到 public/ 目录)
+npm run build
+
+# 5. 一键打包并部署至 Cloudflare 生产环境
 npm run deploy
 ```

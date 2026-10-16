@@ -1,0 +1,10 @@
+@import "./variables.css";
+@import "./reset.css";
+@import "./sidebar.css";
+@import "./topbar.css";
+@import "./paper.css";
+@import "./sudoku.css";
+@import "./keypad.css";
+@import "./drawer.css";
+@import "./modal.css";
+@import "./responsive.css";

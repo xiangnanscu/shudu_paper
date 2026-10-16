@@ -1,0 +1,308 @@
+/* 微信小程序风格的做题记录抽屉 (WeChat Drawer) */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.drawer-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wechat-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 90vw;
+  background: #f7f8fa;
+  box-shadow: var(--shadow-drawer);
+  z-index: 1600;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-backdrop.active .wechat-drawer {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drawer-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 顶部小程序统计大卡片 */
+.stat-summary-card {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 14px;
+  padding: 18px 20px;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.stat-summary-card .summary-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.85;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  text-align: center;
+}
+
+.stat-item .stat-num {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stat-item .stat-label {
+  font-size: 0.72rem;
+  opacity: 0.8;
+  margin-top: 3px;
+}
+
+/* 时间段分组容器 */
+.timeline-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 4px;
+}
+
+.timeline-header::before {
+  content: "";
+  width: 4px;
+  height: 12px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* 单条做题卡片 (微信小程序风格) */
+.record-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.record-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.record-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.score-circle.score-perfect {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.score-circle.score-high {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.score-circle.score-mid {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.score-circle.score-low {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+
+.record-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.record-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.record-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-record-action {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.btn-record-action:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-record-action.btn-del {
+  color: #94a3b8;
+}
+
+.btn-record-action.btn-del:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.cloud-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.cloud-loading-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.cloud-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.record-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.record-empty-state svg {
+  margin-bottom: 12px;
+  opacity: 0.6;
+}

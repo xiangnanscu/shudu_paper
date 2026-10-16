@@ -1,0 +1,166 @@
+/* 单个数独卡片 */
+.sudoku-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sudoku-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.sudoku-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sudoku-difficulty-tag {
+  font-size: 9.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* 4x4 数独盘面 */
+.sudoku-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  border: 2.2px solid var(--grid-border-heavy);
+  background-color: #ffffff;
+  box-sizing: border-box;
+  position: relative;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+}
+
+.sudoku-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #0f172a;
+  border-right: 1px solid var(--grid-border-thin);
+  border-bottom: 1px solid var(--grid-border-thin);
+  box-sizing: border-box;
+  user-select: none;
+  position: relative;
+  touch-action: manipulation;
+}
+
+/* 4宫格核心分界粗线 (2x2宫) */
+.sudoku-cell:nth-child(2n) {
+  border-right: 2.2px solid var(--grid-border-heavy);
+}
+
+.sudoku-cell:nth-child(4n) {
+  border-right: none;
+}
+
+.sudoku-cell:nth-child(n + 5):nth-child(-n + 8) {
+  border-bottom: 2.2px solid var(--grid-border-heavy);
+}
+
+.sudoku-cell:nth-child(n + 13) {
+  border-bottom: none;
+}
+
+/* 空白格与已知格交互状态 */
+.sudoku-cell.filled-clue {
+  background-color: #fbfcfe;
+  cursor: default;
+}
+
+.sudoku-cell.empty {
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.sudoku-cell.empty:hover {
+  background-color: #f0f7ff;
+}
+
+.sudoku-cell.empty.is-active {
+  background-color: #dbeafe !important;
+  outline: 2.5px solid var(--primary);
+  outline-offset: -2px;
+  z-index: 5;
+}
+
+/* 用户填入的值样式 */
+.sudoku-cell .user-val {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* 批改后的状态呈现 */
+.sudoku-cell.graded-correct {
+  background-color: #ecfdf5 !important;
+}
+
+.sudoku-cell.graded-correct .user-val {
+  color: #059669;
+}
+
+.sudoku-cell.graded-correct::after {
+  content: "✓";
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 10px;
+  line-height: 1;
+  color: #059669;
+  font-weight: 900;
+}
+
+.sudoku-cell.graded-wrong {
+  background-color: #fef2f2 !important;
+}
+
+.sudoku-cell.graded-wrong .user-val {
+  color: #dc2626;
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.sudoku-cell.graded-wrong .correct-hint {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 10px;
+  line-height: 1;
+  color: #059669;
+  font-weight: 800;
+}
+
+.sudoku-cell.graded-missed {
+  background-color: #fffbeb !important;
+}
+
+.sudoku-cell.graded-missed .correct-hint {
+  color: #d97706;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.sudoku-cell .answer-preview {
+  display: none;
+  color: #2563eb;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+body.show-answers .sudoku-cell .answer-preview {
+  display: block;
+}

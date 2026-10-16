@@ -4,13 +4,22 @@
   "description": "四宫格数独试卷生成与在线答题系统",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "dev": "vite --config frontend/vite.config.ts",
+    "dev:worker": "wrangler dev",
+    "build:frontend": "vite build --config frontend/vite.config.ts",
+    "build": "npm run build:frontend",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261008.1",
     "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^5.1.4",
     "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vue-tsc": "^2.1.10",
     "wrangler": "^4.42.0"
   }
 }

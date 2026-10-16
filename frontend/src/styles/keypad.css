@@ -1,0 +1,113 @@
+/* 浮动数字输入面板 (Popover) - 确保不遮挡宫格区域，置于盘面外部合适位置 */
+.cell-keypad-popover {
+  position: fixed;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  z-index: 1000;
+  transform: translateX(-50%);
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.cell-keypad-popover.active {
+  display: flex;
+}
+
+.cell-keypad-popover::after {
+  content: "";
+  position: absolute;
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border-style: solid;
+  pointer-events: none;
+}
+
+/* 位于宫格下方（默认首选）：指示箭头朝上指向宫格 */
+.cell-keypad-popover.placement-bottom {
+  animation: popoverFadeInBottom 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cell-keypad-popover.placement-bottom::after {
+  top: -6px;
+  bottom: auto;
+  border-width: 0 6px 6px;
+  border-color: transparent transparent #ffffff;
+}
+
+/* 位于卡片/宫格上方：指示箭头朝下指向宫格 */
+.cell-keypad-popover.placement-top {
+  animation: popoverFadeInTop 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cell-keypad-popover.placement-top::after {
+  bottom: -6px;
+  top: auto;
+  border-width: 6px 6px 0;
+  border-color: #ffffff transparent transparent;
+}
+
+@keyframes popoverFadeInBottom {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes popoverFadeInTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.keypad-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.keypad-btn:hover,
+.keypad-btn:active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.keypad-btn.btn-erase {
+  color: var(--danger);
+  background: var(--danger-light);
+  border-color: #fecaca;
+  font-size: 0.95rem;
+}
+
+.keypad-btn.btn-erase:hover,
+.keypad-btn.btn-erase:active {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
