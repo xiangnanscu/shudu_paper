@@ -756,31 +756,16 @@
         flex-shrink: 0;
       }
 
-      /* 答案附录页专用样式 */
-      .answers-sheet .sudoku-board {
-        width: 102px !important;
-        height: 102px !important;
-        border-width: 1.8px !important;
+      /* 答案页专用样式 (与试题保持完全一致的尺寸与布局，支持精确比对) */
+      .sudoku-cell.answer-val-cell {
+        color: #1d4ed8;
+        font-weight: 800;
+        background-color: #eff6ff;
       }
 
-      .answers-sheet .sudoku-card-header {
-        max-width: 102px !important;
-        margin-bottom: 2px !important;
-      }
-
-      .answers-sheet .sudoku-card-title {
-        font-size: 10.5px !important;
-      }
-
-      .answers-sheet .sudoku-cell {
-        font-size: 14px !important;
-      }
-
-      .answers-sheet .paper-grid-container {
-        grid-template-columns: repeat(4, 1fr) !important;
-        gap: 8px 12px !important;
-        align-content: start !important;
-        margin-top: 8px !important;
+      .sudoku-difficulty-tag.answer-tag {
+        color: #2563eb;
+        font-weight: 600;
       }
 
       /* 浮动数字输入面板 (Popover) */
@@ -1387,6 +1372,18 @@
           background-color: #ffffff !important;
         }
 
+        .sudoku-cell.answer-val-cell {
+          color: #000000 !important;
+          font-weight: 900 !important;
+          background-color: #f1f5f9 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .sudoku-difficulty-tag.answer-tag {
+          color: #000000 !important;
+        }
+
         .sudoku-cell .answer-preview {
           color: #333333 !important;
         }
@@ -1473,10 +1470,10 @@
                 <span class="tip">(每行固定3题)</span>
               </label>
               <select id="rowsPerPage" class="form-select">
-                <option value="4" selected>4 行 (12题 · 推荐)</option>
+                <option value="2" selected>2 行 (6题 · 启蒙特大 · 推荐)</option>
                 <option value="3">3 行 (9题 · 超大格)</option>
+                <option value="4">4 行 (12题 · 进阶训练)</option>
                 <option value="5">5 行 (15题 · 紧凑版)</option>
-                <option value="2">2 行 (6题 · 启蒙特大)</option>
               </select>
             </div>
           </div>
@@ -1619,8 +1616,8 @@
 
           <div class="form-group">
             <label class="checkbox-label" style="font-weight: 600">
-              <input type="checkbox" id="appendAnswerPage" checked />
-              试卷末尾附参考答案页 (紧凑排版)
+              <input type="checkbox" id="appendAnswerPage" />
+              试卷末尾附参考答案页 (与试卷同布局 · 便于比对)
             </label>
           </div>
 
@@ -2178,7 +2175,9 @@
               container.style.transformOrigin = "top center";
               // 补偿因 transform scale 产生的空间间隙
               const standardHeight = 1123; // 297mm
-              const pageCount = (this.puzzlesData?.length || 1) + (document.getElementById("appendAnswerPage")?.checked ? 1 : 0);
+              const examPages = this.puzzlesData?.length || 1;
+              const hasAnswer = document.getElementById("appendAnswerPage")?.checked;
+              const pageCount = hasAnswer ? examPages * 2 : examPages;
               const originalTotalHeight = (standardHeight + 24) * pageCount;
               container.style.height = `${originalTotalHeight * scale}px`;
               container.style.marginBottom = "24px";
@@ -2423,6 +2422,7 @@
 
           const infoBarHtml = this.buildInfoBarHtml();
           const totalPages = this.puzzlesData.length;
+          const totalSheets = appendAnswerPage ? totalPages * 2 : totalPages;
 
           // 尺寸适配
           let boardSize = "146px";
@@ -2481,9 +2481,7 @@
             // 页脚
             const footerHtml = `
               <div class="paper-footer">
-                <span>四宫格数独思维训练 · 第 ${pageIndex + 1} 页 / 共 ${
-                totalPages + (appendAnswerPage ? 1 : 0)
-              } 页</span>
+                <span>四宫格数独思维训练 · 第 ${pageIndex + 1} 页 / 共 ${totalSheets} 页</span>
                 <span>得分：${
                   this.examState.status === "submitted" && this.examState.currentResult
                     ? `<strong style="color: #dc2626; font-size: 13px;">${this.examState.currentResult.score}分</strong>`
@@ -2496,41 +2494,62 @@
             pagesWrapper.appendChild(pageElem);
           });
 
-          // 渲染答案页
+          // 渲染答案页 (与试题页面保持完全相同的大小与布局，支持一一比对)
           if (appendAnswerPage) {
-            const answerPageElem = document.createElement("div");
-            answerPageElem.className = "paper-sheet answers-sheet";
+            this.puzzlesData.forEach((pageList, pageIndex) => {
+              const answerPageElem = document.createElement("div");
+              answerPageElem.className = "paper-sheet answers-sheet";
 
-            const answerHeaderHtml = `
-              <div class="paper-header">
-                <div class="paper-title">${this.escapeHtml(
-                  title
-                )} - 参考答案</div>
-                <div class="paper-subtitle">对应试卷各题标准答案（方便家长与老师快速核对）</div>
-              </div>
-            `;
+              const answerHeaderHtml = `
+                <div class="paper-header">
+                  <div class="paper-title">${this.escapeHtml(
+                    title
+                  )} · 参考答案</div>
+                  ${
+                    subtitle
+                      ? `<div class="paper-subtitle">${this.escapeHtml(
+                          subtitle
+                        )} (对照第 ${pageIndex + 1} 页试题)</div>`
+                      : `<div class="paper-subtitle">标准答案核对版 (对照第 ${pageIndex + 1} 页试题)</div>`
+                  }
+                  ${
+                    infoBarHtml
+                      ? `<div class="paper-info-bar">
+                          <div class="info-item"><span>核对对象：</span><span class="info-line wide" style="width: auto; padding: 0 4px; border-bottom: none;">第 ${pageIndex + 1} 页试题标准答案</span></div>
+                          <div class="info-item"><span>提示：</span><span class="info-line wide" style="width: auto; padding: 0 4px; border-bottom: none;">排版与第 ${pageIndex + 1} 页完全一致，便于比对</span></div>
+                        </div>`
+                      : ""
+                  }
+                </div>
+              `;
 
-            let answerCardsHtml = "";
-            this.flatPuzzles.forEach((item) => {
-              answerCardsHtml += this.buildAnswerCardHtml(item, symbolMap);
+              let answerCardsHtml = "";
+              pageList.forEach((item) => {
+                answerCardsHtml += this.buildAnswerCardHtml(
+                  item,
+                  boardSize,
+                  cellFontSize,
+                  symbolMap
+                );
+              });
+
+              const answerGridHtml = `
+                <div class="paper-grid-container">
+                  ${answerCardsHtml}
+                </div>
+              `;
+
+              const answerFooterHtml = `
+                <div class="paper-footer">
+                  <span>四宫格数独思维训练 · 参考答案 (对照第 ${pageIndex + 1} 页试题)</span>
+                  <span>第 ${totalPages + pageIndex + 1} 页 / 共 ${totalSheets} 页</span>
+                </div>
+              `;
+
+              answerPageElem.innerHTML =
+                answerHeaderHtml + answerGridHtml + answerFooterHtml;
+              pagesWrapper.appendChild(answerPageElem);
             });
-
-            const answerGridHtml = `
-              <div class="paper-grid-container">
-                ${answerCardsHtml}
-              </div>
-            `;
-
-            const answerFooterHtml = `
-              <div class="paper-footer">
-                <span>参考答案页 · 共 ${this.flatPuzzles.length} 题答案</span>
-                <span>第 ${totalPages + 1} 页 / 共 ${totalPages + 1} 页</span>
-              </div>
-            `;
-
-            answerPageElem.innerHTML =
-              answerHeaderHtml + answerGridHtml + answerFooterHtml;
-            pagesWrapper.appendChild(answerPageElem);
           }
 
           // 绑定所有空白单元格的点击交互
@@ -2662,22 +2681,32 @@
           `;
         },
 
-        buildAnswerCardHtml(item, symbolMap) {
-          const { id, solution } = item;
+        buildAnswerCardHtml(item, boardSize, cellFontSize, symbolMap) {
+          const { id, puzzle, solution, cluesCount } = item;
           let cellsHtml = "";
           for (let r = 0; r < 4; r++) {
             for (let c = 0; c < 4; c++) {
-              const sym = symbolMap[solution[r][c]];
-              cellsHtml += `<div class="sudoku-cell">${sym}</div>`;
+              const clueVal = puzzle[r][c];
+              const ansVal = solution[r][c];
+              const sym = symbolMap[ansVal];
+
+              if (clueVal !== 0) {
+                // 题目原有已知数：保持已知数样式，与试卷已知数完全对应
+                cellsHtml += `<div class="sudoku-cell filled-clue" style="font-size: ${cellFontSize};">${sym}</div>`;
+              } else {
+                // 挖空格填入的标准答案：突出醒目显示
+                cellsHtml += `<div class="sudoku-cell answer-val-cell" style="font-size: ${cellFontSize};">${sym}</div>`;
+              }
             }
           }
 
           return `
-            <div class="sudoku-card">
-              <div class="sudoku-card-header">
-                <span class="sudoku-card-title">第 ${id} 题答案</span>
+            <div class="sudoku-card" id="card_answer_${id}">
+              <div class="sudoku-card-header" style="max-width: ${boardSize};">
+                <span class="sudoku-card-title">第 ${id} 题</span>
+                <span class="sudoku-difficulty-tag answer-tag">答案 · 给${cluesCount}数</span>
               </div>
-              <div class="sudoku-board">
+              <div class="sudoku-board" style="width: ${boardSize}; height: ${boardSize};">
                 ${cellsHtml}
               </div>
             </div>

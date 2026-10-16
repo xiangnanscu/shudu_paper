@@ -42,7 +42,7 @@ export default {
           const difficulty = body.difficulty || "easy";
           const symbolType = body.symbolType || body.symbol_type || "numbers";
           const pagesCount = parseInt(body.pagesCount ?? body.pages_count ?? 1, 10);
-          const rowsPerPage = parseInt(body.rowsPerPage ?? body.rows_per_page ?? 4, 10);
+          const rowsPerPage = parseInt(body.rowsPerPage ?? body.rows_per_page ?? 2, 10);
           const detailJson = typeof body.detailJson === "string"
             ? body.detailJson
             : JSON.stringify(body.detailJson || {});
