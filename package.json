@@ -1,0 +1,16 @@
+{
+  "name": "shudu-paper",
+  "version": "1.0.0",
+  "description": "四宫格数独试卷生成与在线答题系统",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261008.1",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.42.0"
+  }
+}

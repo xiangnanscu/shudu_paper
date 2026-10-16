@@ -1,0 +1,3169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>四宫格数独试卷生成器 - A4专业打印与在线答题系统</title>
+    <meta
+      name="description"
+      content="四宫格数独试卷生成器与在线答题系统，支持A4纸高清打印与在线做题、自动100分打分、做题数据统计、手机平板竖屏自适应。"
+    />
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --primary-light: #eff6ff;
+        --accent: #059669;
+        --accent-light: #ecfdf5;
+        --danger: #dc2626;
+        --danger-light: #fef2f2;
+        --warning: #d97706;
+        --warning-light: #fffbeb;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --bg-page: #f1f5f9;
+        --sidebar-bg: #ffffff;
+        --border-color: #e2e8f0;
+        --grid-border-heavy: #0f172a;
+        --grid-border-thin: #94a3b8;
+        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+        --shadow-drawer: -4px 0 28px rgba(0, 0, 0, 0.15);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: var(--font-family);
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        display: flex;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* 侧边配置面板 (PC端固定，移动端抽屉) */
+      .sidebar {
+        width: 360px;
+        flex-shrink: 0;
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.04);
+        z-index: 100;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .sidebar-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        color: #ffffff;
+        position: relative;
+      }
+
+      .sidebar-header .title-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        padding: 2px 7px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .sidebar-header h1 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sidebar-header p {
+        font-size: 0.8rem;
+        margin-top: 4px;
+        opacity: 0.9;
+        line-height: 1.35;
+      }
+
+      .sidebar-close-btn {
+        display: none;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #ffffff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sidebar-body {
+        padding: 18px 20px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .section-box {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      }
+
+      .section-title {
+        font-size: 0.825rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #475569;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 12px;
+      }
+
+      .form-group:last-child {
+        margin-bottom: 0;
+      }
+
+      .form-group label {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .form-group label span.tip {
+        font-size: 0.75rem;
+        font-weight: normal;
+        color: var(--text-muted);
+      }
+
+      .form-control,
+      .form-select {
+        width: 100%;
+        padding: 7px 10px;
+        font-size: 0.85rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: #f8fafc;
+        color: var(--text-main);
+        font-family: inherit;
+        transition: all 0.15s ease;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        padding-top: 2px;
+      }
+
+      .checkbox-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.825rem;
+        cursor: pointer;
+        user-select: none;
+        color: #334155;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        border-radius: 4px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      .sidebar-footer {
+        padding: 14px 18px;
+        border-top: 1px solid var(--border-color);
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 14px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-decoration: none;
+        user-select: none;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .btn-secondary {
+        background: #f1f5f9;
+        color: #1e293b;
+        border: 1px solid #cbd5e1;
+      }
+
+      .btn-secondary:hover {
+        background: #e2e8f0;
+        border-color: #94a3b8;
+      }
+
+      .btn-success {
+        background: var(--accent);
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+      }
+
+      .btn-success:hover {
+        background: #047857;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+      }
+
+      .btn-ghost:hover {
+        background: #f8fafc;
+      }
+
+      /* 遮罩层 */
+      .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(2px);
+        z-index: 90;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .sidebar-backdrop.active {
+        display: block;
+        opacity: 1;
+      }
+
+      /* 右侧主工作区 */
+      .preview-container {
+        flex: 1;
+        padding: 16px 24px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-y: auto;
+        min-width: 0;
+      }
+
+      /* 顶部做题状态栏 (吸顶) */
+      .top-exam-bar {
+        position: sticky;
+        top: 0;
+        z-index: 70;
+        width: 100%;
+        max-width: 210mm;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 10px 16px;
+        margin-bottom: 16px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .exam-info-group {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .exam-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        background: var(--primary-light);
+        padding: 4px 10px;
+        border-radius: 9999px;
+      }
+
+      .exam-timer {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        font-variant-numeric: tabular-nums;
+        background: #f8fafc;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+
+      .exam-progress {
+        font-size: 0.825rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .exam-progress-bar-bg {
+        width: 70px;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .exam-progress-bar-fill {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+        transition: width 0.2s ease;
+      }
+
+      .exam-actions-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-submit-exam {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+        transition: all 0.15s ease;
+      }
+
+      .btn-submit-exam:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+      }
+
+      .btn-drawer-toggle {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: #ffffff;
+        color: #334155;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+      }
+
+      .btn-drawer-toggle:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+      }
+
+      .btn-mobile-sidebar {
+        display: none;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        cursor: pointer;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* 动态缩放容器 (保证A4在移动设备上100%全宽贴合且排版不变) */
+      .paper-scale-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        transform-origin: top center;
+        transition: transform 0.1s ease;
+      }
+
+      /* A4 纸张容器 */
+      .paper-sheet {
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+        max-height: 297mm;
+        background: #ffffff;
+        padding: 12mm 15mm 10mm 15mm;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.04);
+        border-radius: 3px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+        overflow: hidden;
+        color: #000000;
+        margin-bottom: 24px;
+      }
+
+      /* 试卷头部 */
+      .paper-header {
+        text-align: center;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .paper-title {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 3px;
+        color: #0f172a;
+      }
+
+      .paper-subtitle {
+        font-size: 11px;
+        color: #475569;
+        margin-bottom: 6px;
+        letter-spacing: 0.4px;
+      }
+
+      .paper-info-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 600;
+        border-top: 1px dashed #64748b;
+        border-bottom: 1px dashed #64748b;
+        padding: 5px 6px;
+        margin-top: 4px;
+        color: #1e293b;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        position: relative;
+      }
+
+      .info-line {
+        display: inline-block;
+        width: 55px;
+        border-bottom: 1.2px solid #0f172a;
+        height: 12px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 12px;
+      }
+
+      .info-line.wide {
+        width: 75px;
+      }
+
+      /* 得分红印章与回填用时 */
+      .score-stamp {
+        display: inline-block;
+        color: #dc2626;
+        font-size: 13.5px;
+        font-weight: 800;
+        border: 1.8px solid #dc2626;
+        border-radius: 4px;
+        padding: 0 4px;
+        line-height: 14px;
+        margin-left: 2px;
+        letter-spacing: -0.2px;
+        transform: rotate(-3deg);
+        animation: stampPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      }
+
+      @keyframes stampPop {
+        0% { transform: scale(1.6) rotate(10deg); opacity: 0; }
+        100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+      }
+
+      /* 核心网格布局：严格一行放 3 个数独宫格 */
+      .paper-grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        flex: 1;
+        align-content: space-evenly;
+        margin-top: 6px;
+        margin-bottom: 4px;
+      }
+
+      /* 单个数独卡片 */
+      .sudoku-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .sudoku-card-header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 3px;
+        padding: 0 2px;
+        box-sizing: border-box;
+      }
+
+      .sudoku-card-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .sudoku-difficulty-tag {
+        font-size: 9.5px;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      /* 4x4 数独盘面 */
+      .sudoku-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        border: 2.2px solid var(--grid-border-heavy);
+        background-color: #ffffff;
+        box-sizing: border-box;
+        position: relative;
+        box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+      }
+
+      .sudoku-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #0f172a;
+        border-right: 1px solid var(--grid-border-thin);
+        border-bottom: 1px solid var(--grid-border-thin);
+        box-sizing: border-box;
+        user-select: none;
+        position: relative;
+        touch-action: manipulation;
+      }
+
+      /* 4宫格核心分界粗线 (2x2宫) */
+      .sudoku-cell:nth-child(2n) {
+        border-right: 2.2px solid var(--grid-border-heavy);
+      }
+
+      .sudoku-cell:nth-child(4n) {
+        border-right: none;
+      }
+
+      .sudoku-cell:nth-child(n + 5):nth-child(-n + 8) {
+        border-bottom: 2.2px solid var(--grid-border-heavy);
+      }
+
+      .sudoku-cell:nth-child(n + 13) {
+        border-bottom: none;
+      }
+
+      /* 空白格与已知格交互状态 */
+      .sudoku-cell.filled-clue {
+        background-color: #fbfcfe;
+        cursor: default;
+      }
+
+      .sudoku-cell.empty {
+        background-color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.12s ease;
+      }
+
+      .sudoku-cell.empty:hover {
+        background-color: #f0f7ff;
+      }
+
+      .sudoku-cell.empty.is-active {
+        background-color: #dbeafe !important;
+        outline: 2.5px solid var(--primary);
+        outline-offset: -2px;
+        z-index: 5;
+      }
+
+      /* 用户填入的值样式 */
+      .sudoku-cell .user-val {
+        color: #1d4ed8;
+        font-weight: 800;
+      }
+
+      /* 批改后的状态呈现 */
+      .sudoku-cell.graded-correct {
+        background-color: #ecfdf5 !important;
+      }
+
+      .sudoku-cell.graded-correct .user-val {
+        color: #059669;
+      }
+
+      .sudoku-cell.graded-correct::after {
+        content: "✓";
+        position: absolute;
+        top: 1px;
+        right: 2px;
+        font-size: 10px;
+        line-height: 1;
+        color: #059669;
+        font-weight: 900;
+      }
+
+      .sudoku-cell.graded-wrong {
+        background-color: #fef2f2 !important;
+      }
+
+      .sudoku-cell.graded-wrong .user-val {
+        color: #dc2626;
+        text-decoration: line-through;
+        opacity: 0.75;
+      }
+
+      .sudoku-cell.graded-wrong .correct-hint {
+        position: absolute;
+        bottom: 1px;
+        right: 2px;
+        font-size: 10px;
+        line-height: 1;
+        color: #059669;
+        font-weight: 800;
+      }
+
+      .sudoku-cell.graded-missed {
+        background-color: #fffbeb !important;
+      }
+
+      .sudoku-cell.graded-missed .correct-hint {
+        color: #d97706;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .sudoku-cell .answer-preview {
+        display: none;
+        color: #2563eb;
+        font-weight: 600;
+        opacity: 0.9;
+      }
+
+      body.show-answers .sudoku-cell .answer-preview {
+        display: block;
+      }
+
+      /* 试卷页脚 */
+      .paper-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #cbd5e1;
+        padding-top: 5px;
+        font-size: 10px;
+        color: #64748b;
+        flex-shrink: 0;
+      }
+
+      /* 答案附录页专用样式 */
+      .answers-sheet .sudoku-board {
+        width: 102px !important;
+        height: 102px !important;
+        border-width: 1.8px !important;
+      }
+
+      .answers-sheet .sudoku-card-header {
+        max-width: 102px !important;
+        margin-bottom: 2px !important;
+      }
+
+      .answers-sheet .sudoku-card-title {
+        font-size: 10.5px !important;
+      }
+
+      .answers-sheet .sudoku-cell {
+        font-size: 14px !important;
+      }
+
+      .answers-sheet .paper-grid-container {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px 12px !important;
+        align-content: start !important;
+        margin-top: 8px !important;
+      }
+
+      /* 浮动数字输入面板 (Popover) */
+      .cell-keypad-popover {
+        position: fixed;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.08);
+        padding: 6px;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        z-index: 1000;
+        transform: translate(-50%, -100%) translateY(-10px);
+        animation: popoverFadeIn 0.15s ease-out;
+      }
+
+      .cell-keypad-popover.active {
+        display: flex;
+      }
+
+      .cell-keypad-popover::after {
+        content: "";
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px 6px 0;
+        border-style: solid;
+        border-color: #ffffff transparent transparent;
+      }
+
+      .cell-keypad-popover.flip-bottom {
+        transform: translate(-50%, 0) translateY(10px);
+      }
+
+      .cell-keypad-popover.flip-bottom::after {
+        bottom: auto;
+        top: -6px;
+        border-width: 0 6px 6px;
+        border-color: transparent transparent #ffffff;
+      }
+
+      @keyframes popoverFadeIn {
+        from { opacity: 0; transform: translate(-50%, -100%) translateY(-2px); }
+        to { opacity: 1; transform: translate(-50%, -100%) translateY(-10px); }
+      }
+
+      .keypad-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 9px;
+        border: 1px solid var(--border-color);
+        background: #f8fafc;
+        color: #0f172a;
+        font-size: 1.15rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        user-select: none;
+      }
+
+      .keypad-btn:hover,
+      .keypad-btn:active {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+        transform: scale(1.05);
+      }
+
+      .keypad-btn.btn-erase {
+        color: var(--danger);
+        background: var(--danger-light);
+        border-color: #fecaca;
+        font-size: 0.95rem;
+      }
+
+      .keypad-btn.btn-erase:hover,
+      .keypad-btn.btn-erase:active {
+        background: var(--danger);
+        color: #ffffff;
+        border-color: var(--danger);
+      }
+
+      /* 微信小程序风格的做题记录抽屉 (WeChat Drawer) */
+      .drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1500;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .drawer-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .wechat-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 420px;
+        max-width: 90vw;
+        background: #f7f8fa;
+        box-shadow: var(--shadow-drawer);
+        z-index: 1600;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .drawer-backdrop.active .wechat-drawer {
+        transform: translateX(0);
+      }
+
+      .drawer-header {
+        background: #ffffff;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .drawer-header h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .drawer-close-btn {
+        background: #f1f5f9;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .drawer-close-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* 顶部小程序统计大卡片 */
+      .stat-summary-card {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border-radius: 14px;
+        padding: 18px 20px;
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+      }
+
+      .stat-summary-card .summary-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        opacity: 0.85;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        text-align: center;
+      }
+
+      .stat-item .stat-num {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .stat-item .stat-label {
+        font-size: 0.72rem;
+        opacity: 0.8;
+        margin-top: 3px;
+      }
+
+      /* 时间段分组容器 */
+      .timeline-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .timeline-header {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-left: 4px;
+      }
+
+      .timeline-header::before {
+        content: "";
+        width: 4px;
+        height: 12px;
+        background: var(--primary);
+        border-radius: 2px;
+      }
+
+      /* 单条做题卡片 (微信小程序风格) */
+      .record-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .record-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      }
+
+      .record-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .score-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #ffffff;
+        flex-shrink: 0;
+      }
+
+      .score-circle.score-perfect {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+      }
+
+      .score-circle.score-high {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+      }
+
+      .score-circle.score-mid {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+      }
+
+      .score-circle.score-low {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+      }
+
+      .record-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .record-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .record-meta {
+        font-size: 0.75rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .record-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-record-action {
+        background: #f1f5f9;
+        border: none;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 9px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.1s ease;
+      }
+
+      .btn-record-action:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      .btn-record-action.btn-del {
+        color: #94a3b8;
+      }
+
+      .btn-record-action.btn-del:hover {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .record-empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+      }
+
+      .record-empty-state svg {
+        margin-bottom: 12px;
+        opacity: 0.6;
+      }
+
+      /* 成绩单模态弹窗 (Modal) */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.2s ease;
+      }
+
+      .modal-backdrop.active {
+        display: flex;
+      }
+
+      .score-modal {
+        background: #ffffff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        animation: scaleUp 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      }
+
+      @keyframes scaleUp {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .score-modal-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        color: #ffffff;
+        padding: 24px 20px;
+        text-align: center;
+        position: relative;
+      }
+
+      .score-modal-trophy {
+        font-size: 3rem;
+        margin-bottom: 6px;
+      }
+
+      .score-modal-num {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -1px;
+      }
+
+      .score-modal-num span {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-left: 2px;
+      }
+
+      .score-modal-eval {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-top: 6px;
+        opacity: 0.95;
+      }
+
+      .score-modal-body {
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .modal-stats-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid var(--border-color);
+      }
+
+      .modal-stat-box {
+        text-align: center;
+      }
+
+      .modal-stat-box .val {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0f172a;
+      }
+
+      .modal-stat-box .lbl {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 2px;
+      }
+
+      .score-modal-footer {
+        padding: 0 24px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* 移动端与竖屏响应式优化 */
+      @media (max-width: 960px) {
+        body {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: 320px;
+          max-width: 85vw;
+          height: 100vh;
+          z-index: 1000;
+          transform: translateX(-100%);
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar.drawer-open {
+          transform: translateX(0);
+        }
+
+        .sidebar-close-btn {
+          display: flex;
+        }
+
+        .btn-mobile-sidebar {
+          display: inline-flex;
+        }
+
+        .preview-container {
+          padding: 12px 10px 32px;
+          width: 100%;
+        }
+
+        .top-exam-bar {
+          padding: 8px 12px;
+          gap: 8px;
+        }
+
+        .exam-info-group {
+          gap: 8px;
+        }
+
+        .wechat-drawer {
+          width: 100vw;
+          max-width: 100vw;
+        }
+      }
+
+      /* 打印样式极致校准 - 绝不出现多余空白页，完全隐藏一切操作控件 */
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin: 8mm 10mm 8mm 10mm;
+        }
+
+        html,
+        body {
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          display: block !important;
+          color: #000000 !important;
+          font-size: 12pt;
+        }
+
+        .sidebar,
+        .sidebar-backdrop,
+        .top-exam-bar,
+        .cell-keypad-popover,
+        .drawer-backdrop,
+        .modal-backdrop,
+        .no-print {
+          display: none !important;
+        }
+
+        .preview-container {
+          padding: 0 !important;
+          margin: 0 !important;
+          display: block !important;
+          overflow: visible !important;
+          width: 100% !important;
+        }
+
+        .paper-scale-container {
+          transform: none !important;
+          display: block !important;
+          gap: 0 !important;
+        }
+
+        #pagesWrapper {
+          display: block !important;
+          gap: 0 !important;
+        }
+
+        .paper-sheet {
+          width: 100% !important;
+          height: 275mm !important;
+          max-height: 275mm !important;
+          min-height: 275mm !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          box-sizing: border-box !important;
+          background: #ffffff !important;
+          page-break-after: always !important;
+          break-after: page !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+          overflow: hidden !important;
+        }
+
+        .paper-sheet:last-child {
+          page-break-after: avoid !important;
+          break-after: avoid !important;
+        }
+
+        .sudoku-board {
+          border-color: #000000 !important;
+          box-shadow: none !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .sudoku-cell {
+          color: #000000 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .sudoku-cell.filled-clue {
+          background-color: #ffffff !important;
+        }
+
+        .sudoku-cell .answer-preview {
+          color: #333333 !important;
+        }
+
+        .sudoku-cell:nth-child(2n) {
+          border-right-color: #000000 !important;
+        }
+
+        .sudoku-cell:nth-child(n + 5):nth-child(-n + 8) {
+          border-bottom-color: #000000 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 移动端侧边栏遮罩 -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- 左侧控制面板 (移动端支持抽屉式滑出) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="sidebar-close-btn" id="btnCloseSidebar" aria-label="关闭设置">✕</button>
+        <span class="title-badge">A4 打印优化 · 在线互动答题版</span>
+        <h1>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 12h18" />
+            <path d="M12 3v18" />
+            <path d="M7 8h.01" />
+            <path d="M17 16h.01" />
+          </svg>
+          四宫格数独试卷
+        </h1>
+        <p>动态出题 · 唯一解算法 · 在线答题评分</p>
+      </div>
+
+      <div class="sidebar-body">
+        <!-- 试卷核心参数 -->
+        <div class="section-box">
+          <div class="section-title">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            出题规格
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pagesCount">试卷页数</label>
+              <select id="pagesCount" class="form-select">
+                <option value="1" selected>1 页</option>
+                <option value="2">2 页</option>
+                <option value="3">3 页</option>
+                <option value="5">5 页</option>
+                <option value="10">10 页 (大批量)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="rowsPerPage">
+                每页行数
+                <span class="tip">(每行固定3题)</span>
+              </label>
+              <select id="rowsPerPage" class="form-select">
+                <option value="4" selected>4 行 (12题 · 推荐)</option>
+                <option value="3">3 行 (9题 · 超大格)</option>
+                <option value="5">5 行 (15题 · 紧凑版)</option>
+                <option value="2">2 行 (6题 · 启蒙特大)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="difficulty">难度等级</label>
+            <select id="difficulty" class="form-select">
+              <option value="starter">
+                入门级 (13~14个已知数 · 空2~3格，幼儿启蒙首选)
+              </option>
+              <option value="easy" selected>
+                初级 (9~12个已知数 · 空4~7格，巩固基础规则)
+              </option>
+              <option value="medium">
+                中级 (6~8个已知数 · 空8~10格，行列交叉排除)
+              </option>
+              <option value="hard">
+                高级 (4~5个已知数 · 空11~12格，极少提示挑战)
+              </option>
+              <option value="mixed_page">
+                阶梯递进 (每页从入门→初级→中级→高级)
+              </option>
+              <option value="random">
+                随机混合 (全范围4~14个已知数)
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="symbolType">题型元素</label>
+            <select id="symbolType" class="form-select">
+              <option value="numbers" selected>经典数字 (1, 2, 3, 4)</option>
+              <option value="letters">英文字母 (A, B, C, D)</option>
+              <option value="shapes">几何形状 (●, ▲, ■, ★)</option>
+              <option value="fruits">趣味水果 (🍎, 🍌, 🍇, 🍓)</option>
+              <option value="animals">萌趣动物 (🐱, 🐶, 🐰, 🐼)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 试卷版面定制 -->
+        <div class="section-box">
+          <div class="section-title">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+              />
+            </svg>
+            卷头与考生信息
+          </div>
+
+          <div class="form-group">
+            <label for="paperTitle">试卷主标题</label>
+            <input
+              type="text"
+              id="paperTitle"
+              class="form-control"
+              value="四宫格数独专项逻辑练习题"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="paperSubtitle">做题说明 / 规则提示</label>
+            <input
+              type="text"
+              id="paperSubtitle"
+              class="form-control"
+              value="规则：每行、每列及每个粗线 2×2 宫内的元素都不能重复"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inputStudentName">学生姓名</label>
+              <input
+                type="text"
+                id="inputStudentName"
+                class="form-control"
+                placeholder="做题人姓名"
+              />
+            </div>
+            <div class="form-group">
+              <label for="inputStudentClass">班级</label>
+              <input
+                type="text"
+                id="inputStudentClass"
+                class="form-control"
+                placeholder="例如：一年级"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>考务信息栏显示</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label"
+                ><input type="checkbox" id="showName" checked /> 姓名</label
+              >
+              <label class="checkbox-label"
+                ><input type="checkbox" id="showClass" checked /> 班级</label
+              >
+              <label class="checkbox-label"
+                ><input type="checkbox" id="showDate" checked /> 日期</label
+              >
+              <label class="checkbox-label"
+                ><input type="checkbox" id="showTime" checked /> 用时</label
+              >
+              <label class="checkbox-label"
+                ><input type="checkbox" id="showScore" checked /> 得分</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- 答案选项 -->
+        <div class="section-box">
+          <div class="section-title">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="9 11 12 14 22 4" />
+              <path
+                d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+              />
+            </svg>
+            答案与批改
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" style="font-weight: 600">
+              <input type="checkbox" id="appendAnswerPage" checked />
+              试卷末尾附参考答案页 (紧凑排版)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" style="font-weight: 600">
+              <input type="checkbox" id="toggleShowAnswers" />
+              在试卷中直接浮现答案 (老师投屏/电子对答案)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部操作按钮 -->
+      <div class="sidebar-footer">
+        <button id="btnPrint" class="btn btn-primary">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path
+              d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+            />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+          立即打印试卷 / 另存为 PDF
+        </button>
+
+        <button id="btnRegenerate" class="btn btn-secondary">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+          </svg>
+          换一批全新试题 (重新做题)
+        </button>
+      </div>
+    </aside>
+
+    <!-- 右侧主预览与做题区 -->
+    <main class="preview-container" id="previewArea">
+      <!-- 试卷上方做题状态工具条 (吸顶) -->
+      <div class="top-exam-bar" id="topExamBar">
+        <div class="exam-info-group">
+          <!-- 移动端侧边栏切换按钮 -->
+          <button class="btn-mobile-sidebar" id="btnOpenSidebar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            出题设置
+          </button>
+
+          <div class="exam-status-badge">
+            <span id="examStatusText">📝 在线作答中</span>
+          </div>
+
+          <div class="exam-timer" title="做题计时器">
+            ⏱️ <span id="timerDisplay">00:00</span>
+          </div>
+
+          <div class="exam-progress">
+            <span>进度: <strong id="progressText">0 / 0</strong></span>
+            <div class="exam-progress-bar-bg">
+              <div class="exam-progress-bar-fill" id="progressBarFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exam-actions-group">
+          <button class="btn-submit-exam" id="btnSubmitExam" title="完成作答后交卷进行100分自动批改">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            交卷评分
+          </button>
+
+          <button class="btn-drawer-toggle" id="btnOpenDrawer" title="查看微信小程序风格的做题历史记录">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            做题记录
+          </button>
+        </div>
+      </div>
+
+      <!-- 试卷 A4 缩放容器 (在手机竖屏时等比自适应) -->
+      <div class="paper-scale-container" id="paperScaleContainer">
+        <!-- 试卷 A4 页面动态渲染容器 -->
+        <div
+          id="pagesWrapper"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            align-items: center;
+            width: 100%;
+          "
+        ></div>
+      </div>
+    </main>
+
+    <!-- 浮动数字/元素选择面板 (Popover) -->
+    <div class="cell-keypad-popover" id="keypadPopover">
+      <!-- 动态填入选项按钮 -->
+    </div>
+
+    <!-- 微信小程序风格的做题记录抽屉 -->
+    <div class="drawer-backdrop" id="drawerBackdrop">
+      <div class="wechat-drawer" id="wechatDrawer">
+        <div class="drawer-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            做题成长记录
+          </h2>
+          <button class="drawer-close-btn" id="btnCloseDrawer" aria-label="关闭">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <!-- 顶部微信小程序风格大卡片 -->
+          <div class="stat-summary-card">
+            <div class="summary-title">📈 学习统计看板</div>
+            <div class="stat-grid">
+              <div class="stat-item">
+                <div class="stat-num" id="statTotalCount">0</div>
+                <div class="stat-label">练习总次数</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num" id="statMaxScore">0</div>
+                <div class="stat-label">最高得分</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num" id="statAvgScore">0</div>
+                <div class="stat-label">平均分</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num" id="statTotalTime">0分</div>
+                <div class="stat-label">累计时长</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 时间轴做题记录分组列表 (今天、昨天、近7天、更早) -->
+          <div id="recordsTimelineList" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- 动态渲染时间段 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 成绩单弹窗 (Score Modal) -->
+    <div class="modal-backdrop" id="scoreModalBackdrop">
+      <div class="score-modal">
+        <div class="score-modal-header">
+          <div class="score-modal-trophy" id="modalTrophy">🏆</div>
+          <div class="score-modal-num" id="modalScoreNum">100<span>分</span></div>
+          <div class="score-modal-eval" id="modalScoreEval">太棒了！数独逻辑小天才</div>
+        </div>
+
+        <div class="score-modal-body">
+          <div class="modal-stats-row">
+            <div class="modal-stat-box">
+              <div class="val" id="modalStatTime">01:45</div>
+              <div class="lbl">答题用时</div>
+            </div>
+            <div class="modal-stat-box">
+              <div class="val" id="modalStatAccuracy">100%</div>
+              <div class="lbl">正确率</div>
+            </div>
+            <div class="modal-stat-box">
+              <div class="val" id="modalStatCorrectHoles">24 / 24</div>
+              <div class="lbl">答对空格数</div>
+            </div>
+            <div class="modal-stat-box">
+              <div class="val" id="modalStatCorrectPuzzles">12 / 12</div>
+              <div class="lbl">全对题目数</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-modal-footer">
+          <button class="btn btn-primary" id="btnViewReviewedPaper">
+            查看卷面批改详情
+          </button>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn btn-secondary" id="btnRestartCurrent">
+              再做一次这套题
+            </button>
+            <button class="btn btn-ghost" id="btnGenerateNext">
+              换一套新试卷
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * 四宫格数独生成与求解校验引擎 (4x4 Sudoku Core Engine)
+       */
+      class Sudoku4x4Engine {
+        static isValid(grid, r, c, val) {
+          for (let i = 0; i < 4; i++) {
+            if (grid[r][i] === val || grid[i][c] === val) return false;
+          }
+          const br = Math.floor(r / 2) * 2;
+          const bc = Math.floor(c / 2) * 2;
+          for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
+              if (grid[br + i][bc + j] === val) return false;
+            }
+          }
+          return true;
+        }
+
+        // 生成合法的完整终盘（基于回溯 + 随机洗牌）
+        static generateCompleteBoard() {
+          const grid = Array.from({ length: 4 }, () => Array(4).fill(0));
+
+          function fill(pos) {
+            if (pos === 16) return true;
+            const r = Math.floor(pos / 4);
+            const c = pos % 4;
+            const nums = [1, 2, 3, 4].sort(() => Math.random() - 0.5);
+            for (const val of nums) {
+              if (Sudoku4x4Engine.isValid(grid, r, c, val)) {
+                grid[r][c] = val;
+                if (fill(pos + 1)) return true;
+                grid[r][c] = 0;
+              }
+            }
+            return false;
+          }
+
+          fill(0);
+          return grid;
+        }
+
+        // 统计解的数量，用来严格保障唯一解
+        static countSolutions(grid, limit = 2) {
+          let count = 0;
+          const work = grid.map((row) => [...row]);
+
+          function backtrack(pos) {
+            if (pos === 16) {
+              count++;
+              return count >= limit;
+            }
+            const r = Math.floor(pos / 4);
+            const c = pos % 4;
+            if (work[r][c] !== 0) {
+              return backtrack(pos + 1);
+            }
+            for (let val = 1; val <= 4; val++) {
+              if (Sudoku4x4Engine.isValid(work, r, c, val)) {
+                work[r][c] = val;
+                if (backtrack(pos + 1)) return true;
+                work[r][c] = 0;
+              }
+            }
+            return false;
+          }
+
+          backtrack(0);
+          return count;
+        }
+
+        // 单次尝试挖空生成题目
+        static generatePuzzleSingle(targetClues) {
+          const complete = Sudoku4x4Engine.generateCompleteBoard();
+          const puzzle = complete.map((row) => [...row]);
+
+          const positions = [];
+          for (let i = 0; i < 16; i++) positions.push(i);
+          positions.sort(() => Math.random() - 0.5);
+
+          const holesToDig = 16 - targetClues;
+          let dug = 0;
+
+          for (const pos of positions) {
+            if (dug >= holesToDig) break;
+            const r = Math.floor(pos / 4);
+            const c = pos % 4;
+            const original = puzzle[r][c];
+
+            puzzle[r][c] = 0;
+
+            // 校验是否唯一解
+            if (Sudoku4x4Engine.countSolutions(puzzle, 2) === 1) {
+              dug++;
+            } else {
+              puzzle[r][c] = original; // 发生多解，恢复原数
+            }
+          }
+
+          return {
+            puzzle,
+            solution: complete,
+            cluesCount: 16 - dug,
+          };
+        }
+
+        // 挖空生成题目，严格保证唯一解
+        static generatePuzzle(targetClues) {
+          const maxAttempts = targetClues <= 5 ? 8 : 1;
+          let best = null;
+
+          for (let i = 0; i < maxAttempts; i++) {
+            const res = Sudoku4x4Engine.generatePuzzleSingle(targetClues);
+            if (!best || res.cluesCount < best.cluesCount) {
+              best = res;
+            }
+            if (best.cluesCount <= targetClues) {
+              break;
+            }
+          }
+
+          return best;
+        }
+      }
+
+      /**
+       * 符号映射字典
+       */
+      const SYMBOL_SETS = {
+        numbers: { 1: "1", 2: "2", 3: "3", 4: "4" },
+        letters: { 1: "A", 2: "B", 3: "C", 4: "D" },
+        shapes: { 1: "●", 2: "▲", 3: "■", 4: "★" },
+        fruits: { 1: "🍎", 2: "🍌", 3: "🍇", 4: "🍓" },
+        animals: { 1: "🐱", 2: "🐶", 3: "🐰", 4: "🐼" },
+      };
+
+      /**
+       * 客户端唯一ID管理器 (支持匿名持久化与多端记录区分)
+       */
+      function getClientUuid() {
+        let uuid = localStorage.getItem("shudu_client_uuid");
+        if (!uuid) {
+          uuid = "client_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
+          localStorage.setItem("shudu_client_uuid", uuid);
+        }
+        return uuid;
+      }
+
+      /**
+       * UI 应用总控制器
+       */
+      const App = {
+        puzzlesData: [],
+        flatPuzzles: [],
+
+        // 做题状态
+        examState: {
+          status: "doing", // 'doing' | 'submitted'
+          startTime: null,
+          timerInterval: null,
+          elapsedSeconds: 0,
+          userAnswers: {}, // { "puzzleId_r_c": value (1-4) }
+          totalHoles: 0,
+          currentResult: null,
+        },
+
+        // 当前激活聚焦的格子
+        activeCell: null, // { puzzleId, r, c, cellElem }
+
+        init() {
+          this.bindEvents();
+          this.bindKeypadEvents();
+          this.bindResponsiveScale();
+          this.generateAll();
+          this.loadHistoryRecords();
+        },
+
+        bindEvents() {
+          // 重新计算题目的选项
+          const regenIds = ["pagesCount", "rowsPerPage", "difficulty"];
+          regenIds.forEach((id) => {
+            document
+              .getElementById(id)
+              .addEventListener("change", () => this.generateAll());
+          });
+
+          // 仅影响渲染/符号的选项
+          const renderOnlyIds = [
+            "symbolType",
+            "paperTitle",
+            "paperSubtitle",
+            "showName",
+            "showClass",
+            "showDate",
+            "showTime",
+            "showScore",
+            "appendAnswerPage",
+            "inputStudentName",
+            "inputStudentClass",
+          ];
+          renderOnlyIds.forEach((id) => {
+            document
+              .getElementById(id)
+              .addEventListener("input", () => this.renderPages());
+            document
+              .getElementById(id)
+              .addEventListener("change", () => this.renderPages());
+          });
+
+          // 重新生成试卷
+          document
+            .getElementById("btnRegenerate")
+            .addEventListener("click", () => {
+              this.generateAll();
+            });
+
+          // 打印按钮
+          document.getElementById("btnPrint").addEventListener("click", () => {
+            window.print();
+          });
+
+          // 键盘快捷键支持 (Ctrl/Cmd+P 打印, R 键快速换题)
+          window.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+              // 打印放行
+            } else if (
+              e.key === "r" &&
+              !["INPUT", "SELECT", "TEXTAREA"].includes(
+                document.activeElement.tagName
+              ) &&
+              !this.activeCell
+            ) {
+              e.preventDefault();
+              this.generateAll();
+            } else if (e.key === "Escape") {
+              this.closeKeypad();
+              this.closeDrawer();
+              this.closeScoreModal();
+            }
+          });
+
+          // 切换直接浮现答案
+          document
+            .getElementById("toggleShowAnswers")
+            .addEventListener("change", (e) => {
+              if (e.target.checked) {
+                document.body.classList.add("show-answers");
+              } else {
+                document.body.classList.remove("show-answers");
+              }
+            });
+
+          // 交卷评分按钮
+          document
+            .getElementById("btnSubmitExam")
+            .addEventListener("click", () => {
+              this.submitExam();
+            });
+
+          // 做题记录抽屉交互
+          document
+            .getElementById("btnOpenDrawer")
+            .addEventListener("click", () => {
+              this.openDrawer();
+            });
+
+          document
+            .getElementById("btnCloseDrawer")
+            .addEventListener("click", () => {
+              this.closeDrawer();
+            });
+
+          document
+            .getElementById("drawerBackdrop")
+            .addEventListener("click", (e) => {
+              if (e.target.id === "drawerBackdrop") {
+                this.closeDrawer();
+              }
+            });
+
+          // 移动端侧边栏切换
+          document
+            .getElementById("btnOpenSidebar")
+            .addEventListener("click", () => {
+              this.openSidebar();
+            });
+
+          document
+            .getElementById("btnCloseSidebar")
+            .addEventListener("click", () => {
+              this.closeSidebar();
+            });
+
+          document
+            .getElementById("sidebarBackdrop")
+            .addEventListener("click", () => {
+              this.closeSidebar();
+            });
+
+          // 成绩弹窗按钮
+          document
+            .getElementById("btnViewReviewedPaper")
+            .addEventListener("click", () => {
+              this.closeScoreModal();
+            });
+
+          document
+            .getElementById("btnRestartCurrent")
+            .addEventListener("click", () => {
+              this.restartCurrentExam();
+            });
+
+          document
+            .getElementById("btnGenerateNext")
+            .addEventListener("click", () => {
+              this.closeScoreModal();
+              this.generateAll();
+            });
+
+          // 点击页面空白处关闭 Popover
+          document.addEventListener("click", (e) => {
+            if (
+              !e.target.closest("#keypadPopover") &&
+              !e.target.closest(".sudoku-cell.empty")
+            ) {
+              this.closeKeypad();
+            }
+          });
+        },
+
+        // 移动端竖屏 A4 试卷等比缩放计算
+        bindResponsiveScale() {
+          const updateScale = () => {
+            const container = document.getElementById("paperScaleContainer");
+            const previewArea = document.getElementById("previewArea");
+            if (!container || !previewArea) return;
+
+            // A4 宽度 210mm 在标准 96dpi 下约为 794px
+            const standardWidth = 794;
+            const availableWidth = previewArea.clientWidth - (window.innerWidth <= 768 ? 16 : 48);
+
+            if (availableWidth < standardWidth) {
+              const scale = Math.max(0.38, Math.min(1, availableWidth / standardWidth));
+              container.style.transform = `scale(${scale})`;
+              container.style.transformOrigin = "top center";
+              // 补偿因 transform scale 产生的空间间隙
+              const standardHeight = 1123; // 297mm
+              const pageCount = (this.puzzlesData?.length || 1) + (document.getElementById("appendAnswerPage")?.checked ? 1 : 0);
+              const originalTotalHeight = (standardHeight + 24) * pageCount;
+              container.style.height = `${originalTotalHeight * scale}px`;
+              container.style.marginBottom = "24px";
+            } else {
+              container.style.transform = "none";
+              container.style.height = "auto";
+              container.style.marginBottom = "0";
+            }
+          };
+
+          window.addEventListener("resize", updateScale);
+          window.addEventListener("orientationchange", () => {
+            setTimeout(updateScale, 200);
+          });
+          this.updateScale = updateScale;
+        },
+
+        openSidebar() {
+          document.getElementById("sidebar").classList.add("drawer-open");
+          document.getElementById("sidebarBackdrop").classList.add("active");
+        },
+
+        closeSidebar() {
+          document.getElementById("sidebar").classList.remove("drawer-open");
+          document.getElementById("sidebarBackdrop").classList.remove("active");
+        },
+
+        openDrawer() {
+          this.loadHistoryRecords();
+          document.getElementById("drawerBackdrop").classList.add("active");
+        },
+
+        closeDrawer() {
+          document.getElementById("drawerBackdrop").classList.remove("active");
+        },
+
+        openScoreModal(result) {
+          const trophyElem = document.getElementById("modalTrophy");
+          const scoreNumElem = document.getElementById("modalScoreNum");
+          const evalElem = document.getElementById("modalScoreEval");
+
+          scoreNumElem.innerHTML = `${result.score}<span>分</span>`;
+          document.getElementById("modalStatTime").textContent = this.formatTime(result.timeSpent);
+          document.getElementById("modalStatAccuracy").textContent = `${Math.round((result.correctHoles / Math.max(1, result.totalHoles)) * 100)}%`;
+          document.getElementById("modalStatCorrectHoles").textContent = `${result.correctHoles} / ${result.totalHoles}`;
+          document.getElementById("modalStatCorrectPuzzles").textContent = `${result.correctPuzzles} / ${result.totalPuzzles}`;
+
+          if (result.score === 100) {
+            trophyElem.textContent = "🏆";
+            evalElem.textContent = "🎉 太棒了！全部正确，数独逻辑小天才！";
+          } else if (result.score >= 90) {
+            trophyElem.textContent = "🌟";
+            evalElem.textContent = "非常优秀！思维敏捷，解题神速！";
+          } else if (result.score >= 80) {
+            trophyElem.textContent = "🎖️";
+            evalElem.textContent = "真不错！稍加细心就能拿满分！";
+          } else if (result.score >= 60) {
+            trophyElem.textContent = "👍";
+            evalElem.textContent = "及格啦！多加练习会越来越厉害！";
+          } else {
+            trophyElem.textContent = "💪";
+            evalElem.textContent = "继续加油！仔细检查每一行每一列哦！";
+          }
+
+          document.getElementById("scoreModalBackdrop").classList.add("active");
+        },
+
+        closeScoreModal() {
+          document.getElementById("scoreModalBackdrop").classList.remove("active");
+        },
+
+        // 难度与已知数分配
+        getDifficultyClues(diffType, indexOnPage, totalOnPage) {
+          switch (diffType) {
+            case "starter": {
+              const list = [13, 14];
+              return list[Math.floor(Math.random() * list.length)];
+            }
+            case "easy": {
+              const list = [9, 10, 11, 12];
+              return list[Math.floor(Math.random() * list.length)];
+            }
+            case "medium": {
+              const list = [6, 7, 8];
+              return list[Math.floor(Math.random() * list.length)];
+            }
+            case "hard": {
+              const list = [4, 5];
+              return list[Math.floor(Math.random() * list.length)];
+            }
+            case "mixed_page": {
+              const ratio = indexOnPage / Math.max(1, totalOnPage - 1);
+              if (ratio < 0.25) {
+                return Math.random() < 0.5 ? 13 : 14;
+              } else if (ratio < 0.55) {
+                return [9, 10, 11, 12][Math.floor(Math.random() * 4)];
+              } else if (ratio < 0.8) {
+                return [6, 7, 8][Math.floor(Math.random() * 3)];
+              } else {
+                return [4, 5][Math.floor(Math.random() * 2)];
+              }
+            }
+            case "random":
+            default: {
+              const pool = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4];
+              return pool[Math.floor(Math.random() * pool.length)];
+            }
+          }
+        },
+
+        // 生成全套试题
+        generateAll() {
+          const pagesCount = parseInt(
+            document.getElementById("pagesCount").value,
+            10
+          );
+          const rowsPerPage = parseInt(
+            document.getElementById("rowsPerPage").value,
+            10
+          );
+          const diffType = document.getElementById("difficulty").value;
+
+          const colsPerRow = 3;
+          const itemsPerPage = rowsPerPage * colsPerRow;
+
+          this.puzzlesData = [];
+          this.flatPuzzles = [];
+          let currentId = 1;
+
+          for (let p = 0; p < pagesCount; p++) {
+            const pagePuzzles = [];
+            for (let i = 0; i < itemsPerPage; i++) {
+              const targetClues = this.getDifficultyClues(
+                diffType,
+                i,
+                itemsPerPage
+              );
+              const puzzleObj = Sudoku4x4Engine.generatePuzzle(targetClues);
+              puzzleObj.id = currentId++;
+              puzzleObj.targetClues = targetClues;
+              pagePuzzles.push(puzzleObj);
+              this.flatPuzzles.push(puzzleObj);
+            }
+            this.puzzlesData.push(pagePuzzles);
+          }
+
+          // 重置做题状态
+          this.resetExamState();
+          this.renderPages();
+          if (this.updateScale) this.updateScale();
+        },
+
+        // 重置做题状态和计时器
+        resetExamState() {
+          if (this.examState.timerInterval) {
+            clearInterval(this.examState.timerInterval);
+          }
+
+          // 计算全卷总空格数
+          let totalHoles = 0;
+          this.flatPuzzles.forEach((item) => {
+            for (let r = 0; r < 4; r++) {
+              for (let c = 0; c < 4; c++) {
+                if (item.puzzle[r][c] === 0) totalHoles++;
+              }
+            }
+          });
+
+          this.examState = {
+            status: "doing",
+            startTime: Date.now(),
+            timerInterval: null,
+            elapsedSeconds: 0,
+            userAnswers: {},
+            totalHoles,
+            currentResult: null,
+          };
+
+          this.closeKeypad();
+          this.updateTimerDisplay();
+          this.updateProgressDisplay();
+          document.getElementById("examStatusText").textContent = "📝 在线作答中";
+
+          this.examState.timerInterval = setInterval(() => {
+            this.examState.elapsedSeconds++;
+            this.updateTimerDisplay();
+          }, 1000);
+        },
+
+        // 重新做当前这套题
+        restartCurrentExam() {
+          this.closeScoreModal();
+          this.resetExamState();
+          this.renderPages();
+        },
+
+        updateTimerDisplay() {
+          const display = document.getElementById("timerDisplay");
+          if (display) {
+            display.textContent = this.formatTime(this.examState.elapsedSeconds);
+          }
+        },
+
+        updateProgressDisplay() {
+          const filledCount = Object.keys(this.examState.userAnswers).filter(
+            (k) => this.examState.userAnswers[k] !== undefined && this.examState.userAnswers[k] !== null
+          ).length;
+          const total = this.examState.totalHoles;
+          const textElem = document.getElementById("progressText");
+          const fillElem = document.getElementById("progressBarFill");
+
+          if (textElem) textElem.textContent = `${filledCount} / ${total}`;
+          if (fillElem) {
+            const percent = total > 0 ? Math.min(100, Math.round((filledCount / total) * 100)) : 0;
+            fillElem.style.width = `${percent}%`;
+          }
+        },
+
+        formatTime(seconds) {
+          const m = Math.floor(seconds / 60);
+          const s = seconds % 60;
+          return `${m < 10 ? "0" + m : m}:${s < 10 ? "0" + s : s}`;
+        },
+
+        // 渲染页面
+        renderPages() {
+          const pagesWrapper = document.getElementById("pagesWrapper");
+          pagesWrapper.innerHTML = "";
+
+          const title =
+            document.getElementById("paperTitle").value ||
+            "四宫格数独专项练习题";
+          const subtitle = document.getElementById("paperSubtitle").value || "";
+          const rowsPerPage = parseInt(
+            document.getElementById("rowsPerPage").value,
+            10
+          );
+          const appendAnswerPage =
+            document.getElementById("appendAnswerPage").checked;
+          const symbolType = document.getElementById("symbolType").value;
+          const symbolMap = SYMBOL_SETS[symbolType] || SYMBOL_SETS.numbers;
+
+          const infoBarHtml = this.buildInfoBarHtml();
+          const totalPages = this.puzzlesData.length;
+
+          // 尺寸适配
+          let boardSize = "146px";
+          let cellFontSize = "21px";
+          if (rowsPerPage === 2) {
+            boardSize = "198px";
+            cellFontSize = "28px";
+          } else if (rowsPerPage === 3) {
+            boardSize = "172px";
+            cellFontSize = "24px";
+          } else if (rowsPerPage === 4) {
+            boardSize = "146px";
+            cellFontSize = "21px";
+          } else if (rowsPerPage === 5) {
+            boardSize = "122px";
+            cellFontSize = "17px";
+          }
+
+          // 渲染试卷各页
+          this.puzzlesData.forEach((pageList, pageIndex) => {
+            const pageElem = document.createElement("div");
+            pageElem.className = "paper-sheet";
+
+            // 头部
+            const headerHtml = `
+              <div class="paper-header">
+                <div class="paper-title">${this.escapeHtml(title)}</div>
+                ${
+                  subtitle
+                    ? `<div class="paper-subtitle">${this.escapeHtml(
+                        subtitle
+                      )}</div>`
+                    : ""
+                }
+                ${infoBarHtml}
+              </div>
+            `;
+
+            // 题目网格 (3列)
+            let cardsHtml = "";
+            pageList.forEach((item) => {
+              cardsHtml += this.buildSudokuCardHtml(
+                item,
+                boardSize,
+                cellFontSize,
+                symbolMap
+              );
+            });
+
+            const gridHtml = `
+              <div class="paper-grid-container">
+                ${cardsHtml}
+              </div>
+            `;
+
+            // 页脚
+            const footerHtml = `
+              <div class="paper-footer">
+                <span>四宫格数独思维训练 · 第 ${pageIndex + 1} 页 / 共 ${
+                totalPages + (appendAnswerPage ? 1 : 0)
+              } 页</span>
+                <span>得分：${
+                  this.examState.status === "submitted" && this.examState.currentResult
+                    ? `<strong style="color: #dc2626; font-size: 13px;">${this.examState.currentResult.score}分</strong>`
+                    : "_________"
+                }</span>
+              </div>
+            `;
+
+            pageElem.innerHTML = headerHtml + gridHtml + footerHtml;
+            pagesWrapper.appendChild(pageElem);
+          });
+
+          // 渲染答案页
+          if (appendAnswerPage) {
+            const answerPageElem = document.createElement("div");
+            answerPageElem.className = "paper-sheet answers-sheet";
+
+            const answerHeaderHtml = `
+              <div class="paper-header">
+                <div class="paper-title">${this.escapeHtml(
+                  title
+                )} - 参考答案</div>
+                <div class="paper-subtitle">对应试卷各题标准答案（方便家长与老师快速核对）</div>
+              </div>
+            `;
+
+            let answerCardsHtml = "";
+            this.flatPuzzles.forEach((item) => {
+              answerCardsHtml += this.buildAnswerCardHtml(item, symbolMap);
+            });
+
+            const answerGridHtml = `
+              <div class="paper-grid-container">
+                ${answerCardsHtml}
+              </div>
+            `;
+
+            const answerFooterHtml = `
+              <div class="paper-footer">
+                <span>参考答案页 · 共 ${this.flatPuzzles.length} 题答案</span>
+                <span>第 ${totalPages + 1} 页 / 共 ${totalPages + 1} 页</span>
+              </div>
+            `;
+
+            answerPageElem.innerHTML =
+              answerHeaderHtml + answerGridHtml + answerFooterHtml;
+            pagesWrapper.appendChild(answerPageElem);
+          }
+
+          // 绑定所有空白单元格的点击交互
+          this.bindCellInteractions();
+          this.updateProgressDisplay();
+          if (this.updateScale) this.updateScale();
+        },
+
+        buildInfoBarHtml() {
+          const showName = document.getElementById("showName").checked;
+          const showClass = document.getElementById("showClass").checked;
+          const showDate = document.getElementById("showDate").checked;
+          const showTime = document.getElementById("showTime").checked;
+          const showScore = document.getElementById("showScore").checked;
+
+          const studentName = document.getElementById("inputStudentName").value || "";
+          const studentClass = document.getElementById("inputStudentClass").value || "";
+
+          if (!showName && !showClass && !showDate && !showTime && !showScore) {
+            return "";
+          }
+
+          const items = [];
+          if (showClass) {
+            items.push(
+              `<div class="info-item"><span>班级：</span><span class="info-line">${this.escapeHtml(studentClass)}</span></div>`
+            );
+          }
+          if (showName) {
+            items.push(
+              `<div class="info-item"><span>姓名：</span><span class="info-line">${this.escapeHtml(studentName)}</span></div>`
+            );
+          }
+          if (showDate) {
+            const todayStr = new Date().toISOString().split("T")[0];
+            items.push(
+              `<div class="info-item"><span>日期：</span><span class="info-line wide">${todayStr}</span></div>`
+            );
+          }
+          if (showTime) {
+            const timeText = this.examState.status === "submitted"
+              ? `${Math.floor(this.examState.elapsedSeconds / 60)}分${this.examState.elapsedSeconds % 60}秒`
+              : "";
+            items.push(
+              `<div class="info-item"><span>用时：</span><span class="info-line wide">${timeText}</span></div>`
+            );
+          }
+          if (showScore) {
+            const scoreStampHtml = this.examState.status === "submitted" && this.examState.currentResult
+              ? `<span class="score-stamp">💯 ${this.examState.currentResult.score}分</span>`
+              : "";
+            items.push(
+              `<div class="info-item"><span>得分：</span><span class="info-line">${scoreStampHtml}</span></div>`
+            );
+          }
+
+          return `<div class="paper-info-bar">${items.join("")}</div>`;
+        },
+
+        buildSudokuCardHtml(item, boardSize, cellFontSize, symbolMap) {
+          const { id, puzzle, solution, cluesCount } = item;
+          const isSubmitted = this.examState.status === "submitted";
+
+          let cellsHtml = "";
+          for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+              const clueVal = puzzle[r][c];
+              const ansVal = solution[r][c];
+              const cellKey = `${id}_${r}_${c}`;
+              const userVal = this.examState.userAnswers[cellKey];
+
+              if (clueVal !== 0) {
+                // 题目原有已知数
+                const sym = symbolMap[clueVal];
+                cellsHtml += `<div class="sudoku-cell filled-clue" style="font-size: ${cellFontSize};">${sym}</div>`;
+              } else {
+                // 空白答题格
+                let cellClass = "sudoku-cell empty";
+                let innerContent = "";
+
+                if (isSubmitted) {
+                  // 已交卷评分模式
+                  if (userVal === ansVal) {
+                    cellClass += " graded-correct";
+                    innerContent = `<span class="user-val">${symbolMap[userVal]}</span>`;
+                  } else if (userVal !== undefined && userVal !== null) {
+                    cellClass += " graded-wrong";
+                    innerContent = `
+                      <span class="user-val">${symbolMap[userVal]}</span>
+                      <span class="correct-hint">${symbolMap[ansVal]}</span>
+                    `;
+                  } else {
+                    cellClass += " graded-missed";
+                    innerContent = `<span class="correct-hint">${symbolMap[ansVal]}</span>`;
+                  }
+                } else {
+                  // 做题模式
+                  if (userVal !== undefined && userVal !== null) {
+                    innerContent = `<span class="user-val">${symbolMap[userVal]}</span>`;
+                  }
+                  innerContent += `<span class="answer-preview">${symbolMap[ansVal]}</span>`;
+                }
+
+                cellsHtml += `
+                  <div
+                    class="${cellClass}"
+                    data-puzzle-id="${id}"
+                    data-row="${r}"
+                    data-col="${c}"
+                    style="font-size: ${cellFontSize};"
+                  >
+                    ${innerContent}
+                  </div>
+                `;
+              }
+            }
+          }
+
+          return `
+            <div class="sudoku-card" id="card_puzzle_${id}">
+              <div class="sudoku-card-header" style="max-width: ${boardSize};">
+                <span class="sudoku-card-title">第 ${id} 题</span>
+                <span class="sudoku-difficulty-tag">给${cluesCount}数</span>
+              </div>
+              <div class="sudoku-board" style="width: ${boardSize}; height: ${boardSize};">
+                ${cellsHtml}
+              </div>
+            </div>
+          `;
+        },
+
+        buildAnswerCardHtml(item, symbolMap) {
+          const { id, solution } = item;
+          let cellsHtml = "";
+          for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+              const sym = symbolMap[solution[r][c]];
+              cellsHtml += `<div class="sudoku-cell">${sym}</div>`;
+            }
+          }
+
+          return `
+            <div class="sudoku-card">
+              <div class="sudoku-card-header">
+                <span class="sudoku-card-title">第 ${id} 题答案</span>
+              </div>
+              <div class="sudoku-board">
+                ${cellsHtml}
+              </div>
+            </div>
+          `;
+        },
+
+        // 绑定空格点击弹出输入面板
+        bindCellInteractions() {
+          const emptyCells = document.querySelectorAll(".sudoku-cell.empty");
+          emptyCells.forEach((cell) => {
+            cell.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const puzzleId = parseInt(cell.dataset.puzzleId, 10);
+              const r = parseInt(cell.dataset.row, 10);
+              const c = parseInt(cell.dataset.col, 10);
+              this.openKeypad(cell, puzzleId, r, c);
+            });
+          });
+        },
+
+        // 打开浮动面板
+        openKeypad(cellElem, puzzleId, r, c) {
+          // 清除先前激活格高亮
+          if (this.activeCell?.cellElem) {
+            this.activeCell.cellElem.classList.remove("is-active");
+          }
+
+          this.activeCell = { puzzleId, r, c, cellElem };
+          cellElem.classList.add("is-active");
+
+          const popover = document.getElementById("keypadPopover");
+          const symbolType = document.getElementById("symbolType").value;
+          const symbolMap = SYMBOL_SETS[symbolType] || SYMBOL_SETS.numbers;
+
+          // 动态渲染 1~4 选项；若已有已填内容才提供删除按钮
+          let buttonsHtml = "";
+          for (let val = 1; val <= 4; val++) {
+            buttonsHtml += `
+              <button class="keypad-btn" data-val="${val}">
+                ${symbolMap[val]}
+              </button>
+            `;
+          }
+
+          const cellKey = `${puzzleId}_${r}_${c}`;
+          const hasUserVal =
+            this.examState.userAnswers[cellKey] !== undefined &&
+            this.examState.userAnswers[cellKey] !== null;
+          if (hasUserVal) {
+            buttonsHtml += `
+              <button class="keypad-btn btn-erase" data-val="0" title="清空">
+                ⌫
+              </button>
+            `;
+          }
+          popover.innerHTML = buttonsHtml;
+
+          // 绑定按键点击事件
+          const btns = popover.querySelectorAll(".keypad-btn");
+          btns.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const val = parseInt(btn.dataset.val, 10);
+              this.fillCurrentCell(val);
+            });
+          });
+
+          // 定位 Popover
+          popover.classList.add("active");
+          const rect = cellElem.getBoundingClientRect();
+          const popoverWidth = hasUserVal ? 256 : 210;
+          const popoverHeight = 56;
+
+          let left = rect.left + rect.width / 2;
+          let top = rect.top;
+
+          // 边界防溢出
+          if (left - popoverWidth / 2 < 10) {
+            left = popoverWidth / 2 + 10;
+          } else if (left + popoverWidth / 2 > window.innerWidth - 10) {
+            left = window.innerWidth - popoverWidth / 2 - 10;
+          }
+
+          // 若上方空间不够，则翻转到底部
+          if (top - popoverHeight < 60) {
+            popover.classList.add("flip-bottom");
+            top = rect.bottom;
+          } else {
+            popover.classList.remove("flip-bottom");
+          }
+
+          popover.style.left = `${left}px`;
+          popover.style.top = `${top}px`;
+        },
+
+        closeKeypad() {
+          const popover = document.getElementById("keypadPopover");
+          if (popover) popover.classList.remove("active");
+          if (this.activeCell?.cellElem) {
+            this.activeCell.cellElem.classList.remove("is-active");
+          }
+          this.activeCell = null;
+        },
+
+        // 填入数值后关闭弹窗并取消选中状态，不自动跳转下一格
+        fillCurrentCell(val) {
+          if (!this.activeCell) return;
+          const { puzzleId, r, c, cellElem } = this.activeCell;
+          const cellKey = `${puzzleId}_${r}_${c}`;
+
+          const symbolType = document.getElementById("symbolType").value;
+          const symbolMap = SYMBOL_SETS[symbolType] || SYMBOL_SETS.numbers;
+
+          if (val === 0) {
+            delete this.examState.userAnswers[cellKey];
+            const userValSpan = cellElem.querySelector(".user-val");
+            if (userValSpan) userValSpan.remove();
+          } else {
+            this.examState.userAnswers[cellKey] = val;
+            let userValSpan = cellElem.querySelector(".user-val");
+            if (!userValSpan) {
+              userValSpan = document.createElement("span");
+              userValSpan.className = "user-val";
+              cellElem.appendChild(userValSpan);
+            }
+            userValSpan.textContent = symbolMap[val];
+          }
+
+          this.updateProgressDisplay();
+
+          // 填了之后弹窗消失，取消选中状态，不自动选中下一个单元格
+          this.closeKeypad();
+        },
+
+        // 自动聚焦下一个空格
+        focusNextEmptyCell(currentPuzzleId, currentR, currentC) {
+          const allEmptyInPuzzle = Array.from(
+            document.querySelectorAll(`.sudoku-cell.empty[data-puzzle-id="${currentPuzzleId}"]`)
+          );
+
+          const currentIndex = allEmptyInPuzzle.findIndex(
+            (el) =>
+              parseInt(el.dataset.row, 10) === currentR &&
+              parseInt(el.dataset.col, 10) === currentC
+          );
+
+          // 寻找下一个未填写的空格
+          let nextCell = null;
+          for (let i = currentIndex + 1; i < allEmptyInPuzzle.length; i++) {
+            const pId = allEmptyInPuzzle[i].dataset.puzzleId;
+            const r = allEmptyInPuzzle[i].dataset.row;
+            const c = allEmptyInPuzzle[i].dataset.col;
+            if (!this.examState.userAnswers[`${pId}_${r}_${c}`]) {
+              nextCell = allEmptyInPuzzle[i];
+              break;
+            }
+          }
+
+          if (nextCell) {
+            const nPuzzleId = parseInt(nextCell.dataset.puzzleId, 10);
+            const nR = parseInt(nextCell.dataset.row, 10);
+            const nC = parseInt(nextCell.dataset.col, 10);
+            this.openKeypad(nextCell, nPuzzleId, nR, nC);
+          } else {
+            this.closeKeypad();
+          }
+        },
+
+        // 绑定键盘按键事件 (1-4, ABCD, Backspace, 方向键)
+        bindKeypadEvents() {
+          window.addEventListener("keydown", (e) => {
+            if (!this.activeCell) return;
+            const key = e.key;
+
+            if (["1", "2", "3", "4"].includes(key)) {
+              e.preventDefault();
+              this.fillCurrentCell(parseInt(key, 10));
+            } else if (["a", "b", "c", "d"].includes(key.toLowerCase())) {
+              e.preventDefault();
+              const map = { a: 1, b: 2, c: 3, d: 4 };
+              this.fillCurrentCell(map[key.toLowerCase()]);
+            } else if (key === "Backspace" || key === "Delete") {
+              e.preventDefault();
+              this.fillCurrentCell(0);
+            }
+          });
+        },
+
+        // 交卷并按 100 分制评分
+        submitExam() {
+          const filledCount = Object.keys(this.examState.userAnswers).length;
+          const totalHoles = this.examState.totalHoles;
+
+          if (filledCount < totalHoles) {
+            const unDone = totalHoles - filledCount;
+            if (!confirm(`还有 ${unDone} 个空格未填写，确定现在交卷评分吗？`)) {
+              return;
+            }
+          }
+
+          // 停止计时器
+          if (this.examState.timerInterval) {
+            clearInterval(this.examState.timerInterval);
+          }
+          this.examState.status = "submitted";
+          document.getElementById("examStatusText").textContent = "✅ 已交卷·已批改";
+
+          // 评分统计
+          let correctHoles = 0;
+          let wrongHoles = 0;
+          let correctPuzzles = 0;
+
+          this.flatPuzzles.forEach((item) => {
+            const { id, puzzle, solution } = item;
+            let puzzleAllCorrect = true;
+
+            for (let r = 0; r < 4; r++) {
+              for (let c = 0; c < 4; c++) {
+                if (puzzle[r][c] === 0) {
+                  const key = `${id}_${r}_${c}`;
+                  const userVal = this.examState.userAnswers[key];
+                  const trueVal = solution[r][c];
+
+                  if (userVal === trueVal) {
+                    correctHoles++;
+                  } else {
+                    wrongHoles++;
+                    puzzleAllCorrect = false;
+                  }
+                }
+              }
+            }
+
+            if (puzzleAllCorrect) {
+              correctPuzzles++;
+            }
+          });
+
+          // 100 分制计算
+          const score = totalHoles > 0
+            ? Math.round((correctHoles / totalHoles) * 100)
+            : 100;
+
+          const result = {
+            score,
+            timeSpent: this.examState.elapsedSeconds,
+            totalPuzzles: this.flatPuzzles.length,
+            correctPuzzles,
+            totalHoles,
+            correctHoles,
+            wrongHoles,
+            difficulty: document.getElementById("difficulty").value,
+            symbolType: document.getElementById("symbolType").value,
+            studentName: document.getElementById("inputStudentName").value || "",
+            studentClass: document.getElementById("inputStudentClass").value || "",
+            pagesCount: parseInt(document.getElementById("pagesCount").value, 10),
+            rowsPerPage: parseInt(document.getElementById("rowsPerPage").value, 10),
+            createdAt: new Date().toISOString(),
+          };
+
+          this.examState.currentResult = result;
+
+          // 刷新卷面展示批改标记与考务栏得分
+          this.closeKeypad();
+          this.renderPages();
+
+          // 弹出成绩单
+          this.openScoreModal(result);
+
+          // 保存到后端和本地
+          this.saveExamRecord(result);
+        },
+
+        // 保存做题记录 (后端 D1 + 本地 LocalStorage)
+        async saveExamRecord(result) {
+          const clientUuid = getClientUuid();
+          const recordPayload = {
+            ...result,
+            clientUuid,
+            detailJson: {
+              puzzles: this.flatPuzzles,
+              userAnswers: this.examState.userAnswers,
+            },
+          };
+
+          // 本地缓存
+          try {
+            const localList = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
+            localList.unshift({
+              id: "local_" + Date.now(),
+              ...recordPayload,
+            });
+            localStorage.setItem("shudu_local_records", JSON.stringify(localList.slice(0, 100)));
+          } catch (e) {
+            console.error("Local save error:", e);
+          }
+
+          // 发送至 Worker API
+          try {
+            await fetch("/api/records", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(recordPayload),
+            });
+          } catch (err) {
+            console.warn("Sync to cloud worker skipped:", err);
+          }
+        },
+
+        // 加载历史做题记录 (类似微信小程序时间段展示)
+        async loadHistoryRecords() {
+          const clientUuid = getClientUuid();
+          let records = [];
+          let stats = { totalRecords: 0, maxScore: 0, avgScore: 0, totalTimeSpent: 0 };
+
+          // 先从后端读取
+          try {
+            const res = await fetch(`/api/records?clientUuid=${clientUuid}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.success) {
+                records = data.records || [];
+                stats = data.stats || stats;
+              }
+            }
+          } catch (e) {
+            // 后端离线时读取本地
+            records = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
+            stats.totalRecords = records.length;
+            stats.maxScore = records.reduce((m, r) => Math.max(m, r.score || 0), 0);
+            stats.avgScore = records.length
+              ? Math.round(records.reduce((s, r) => s + (r.score || 0), 0) / records.length)
+              : 0;
+            stats.totalTimeSpent = records.reduce((s, r) => s + (r.time_spent || r.timeSpent || 0), 0);
+          }
+
+          // 渲染顶部小程序大卡片
+          document.getElementById("statTotalCount").textContent = stats.totalRecords || records.length;
+          document.getElementById("statMaxScore").textContent = stats.maxScore || 0;
+          document.getElementById("statAvgScore").textContent = stats.avgScore || 0;
+          const mins = Math.round((stats.totalTimeSpent || 0) / 60);
+          document.getElementById("statTotalTime").textContent = mins > 0 ? `${mins}分` : `${stats.totalTimeSpent || 0}秒`;
+
+          // 按时间段智能聚类：今天、昨天、近7天、更早
+          const timelineContainer = document.getElementById("recordsTimelineList");
+          if (!records || records.length === 0) {
+            timelineContainer.innerHTML = `
+              <div class="record-empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <circle cx="12" cy="14" r="3"></circle>
+                </svg>
+                <p>暂无做题记录</p>
+                <p style="font-size: 0.75rem; margin-top: 4px; opacity: 0.7;">完成试卷并交卷后，记录将自动在此呈现</p>
+              </div>
+            `;
+            return;
+          }
+
+          const groups = {
+            today: { label: "今天", list: [] },
+            yesterday: { label: "昨天", list: [] },
+            last7days: { label: "近 7 天", list: [] },
+            earlier: { label: "更早之前", list: [] },
+          };
+
+          const now = new Date();
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+          const yesterdayStart = todayStart - 86400000;
+          const sevenDaysStart = todayStart - 7 * 86400000;
+
+          records.forEach((rec) => {
+            const timeStr = rec.created_at || rec.createdAt || new Date().toISOString();
+            const recTime = new Date(timeStr).getTime();
+
+            if (recTime >= todayStart) {
+              groups.today.list.push(rec);
+            } else if (recTime >= yesterdayStart) {
+              groups.yesterday.list.push(rec);
+            } else if (recTime >= sevenDaysStart) {
+              groups.last7days.list.push(rec);
+            } else {
+              groups.earlier.list.push(rec);
+            }
+          });
+
+          let timelineHtml = "";
+          Object.values(groups).forEach((g) => {
+            if (g.list.length === 0) return;
+
+            let cardsHtml = "";
+            g.list.forEach((rec) => {
+              const score = rec.score;
+              let circleClass = "score-low";
+              if (score === 100) circleClass = "score-perfect";
+              else if (score >= 90) circleClass = "score-high";
+              else if (score >= 60) circleClass = "score-mid";
+
+              const timeSpent = rec.time_spent ?? rec.timeSpent ?? 0;
+              const dateObj = new Date(rec.created_at || rec.createdAt);
+              const timeDisplay = `${dateObj.getHours().toString().padStart(2, "0")}:${dateObj.getMinutes().toString().padStart(2, "0")}`;
+
+              const diffLabels = {
+                starter: "入门级",
+                easy: "初级",
+                medium: "中级",
+                hard: "高级",
+                mixed_page: "阶梯递进",
+                random: "随机",
+              };
+              const diffText = diffLabels[rec.difficulty] || "初级";
+              const totalP = rec.total_puzzles ?? rec.totalPuzzles ?? 12;
+
+              cardsHtml += `
+                <div class="record-card">
+                  <div class="record-left">
+                    <div class="score-circle ${circleClass}">
+                      ${score}
+                    </div>
+                    <div class="record-details">
+                      <div class="record-title">
+                        ${diffText} · ${totalP} 题
+                      </div>
+                      <div class="record-meta">
+                        <span>🕒 ${timeDisplay}</span>
+                        <span>⏱️ ${Math.floor(timeSpent / 60)}分${timeSpent % 60}秒</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="record-actions">
+                    <button class="btn-record-action btn-del" onclick="App.deleteRecord('${rec.id}')">
+                      删除
+                    </button>
+                  </div>
+                </div>
+              `;
+            });
+
+            timelineHtml += `
+              <div class="timeline-section">
+                <div class="timeline-header">${g.label} (${g.list.length})</div>
+                ${cardsHtml}
+              </div>
+            `;
+          });
+
+          timelineContainer.innerHTML = timelineHtml;
+        },
+
+        async deleteRecord(id) {
+          if (!confirm("确定要删除这条做题记录吗？")) return;
+
+          // 本地删除
+          try {
+            const list = JSON.parse(localStorage.getItem("shudu_local_records") || "[]");
+            const filtered = list.filter((r) => r.id !== id);
+            localStorage.setItem("shudu_local_records", JSON.stringify(filtered));
+          } catch (e) {}
+
+          // 远程删除
+          try {
+            await fetch(`/api/records/${id}`, { method: "DELETE" });
+          } catch (e) {}
+
+          this.loadHistoryRecords();
+        },
+
+        escapeHtml(str) {
+          return (str || "").replace(/[&<>"']/g, function (m) {
+            return {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[m];
+          });
+        },
+      };
+
+      // 暴露给 window 以供行内点击
+      window.App = App;
+
+      window.addEventListener("DOMContentLoaded", () => {
+        App.init();
+      });
+    </script>
+  </body>
+</html>
