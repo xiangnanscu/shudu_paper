@@ -13,7 +13,7 @@ export default {
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         },
       });
@@ -135,7 +135,7 @@ export default {
       }
     }
 
-    // 单条记录查询与删除
+    // 单条记录查询与删除保护
     if (pathname.startsWith("/api/records/")) {
       const id = pathname.replace("/api/records/", "");
 
@@ -164,17 +164,13 @@ export default {
       }
 
       if (request.method === "DELETE") {
-        try {
-          await env.DB.prepare(`DELETE FROM exam_records WHERE id = ?`).bind(id).run();
-          return new Response(JSON.stringify({ success: true }), {
+        return new Response(
+          JSON.stringify({ success: false, error: "记录不允许删除" }),
+          {
             headers: corsHeaders,
-          });
-        } catch (err: any) {
-          return new Response(JSON.stringify({ success: false, error: err.message }), {
-            headers: corsHeaders,
-            status: 500,
-          });
-        }
+            status: 403,
+          }
+        );
       }
     }
 

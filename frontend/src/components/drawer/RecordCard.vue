@@ -20,17 +20,6 @@
         </div>
       </div>
     </div>
-
-    <div class="record-actions">
-      <button
-        type="button"
-        class="btn-record-action btn-del"
-        title="删除此条记录"
-        @click="emit('delete', record.id)"
-      >
-        删除
-      </button>
-    </div>
   </div>
 </template>
 
@@ -40,10 +29,6 @@ import type { ExamRecordEntity } from "../../types/record";
 
 const props = defineProps<{
   record: ExamRecordEntity;
-}>();
-
-const emit = defineEmits<{
-  (e: "delete", id: string): void;
 }>();
 
 const scoreCircleClass = computed(() => {

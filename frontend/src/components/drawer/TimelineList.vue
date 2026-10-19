@@ -12,7 +12,6 @@
         v-for="rec in group.list"
         :key="rec.id"
         :record="rec"
-        @delete="(id) => emit('delete', id)"
       />
     </div>
   </div>
@@ -24,9 +23,5 @@ import RecordCard from "./RecordCard.vue";
 
 defineProps<{
   groups: TimelineGroup[];
-}>();
-
-const emit = defineEmits<{
-  (e: "delete", id: string): void;
 }>();
 </script>

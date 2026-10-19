@@ -121,23 +121,6 @@ export function useCloudRecords() {
     }
   }
 
-  async function deleteRecord(id: string) {
-    if (!confirm("确定要删除这条答题记录吗？删除后不可恢复。")) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/records/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "删除失败");
-      }
-      await loadHistory();
-    } catch (e: any) {
-      alert("云端删除失败: " + (e.message || "网络异常"));
-    }
-  }
-
   function openDrawer() {
     isDrawerOpen.value = true;
     loadHistory();
@@ -158,7 +141,6 @@ export function useCloudRecords() {
     syncError,
     loadHistory,
     saveRecord,
-    deleteRecord,
     openDrawer,
     closeDrawer,
   };

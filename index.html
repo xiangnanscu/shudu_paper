@@ -3481,11 +3481,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="record-actions">
-                    <button class="btn-record-action btn-del" onclick="App.deleteRecord('${rec.id}')">
-                      删除
-                    </button>
-                  </div>
                 </div>
               `;
             });
@@ -3501,22 +3496,9 @@
           timelineContainer.innerHTML = timelineHtml;
         },
 
-        // 从云端删除做题记录
+        // 从云端删除做题记录（已禁用）
         async deleteRecord(id) {
-          if (!confirm("确定要从云端删除这条做题记录吗？此操作无法撤销。")) return;
-
-          try {
-            const res = await fetch(`/api/records/${id}`, { method: "DELETE" });
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-              throw new Error(data.error || "删除失败");
-            }
-          } catch (e) {
-            alert("云端删除失败: " + (e.message || "网络异常"));
-            return;
-          }
-
-          this.loadHistoryRecords();
+          alert("做题记录受保护，不允许删除。");
         },
 
         escapeHtml(str) {

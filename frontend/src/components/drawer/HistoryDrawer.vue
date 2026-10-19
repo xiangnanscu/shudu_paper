@@ -80,7 +80,6 @@
         <TimelineList
           v-else
           :groups="groupedRecords"
-          @delete="(id) => emit('delete', id)"
         />
       </div>
     </div>
@@ -104,6 +103,5 @@ defineProps<{
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "reload"): void;
-  (e: "delete", id: string): void;
 }>();
 </script>

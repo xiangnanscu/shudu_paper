@@ -69,7 +69,6 @@
       :grouped-records="cloudRecords.groupedRecords.value"
       @close="cloudRecords.closeDrawer"
       @reload="cloudRecords.loadHistory"
-      @delete="cloudRecords.deleteRecord"
     />
 
     <!-- 成绩批改弹窗 (Score Modal) -->
