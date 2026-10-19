@@ -17,7 +17,10 @@ export function getDifficultyClues(
       const list = [9, 10, 11, 12];
       return list[Math.floor(Math.random() * list.length)];
     }
-    case "medium": {
+    case "medium":
+    case "medium_hypo_direct":
+    case "medium_hypo_deep":
+    case "medium_hypo_mixed": {
       const list = [6, 7, 8];
       return list[Math.floor(Math.random() * list.length)];
     }
@@ -43,4 +46,15 @@ export function getDifficultyClues(
       return pool[Math.floor(Math.random() * pool.length)];
     }
   }
+}
+
+/**
+ * 判断是否属于中级假设专题难度
+ */
+export function isHypothesisDifficulty(diffType: DifficultyMode): boolean {
+  return (
+    diffType === "medium_hypo_direct" ||
+    diffType === "medium_hypo_deep" ||
+    diffType === "medium_hypo_mixed"
+  );
 }

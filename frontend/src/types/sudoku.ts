@@ -4,6 +4,9 @@ export type DifficultyMode =
   | "starter"
   | "easy"
   | "medium"
+  | "medium_hypo_direct"
+  | "medium_hypo_deep"
+  | "medium_hypo_mixed"
   | "hard"
   | "mixed_page"
   | "random";
@@ -21,4 +24,5 @@ export interface SudokuPuzzle {
   cluesCount: number;
   puzzle: Grid4x4;
   solution: Grid4x4;
+  hypoType?: "direct" | "deep";
 }

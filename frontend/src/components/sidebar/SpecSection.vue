@@ -71,6 +71,15 @@
         <option value="medium">
           中级 (6~8个已知数 · 空8~10格，行列交叉排除)
         </option>
+        <option value="medium_hypo_direct">
+          🎯 中级假设 · 直接排除 (二选一试数 · 冲突直显 · 专项)
+        </option>
+        <option value="medium_hypo_deep">
+          🎯 中级假设 · 深度尝试 (二选一试数 · 局部隐藏 · 进阶)
+        </option>
+        <option value="medium_hypo_mixed">
+          🎯 中级假设 · 综合专项 (直接排除 + 深度尝试混合)
+        </option>
         <option value="hard">
           高级 (4~5个已知数 · 空11~12格，极少提示挑战)
         </option>

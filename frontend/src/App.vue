@@ -108,10 +108,10 @@ import ScoreModal from "./components/exam/ScoreModal.vue";
 const config = reactive<PaperConfig>({
   pagesCount: 1,
   rowsPerPage: 2, // 默认 2 行 (6 题 · 启蒙特大 · 推荐)
-  difficulty: "easy",
+  difficulty: "medium_hypo_direct",
   symbolType: "numbers",
-  paperTitle: "四宫格数独专项逻辑练习题",
-  paperSubtitle: "规则：每行、每列及每个粗线 2×2 宫内的元素都不能重复",
+  paperTitle: "四宫格数独 · 中级假设专项训练卷",
+  paperSubtitle: "专项要点：包含两格二选一情形，运用假设试数法进行排除与推导",
   studentName: "",
   studentClass: "",
   showName: true,

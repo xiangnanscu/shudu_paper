@@ -150,4 +150,186 @@ export class Sudoku4x4Engine {
       solution: best!.solution,
     };
   }
+
+  /**
+   * 4x4 数独的 12 个基本单元定义（4行、4列、4宫）
+   */
+  static getUnits(): [number, number][][] {
+    const units: [number, number][][] = [];
+    // 4 行
+    for (let r = 0; r < 4; r++) {
+      units.push([
+        [r, 0],
+        [r, 1],
+        [r, 2],
+        [r, 3],
+      ]);
+    }
+    // 4 列
+    for (let c = 0; c < 4; c++) {
+      units.push([
+        [0, c],
+        [1, c],
+        [2, c],
+        [3, c],
+      ]);
+    }
+    // 4 宫
+    for (let b = 0; b < 4; b++) {
+      const br = Math.floor(b / 2) * 2;
+      const bc = (b % 2) * 2;
+      units.push([
+        [br, bc],
+        [br, bc + 1],
+        [br + 1, bc],
+        [br + 1, bc + 1],
+      ]);
+    }
+    return units;
+  }
+
+  /**
+   * 检查盘面两格假设（二选一试数）的特征
+   */
+  static analyzeHypothesisFeatures(
+    puzzle: Grid4x4,
+    solution: Grid4x4
+  ): {
+    has1HoleUnit: boolean;
+    directCount: number;
+    deepCount: number;
+    rowDirectCount: number;
+    rowDeepCount: number;
+  } {
+    const units = Sudoku4x4Engine.getUnits();
+    let has1HoleUnit = false;
+    let directCount = 0;
+    let deepCount = 0;
+    let rowDirectCount = 0;
+    let rowDeepCount = 0;
+
+    // 检查所有 12 个基本单元（4行、4列、4宫）
+    for (let uIdx = 0; uIdx < units.length; uIdx++) {
+      const cells = units[uIdx];
+      const empty = cells.filter(([r, c]) => puzzle[r][c] === 0);
+      if (empty.length === 1) {
+        has1HoleUnit = true;
+      } else if (empty.length === 2) {
+        const [c1, c2] = empty;
+        const v1Corr = solution[c1[0]][c1[1]];
+        const v2Corr = solution[c2[0]][c2[1]];
+
+        // 另一种组合为交换两个数字
+        const v1Wrong = v2Corr;
+        const v2Wrong = v1Corr;
+
+        // 校验试填错误组合时，所填空格所在排/列/宫是否引发直接矛盾
+        const valid1 = Sudoku4x4Engine.isValid(puzzle, c1[0], c1[1], v1Wrong);
+        const valid2 = Sudoku4x4Engine.isValid(puzzle, c2[0], c2[1], v2Wrong);
+
+        const isDirect = !valid1 || !valid2;
+
+        if (isDirect) {
+          directCount++;
+          if (uIdx < 4) {
+            rowDirectCount++;
+          }
+        } else {
+          deepCount++;
+          if (uIdx < 4) {
+            rowDeepCount++;
+          }
+        }
+      }
+    }
+
+    return {
+      has1HoleUnit,
+      directCount,
+      deepCount,
+      rowDirectCount,
+      rowDeepCount,
+    };
+  }
+
+  /**
+   * 生成符合两格假设特征（直接排除 或 深度尝试）的专题训练题目
+   */
+  static generateHypothesisPuzzle(
+    targetType: "direct" | "deep",
+    id = 1
+  ): SudokuPuzzle {
+    // 深度尝试题目需锁定在 5~6 数，严格保证所有两空格排均无直接排除
+    const targetCluesPool = targetType === "deep" ? [5, 6] : [6, 7];
+    const maxAttempts = 180;
+
+    let fallbackPuzzle: Grid4x4 | null = null;
+    let fallbackSolution: Grid4x4 | null = null;
+    let fallbackClues = 6;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const targetClues =
+        targetCluesPool[Math.floor(Math.random() * targetCluesPool.length)];
+      const res = Sudoku4x4Engine.generatePuzzleSingle(targetClues);
+
+      const features = Sudoku4x4Engine.analyzeHypothesisFeatures(
+        res.puzzle,
+        res.solution
+      );
+
+      // 无论何种假设题目，开局绝不能有只剩 1 空格的单元
+      if (features.has1HoleUnit) {
+        if (!fallbackPuzzle) {
+          fallbackPuzzle = res.puzzle;
+          fallbackSolution = res.solution;
+          fallbackClues = res.cluesCount;
+        }
+        continue;
+      }
+
+      if (targetType === "deep") {
+        // 深度尝试的核心铁律：
+        // 1. 绝不允许任何一排（行）存在可以直接排除的两格情形（杜绝做题者从某一排顺着直接排除一路平推解完）
+        // 2. 必须存在至少一排刚好剩 2 个空格，且无论填入哪种组合，所填空格所在的排、列、小宫格局部均不引起任何矛盾
+        if (features.rowDirectCount === 0 && features.rowDeepCount > 0) {
+          return {
+            id,
+            targetClues,
+            cluesCount: res.cluesCount,
+            puzzle: res.puzzle,
+            solution: res.solution,
+            hypoType: "deep",
+          };
+        }
+      } else {
+        // 直接排除的核心规范：
+        // 必须存在可以直接排除的两格排（一试填立刻在交叉列/宫出现相同数字发生矛盾）
+        if (features.rowDirectCount > 0) {
+          return {
+            id,
+            targetClues,
+            cluesCount: res.cluesCount,
+            puzzle: res.puzzle,
+            solution: res.solution,
+            hypoType: "direct",
+          };
+        }
+      }
+
+      if (!fallbackPuzzle) {
+        fallbackPuzzle = res.puzzle;
+        fallbackSolution = res.solution;
+        fallbackClues = res.cluesCount;
+      }
+    }
+
+    return {
+      id,
+      targetClues: fallbackClues,
+      cluesCount: fallbackClues,
+      puzzle: fallbackPuzzle!,
+      solution: fallbackSolution!,
+      hypoType: targetType,
+    };
+  }
 }

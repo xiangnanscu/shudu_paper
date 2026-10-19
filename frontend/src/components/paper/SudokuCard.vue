@@ -9,10 +9,26 @@
         :class="{ 'answer-tag': isAnswerSheet }"
       >
         <template v-if="isAnswerSheet">
-          答案 · 给{{ puzzle.cluesCount }}数
+          <template v-if="puzzle.hypoType === 'direct'">
+            答案 · 假设直接排除 · 给{{ puzzle.cluesCount }}数
+          </template>
+          <template v-else-if="puzzle.hypoType === 'deep'">
+            答案 · 假设深度尝试 · 给{{ puzzle.cluesCount }}数
+          </template>
+          <template v-else>
+            答案 · 给{{ puzzle.cluesCount }}数
+          </template>
         </template>
         <template v-else>
-          给 {{ puzzle.cluesCount }} 数
+          <template v-if="puzzle.hypoType === 'direct'">
+            🎯 假设·直接排除 · 给 {{ puzzle.cluesCount }} 数
+          </template>
+          <template v-else-if="puzzle.hypoType === 'deep'">
+            🎯 假设·深度尝试 · 给 {{ puzzle.cluesCount }} 数
+          </template>
+          <template v-else>
+            给 {{ puzzle.cluesCount }} 数
+          </template>
         </template>
       </div>
     </div>
