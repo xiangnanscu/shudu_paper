@@ -9,6 +9,16 @@
     :data-col="col"
     @click="handleClick"
   >
+    <!-- 填数顺序角标 (用于复盘总览) -->
+    <span
+      v-if="showStepBadge && stepIndex !== undefined && stepIndex > 0"
+      class="step-badge"
+      :class="stepBadgeClass"
+      :title="`第 ${stepIndex} 步填入`"
+    >
+      {{ stepIndex }}
+    </span>
+
     <!-- 已知线索格 -->
     <template v-if="clueVal !== 0">
       {{ symbolMap[clueVal] }}
@@ -63,10 +73,13 @@ const props = withDefaults(
     examStatus: ExamStatus;
     isActive?: boolean;
     isAnswerSheet?: boolean;
+    stepIndex?: number;
+    showStepBadge?: boolean;
   }>(),
   {
     isActive: false,
     isAnswerSheet: false,
+    showStepBadge: false,
   }
 );
 
@@ -102,6 +115,17 @@ const cellClasses = computed(() => {
   }
 
   return list;
+});
+
+const stepBadgeClass = computed(() => {
+  if (props.examStatus === "submitted") {
+    if (props.userVal === props.ansVal) {
+      return "badge-correct";
+    } else if (props.userVal !== undefined) {
+      return "badge-wrong";
+    }
+  }
+  return "badge-normal";
 });
 
 function handleClick() {

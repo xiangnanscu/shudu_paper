@@ -1,5 +1,5 @@
 <template>
-  <div class="record-card">
+  <div class="record-card" @click="emit('viewDetail', record.id)">
     <div class="record-left">
       <!-- 微信小程序风格彩色分数圈 -->
       <div class="score-circle" :class="scoreCircleClass">
@@ -20,6 +20,29 @@
         </div>
       </div>
     </div>
+
+    <!-- 快捷操作区 -->
+    <div class="record-actions" @click.stop>
+      <!-- 做错的试卷高亮提供重做错卷按钮 -->
+      <button
+        v-if="isWrongExam"
+        type="button"
+        class="btn-record-redo"
+        title="重新挑战此套做错的试卷"
+        @click="emit('redo', record.id)"
+      >
+        ↺ 重做
+      </button>
+
+      <button
+        type="button"
+        class="btn-record-view"
+        title="查看试卷详情与步骤复盘"
+        @click="emit('viewDetail', record.id)"
+      >
+        复盘 ❯
+      </button>
+    </div>
   </div>
 </template>
 
@@ -30,6 +53,19 @@ import type { ExamRecordEntity } from "../../types/record";
 const props = defineProps<{
   record: ExamRecordEntity;
 }>();
+
+const emit = defineEmits<{
+  (e: "viewDetail", recordId: string): void;
+  (e: "redo", recordId: string): void;
+}>();
+
+const isWrongExam = computed(() => {
+  if (props.record.score < 100) return true;
+  const tot = props.record.total_puzzles ?? props.record.totalPuzzles;
+  const cor = props.record.correct_puzzles ?? props.record.correctPuzzles;
+  if (tot !== undefined && cor !== undefined && cor < tot) return true;
+  return false;
+});
 
 const scoreCircleClass = computed(() => {
   const s = props.record.score;

@@ -110,6 +110,24 @@ export function useSudoku(config: PaperConfig) {
     return pages;
   }
 
+  // 从历史记录恢复试卷题目
+  function loadHistoricalPuzzles(
+    puzzles: SudokuPuzzle[],
+    overrideRowsPerPage?: number
+  ) {
+    if (!puzzles || puzzles.length === 0) return;
+    const rpp = overrideRowsPerPage || config.rowsPerPage || 2;
+    const itemsPerPage = rpp * 3;
+    const pages: SudokuPuzzle[][] = [];
+
+    for (let i = 0; i < puzzles.length; i += itemsPerPage) {
+      pages.push(puzzles.slice(i, i + itemsPerPage));
+    }
+
+    puzzlesData.value = pages;
+    return pages;
+  }
+
   return {
     puzzlesData,
     flatPuzzles,
@@ -118,5 +136,6 @@ export function useSudoku(config: PaperConfig) {
     currentSymbolMap,
     totalHoles,
     generateAll,
+    loadHistoricalPuzzles,
   };
 }

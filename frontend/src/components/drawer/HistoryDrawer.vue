@@ -80,6 +80,8 @@
         <TimelineList
           v-else
           :groups="groupedRecords"
+          @view-detail="(id) => emit('viewDetail', id)"
+          @redo="(id) => emit('redo', id)"
         />
       </div>
     </div>
@@ -103,5 +105,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "reload"): void;
+  (e: "viewDetail", recordId: string): void;
+  (e: "redo", recordId: string): void;
 }>();
 </script>

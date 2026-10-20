@@ -164,3 +164,37 @@
 body.show-answers .sudoku-cell .answer-preview {
   display: block;
 }
+
+/* 填数顺序角标样式 */
+.sudoku-cell .step-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  z-index: 3;
+}
+
+.sudoku-cell .step-badge.badge-normal {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.sudoku-cell .step-badge.badge-correct {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+.sudoku-cell .step-badge.badge-wrong {
+  background-color: #dc2626;
+  color: #ffffff;
+}

@@ -55,6 +55,8 @@
               activeCell?.c === c - 1
             "
             :is-answer-sheet="isAnswerSheet"
+            :step-index="stepMap?.[`${puzzle.id}_${r - 1}_${c - 1}`]"
+            :show-step-badge="showStepBadge"
             @select="(elem) => emit('selectCell', elem, puzzle.id, r - 1, c - 1)"
           />
         </template>
@@ -78,9 +80,12 @@ const props = withDefaults(
     userAnswers: UserAnswers;
     activeCell: ActiveCell | null;
     isAnswerSheet?: boolean;
+    stepMap?: Record<string, number>;
+    showStepBadge?: boolean;
   }>(),
   {
     isAnswerSheet: false,
+    showStepBadge: false,
   }
 );
 

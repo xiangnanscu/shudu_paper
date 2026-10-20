@@ -12,6 +12,8 @@
         v-for="rec in group.list"
         :key="rec.id"
         :record="rec"
+        @view-detail="(id) => emit('viewDetail', id)"
+        @redo="(id) => emit('redo', id)"
       />
     </div>
   </div>
@@ -23,5 +25,10 @@ import RecordCard from "./RecordCard.vue";
 
 defineProps<{
   groups: TimelineGroup[];
+}>();
+
+const emit = defineEmits<{
+  (e: "viewDetail", recordId: string): void;
+  (e: "redo", recordId: string): void;
 }>();
 </script>

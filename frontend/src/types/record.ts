@@ -1,3 +1,6 @@
+import type { SudokuPuzzle } from "./sudoku";
+import type { UserAnswers, AnswerStep, ExamDetailData } from "./exam";
+
 export interface ExamRecordEntity {
   id: string;
   client_uuid?: string;
@@ -25,8 +28,18 @@ export interface ExamRecordEntity {
   rows_per_page?: number;
   rowsPerPage?: number;
   detail_json?: string;
+  detailJson?: string | ExamDetailData;
   created_at?: string;
   createdAt?: string;
+}
+
+/**
+ * 解析后的完整考试记录详情
+ */
+export interface ExamRecordDetail extends ExamRecordEntity {
+  puzzles: SudokuPuzzle[];
+  userAnswers: UserAnswers;
+  steps: AnswerStep[];
 }
 
 export interface ExamStats {

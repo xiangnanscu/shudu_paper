@@ -69,6 +69,19 @@
       :grouped-records="cloudRecords.groupedRecords.value"
       @close="cloudRecords.closeDrawer"
       @reload="cloudRecords.loadHistory"
+      @view-detail="handleViewRecordDetail"
+      @redo="handleRedoRecord"
+    />
+
+    <!-- 试卷复盘与详情模态窗 (Exam Review Modal) -->
+    <ExamReviewModal
+      :is-open="isReviewModalOpen"
+      :loading="reviewLoading"
+      :load-error="reviewError"
+      :record="reviewRecordDetail"
+      :symbol-map="sudoku.currentSymbolMap.value"
+      @close="isReviewModalOpen = false"
+      @redo="handleRedoRecord"
     />
 
     <!-- 成绩批改弹窗 (Score Modal) -->
@@ -94,6 +107,7 @@
 <script setup lang="ts">
 import { reactive, ref, toRef, watch, onMounted, nextTick } from "vue";
 import type { PaperConfig } from "./types/config";
+import type { ExamRecordDetail } from "./types/record";
 import { useSudoku } from "./composables/useSudoku";
 import { useExamTimer } from "./composables/useExamTimer";
 import { useExam } from "./composables/useExam";
@@ -109,9 +123,16 @@ import PaperScaleContainer from "./components/paper/PaperScaleContainer.vue";
 import KeypadPopover from "./components/exam/KeypadPopover.vue";
 import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
 import ScoreModal from "./components/exam/ScoreModal.vue";
+import ExamReviewModal from "./components/review/ExamReviewModal.vue";
 import IosInstallGuideModal from "./components/exam/IosInstallGuideModal.vue";
 
 const { showIOSGuide, closeIOSGuide } = usePWAInstall();
+
+// 复盘模态窗状态
+const isReviewModalOpen = ref(false);
+const reviewLoading = ref(false);
+const reviewError = ref<string | null>(null);
+const reviewRecordDetail = ref<ExamRecordDetail | null>(null);
 
 // 试卷及考务基础配置
 const config = reactive<PaperConfig>({
@@ -155,6 +176,7 @@ useKeyboard({
     keypad.close();
     cloudRecords.closeDrawer();
     exam.closeScoreModal();
+    isReviewModalOpen.value = false;
     isSidebarOpen.value = false;
   },
   onRegenerate: handleRegenerate,
@@ -197,8 +219,102 @@ function handleSelectCell(
 function handleKeypadFill(val: number) {
   if (!keypad.activeCell.value) return;
   const { puzzleId, r, c } = keypad.activeCell.value;
-  exam.fillCell(puzzleId, r, c, val);
+
+  // 提取对应题目的标准答案以记录并判定
+  const targetPuzzle = sudoku.flatPuzzles.value.find((p) => p.id === puzzleId);
+  const solutionVal = targetPuzzle ? targetPuzzle.solution[r][c] : undefined;
+
+  exam.fillCell(
+    puzzleId,
+    r,
+    c,
+    val,
+    timer.elapsedSeconds.value,
+    solutionVal
+  );
   keypad.close();
+}
+
+// 打开试卷详情与步骤复盘
+async function handleViewRecordDetail(recordId: string) {
+  cloudRecords.closeDrawer();
+  isReviewModalOpen.value = true;
+  reviewLoading.value = true;
+  reviewError.value = null;
+  reviewRecordDetail.value = null;
+
+  try {
+    const detail = await cloudRecords.fetchRecordDetail(recordId);
+    if (!detail) {
+      throw new Error("未能获取到试卷详细信息");
+    }
+    reviewRecordDetail.value = detail;
+  } catch (err: any) {
+    reviewError.value = err.message || "加载试卷详情失败，请检查网络或稍后重试";
+  } finally {
+    reviewLoading.value = false;
+  }
+}
+
+// 重做选中的历史试卷 (错卷重做)
+async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
+  let detail: ExamRecordDetail | null = null;
+  if (typeof recordOrId === "object" && recordOrId !== null) {
+    detail = recordOrId;
+  } else {
+    try {
+      detail = await cloudRecords.fetchRecordDetail(recordOrId);
+    } catch (err: any) {
+      alert("加载试卷失败: " + (err.message || "未知错误"));
+      return;
+    }
+  }
+
+  if (!detail || !detail.puzzles || detail.puzzles.length === 0) {
+    alert("该试卷记录缺少题目数据，无法重新做题。");
+    return;
+  }
+
+  if (exam.status.value === "doing") {
+    if (!confirm("当前有正在作答中的试卷，重做该卷将放弃当前作答，确定继续吗？")) {
+      return;
+    }
+  }
+
+  // 关闭所有弹层
+  cloudRecords.closeDrawer();
+  isReviewModalOpen.value = false;
+  exam.closeScoreModal();
+  keypad.close();
+
+  // 恢复试卷参数
+  if (detail.difficulty) {
+    config.difficulty = detail.difficulty as any;
+  }
+  if (detail.symbol_type || detail.symbolType) {
+    config.symbolType = (detail.symbol_type || detail.symbolType) as any;
+  }
+  if (detail.pages_count || detail.pagesCount) {
+    config.pagesCount = (detail.pages_count || detail.pagesCount)!;
+  }
+  if (detail.rows_per_page || detail.rowsPerPage) {
+    config.rowsPerPage = (detail.rows_per_page || detail.rowsPerPage)!;
+  }
+
+  // 载入试题并重新按行数分页
+  sudoku.loadHistoricalPuzzles(detail.puzzles, config.rowsPerPage);
+
+  // 重新开始答题
+  exam.restartCurrentExam();
+  timer.reset();
+  timer.start();
+
+  nextTick(() => {
+    scale.updateScale();
+    if (previewAreaRef.value) {
+      previewAreaRef.value.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
 }
 
 // 开始做题按钮

@@ -1,5 +1,5 @@
 import { ref, computed } from "vue";
-import type { ExamRecordEntity, ExamStats } from "../types/record";
+import type { ExamRecordEntity, ExamRecordDetail, ExamStats } from "../types/record";
 import type { ExamResult } from "../types/exam";
 import { getClientUuid } from "../core/client-uuid";
 
@@ -216,7 +216,7 @@ export function useCloudRecords() {
       queue.push(payload);
       localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
 
-      // 乐观更新当前记录与本地统计快照
+      // 乐观更新当前记录与本地统计快照（带上完整 detail_json 保证离线可立即查看）
       const optimisticRecord: ExamRecordEntity = {
         id: "offline_" + Date.now(),
         client_uuid: payload.clientUuid,
@@ -229,6 +229,9 @@ export function useCloudRecords() {
         difficulty: result.difficulty,
         pages_count: result.pagesCount,
         rows_per_page: result.rowsPerPage,
+        detail_json: typeof payload.detailJson === "string"
+          ? payload.detailJson
+          : JSON.stringify(payload.detailJson || {}),
         created_at: new Date().toISOString(),
       };
       records.value.unshift(optimisticRecord);
@@ -238,6 +241,74 @@ export function useCloudRecords() {
     } catch (e: any) {
       syncStatus.value = "error";
       syncError.value = "本地存储异常，暂存失败";
+    }
+  }
+
+  function parseRecordDetail(raw: any): ExamRecordDetail {
+    let detail: any = {};
+    try {
+      if (typeof raw.detail_json === "string") {
+        detail = JSON.parse(raw.detail_json);
+      } else if (raw.detailJson && typeof raw.detailJson === "string") {
+        detail = JSON.parse(raw.detailJson);
+      } else if (typeof raw.detailJson === "object" && raw.detailJson !== null) {
+        detail = raw.detailJson;
+      }
+    } catch (e) {
+      console.warn("Failed to parse detail_json:", e);
+      detail = {};
+    }
+
+    const puzzles = Array.isArray(detail.puzzles) ? detail.puzzles : [];
+    const userAnswers = detail.userAnswers || {};
+    const steps = Array.isArray(detail.steps) ? detail.steps : [];
+
+    return {
+      ...raw,
+      puzzles,
+      userAnswers,
+      steps,
+    };
+  }
+
+  // 获取指定历史记录的完整做题详情
+  async function fetchRecordDetail(recordId: string): Promise<ExamRecordDetail | null> {
+    // 1. 先在当前的 records 列表中查找是否已经有 detail_json
+    const existing = records.value.find((r) => r.id === recordId);
+    if (existing && (existing.detail_json || (existing as any).detailJson)) {
+      return parseRecordDetail(existing);
+    }
+
+    // 2. 检查离线暂存队列中是否有匹配的记录
+    try {
+      const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
+      if (raw) {
+        const queue: any[] = JSON.parse(raw);
+        for (const item of queue) {
+          if (item.id === recordId || (existing && existing.id.startsWith("offline_"))) {
+            return parseRecordDetail(item);
+          }
+        }
+      }
+    } catch {}
+
+    // 3. 从云端接口拉取单条完整记录（包含 detail_json）
+    try {
+      const res = await fetch(`/api/records/${encodeURIComponent(recordId)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data.success || !data.record) {
+        throw new Error(data.error || "未找到该试卷记录");
+      }
+
+      const detailObj = parseRecordDetail(data.record);
+      if (existing) {
+        existing.detail_json = data.record.detail_json;
+      }
+      return detailObj;
+    } catch (err: any) {
+      console.error("fetchRecordDetail error:", err);
+      throw err;
     }
   }
 
@@ -264,5 +335,6 @@ export function useCloudRecords() {
     openDrawer,
     closeDrawer,
     syncOfflineQueue,
+    fetchRecordDetail,
   };
 }
