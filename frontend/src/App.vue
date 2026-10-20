@@ -101,11 +101,19 @@
       :visible="showIOSGuide"
       @close="closeIOSGuide"
     />
+
+    <!-- 通用自定义确认弹窗 (替代原生 confirm/alert) -->
+    <ConfirmDialog
+      :is-open="isConfirmOpen"
+      :state="confirmState"
+      @confirm="onConfirmOk"
+      @cancel="onConfirmCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, toRef, watch, onMounted, nextTick } from "vue";
+import { reactive, ref, toRef, watch, onMounted, onUnmounted, nextTick } from "vue";
 import type { PaperConfig } from "./types/config";
 import type { ExamRecordDetail } from "./types/record";
 import { useSudoku } from "./composables/useSudoku";
@@ -116,6 +124,7 @@ import { useCloudRecords } from "./composables/useCloudRecords";
 import { useResponsiveScale } from "./composables/useResponsiveScale";
 import { useKeyboard } from "./composables/useKeyboard";
 import { usePWAInstall } from "./composables/usePWAInstall";
+import { useConfirmDialog } from "./composables/useConfirmDialog";
 
 import SidebarConfig from "./components/sidebar/SidebarConfig.vue";
 import ExamTopBar from "./components/exam/ExamTopBar.vue";
@@ -125,8 +134,18 @@ import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
 import ScoreModal from "./components/exam/ScoreModal.vue";
 import ExamReviewModal from "./components/review/ExamReviewModal.vue";
 import IosInstallGuideModal from "./components/exam/IosInstallGuideModal.vue";
+import ConfirmDialog from "./components/common/ConfirmDialog.vue";
 
 const { showIOSGuide, closeIOSGuide } = usePWAInstall();
+
+// 自定义确认弹窗（替代原生 confirm/alert）
+const {
+  isOpen: isConfirmOpen,
+  state: confirmState,
+  showConfirm,
+  confirm: onConfirmOk,
+  cancel: onConfirmCancel,
+} = useConfirmDialog();
 
 // 复盘模态窗状态
 const isReviewModalOpen = ref(false);
@@ -173,6 +192,8 @@ const scale = useResponsiveScale(
 useKeyboard({
   onFill: handleKeypadFill,
   onEscape: () => {
+    // 确认弹窗打开时 Esc 仅关闭弹窗本身（由 ConfirmDialog 处理）
+    if (isConfirmOpen.value) return;
     keypad.close();
     cloudRecords.closeDrawer();
     exam.closeScoreModal();
@@ -182,6 +203,64 @@ useKeyboard({
   onRegenerate: handleRegenerate,
   getActiveCell: () => keypad.activeCell.value,
 });
+
+// 难度值对应的展示名称（与规格面板选项一致）
+const DIFFICULTY_LABELS: Record<string, string> = {
+  starter: "入门",
+  easy: "初级",
+  medium: "中级",
+  medium_hypo_direct: "假设·直显",
+  medium_hypo_deep: "假设·深度",
+  medium_hypo_mixed: "假设·综合",
+  hard: "高级",
+  mixed_page: "阶梯",
+  random: "随机",
+};
+
+// 当前试卷实际采用的规格快照（用于取消修改时回滚下拉框）
+const appliedStructure = {
+  pagesCount: config.pagesCount,
+  rowsPerPage: config.rowsPerPage,
+  difficulty: config.difficulty as string,
+};
+
+function snapshotAppliedStructure() {
+  appliedStructure.pagesCount = config.pagesCount;
+  appliedStructure.rowsPerPage = config.rowsPerPage;
+  appliedStructure.difficulty = config.difficulty;
+}
+
+// 开始做题确认弹窗（展示试卷信息，友好引导）
+async function confirmStartExam(): Promise<boolean> {
+  return showConfirm({
+    variant: "info",
+    icon: "🚀",
+    title: "准备好开始挑战了吗？",
+    message: "点击开始后将启动计时，作答过程中可随时交卷评分。",
+    confirmText: "开始计时答题",
+    cancelText: "再看看",
+    stats: [
+      { label: "题目数量", value: `${sudoku.flatPuzzles.value.length} 题` },
+      { label: "待填空格", value: `${sudoku.totalHoles.value} 格` },
+      { label: "试卷难度", value: DIFFICULTY_LABELS[config.difficulty] || config.difficulty },
+    ],
+  });
+}
+
+// 防误触：作答中的试卷在被放弃前统一弹窗确认
+async function confirmAbandonExam(reason: string): Promise<boolean> {
+  if (exam.status.value !== "doing") return true;
+  return showConfirm({
+    variant: "warning",
+    icon: "✋",
+    title: "当前试卷尚未完成",
+    message:
+      `${reason}，当前作答进度（已填 ${exam.filledCount.value}/${sudoku.totalHoles.value} 格 · ` +
+      `用时 ${timer.formattedTime.value}）将被放弃，且无法恢复。`,
+    confirmText: "放弃并继续",
+    cancelText: "继续作答",
+  });
+}
 
 // 监听答案透显设置切换 body 类名
 watch(
@@ -193,7 +272,7 @@ watch(
 );
 
 // 格位点击交互
-function handleSelectCell(
+async function handleSelectCell(
   elem: HTMLElement,
   puzzleId: number,
   r: number,
@@ -202,12 +281,9 @@ function handleSelectCell(
   if (exam.status.value === "submitted") return;
 
   if (exam.status.value === "ready") {
-    if (confirm("尚未开始做题计时，确定现在开始计时并答题吗？")) {
-      exam.startExam();
-      timer.start();
-    } else {
-      return;
-    }
+    if (!(await confirmStartExam())) return;
+    exam.startExam();
+    timer.start();
   }
 
   const key = `${puzzleId}_${r}_${c}`;
@@ -265,20 +341,32 @@ async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
     try {
       detail = await cloudRecords.fetchRecordDetail(recordOrId);
     } catch (err: any) {
-      alert("加载试卷失败: " + (err.message || "未知错误"));
+      showConfirm({
+        variant: "danger",
+        icon: "📡",
+        title: "加载试卷失败",
+        message: "加载试卷失败：" + (err.message || "未知错误") + "，请检查网络后重试。",
+        confirmText: "我知道了",
+        hideCancel: true,
+      });
       return;
     }
   }
 
   if (!detail || !detail.puzzles || detail.puzzles.length === 0) {
-    alert("该试卷记录缺少题目数据，无法重新做题。");
+    showConfirm({
+      variant: "warning",
+      icon: "🧩",
+      title: "无法重做该试卷",
+      message: "该试卷记录缺少题目数据，无法重新做题。",
+      confirmText: "我知道了",
+      hideCancel: true,
+    });
     return;
   }
 
-  if (exam.status.value === "doing") {
-    if (!confirm("当前有正在作答中的试卷，重做该卷将放弃当前作答，确定继续吗？")) {
-      return;
-    }
+  if (!(await confirmAbandonExam("重做该卷将放弃当前作答"))) {
+    return;
   }
 
   // 关闭所有弹层
@@ -303,6 +391,7 @@ async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
 
   // 载入试题并重新按行数分页
   sudoku.loadHistoricalPuzzles(detail.puzzles, config.rowsPerPage);
+  snapshotAppliedStructure();
 
   // 重新开始答题
   exam.restartCurrentExam();
@@ -318,15 +407,28 @@ async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
 }
 
 // 开始做题按钮
-function handleStartExam() {
-  if (confirm("确定开始做题并开始计时吗？")) {
-    exam.startExam();
-    timer.start();
-  }
+async function handleStartExam() {
+  if (!(await confirmStartExam())) return;
+  exam.startExam();
+  timer.start();
 }
 
 // 交卷评分
-function handleSubmitExam() {
+async function handleSubmitExam() {
+  // 防误触：仍有空格未填时先确认
+  const unDone = sudoku.totalHoles.value - exam.filledCount.value;
+  if (unDone > 0) {
+    const ok = await showConfirm({
+      variant: "warning",
+      icon: "📝",
+      title: `还有 ${unDone} 个空格未填写`,
+      message: "现在交卷将按已填内容评分，未填写的空格会计为错误。",
+      confirmText: "仍然交卷",
+      cancelText: "继续作答",
+    });
+    if (!ok) return;
+  }
+
   const result = exam.submitExam(
     sudoku.flatPuzzles.value,
     sudoku.totalHoles.value,
@@ -349,9 +451,15 @@ function handleRestartExam() {
   keypad.close();
 }
 
-// 换一批全新试题
-function handleRegenerate() {
+// 换一批全新试题（含防误触确认）
+async function handleRegenerate() {
+  if (!(await confirmAbandonExam("换一批将生成全新试卷"))) return;
+  applyRegenerate();
+}
+
+function applyRegenerate() {
   sudoku.generateAll();
+  snapshotAppliedStructure();
   exam.resetExam();
   timer.reset();
   keypad.close();
@@ -360,9 +468,23 @@ function handleRegenerate() {
   });
 }
 
-// 试卷结构改变（页数、行数、难度改变时自动重新生成）
-function handleStructureChange() {
-  handleRegenerate();
+// 试卷结构改变（页数、行数、难度改变时自动重新生成，含防误触确认）
+async function handleStructureChange() {
+  const structureChanged =
+    config.pagesCount !== appliedStructure.pagesCount ||
+    config.rowsPerPage !== appliedStructure.rowsPerPage ||
+    config.difficulty !== appliedStructure.difficulty;
+  if (!structureChanged) return;
+
+  if (!(await confirmAbandonExam("修改规格将重新生成整套试卷"))) {
+    // 取消修改：回滚下拉框到当前试卷实际采用的规格
+    config.pagesCount = appliedStructure.pagesCount;
+    config.rowsPerPage = appliedStructure.rowsPerPage;
+    config.difficulty = appliedStructure.difficulty as any;
+    return;
+  }
+
+  applyRegenerate();
 }
 
 // 打印试卷
@@ -392,7 +514,17 @@ function handleContainerClick(e: MouseEvent) {
   }
 }
 
+// 防误触：作答中关闭/刷新页面前提示（浏览器原生离页确认，无法自定义外观）
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+  if (exam.status.value === "doing") {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+}
+
 onMounted(() => {
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
   // 清理旧版无效缓存
   try {
     localStorage.removeItem("shudu_local_records");
@@ -400,6 +532,7 @@ onMounted(() => {
 
   // 初始生成题目
   sudoku.generateAll();
+  snapshotAppliedStructure();
 
   // 预拉取云端记录
   cloudRecords.loadHistory();
@@ -407,6 +540,10 @@ onMounted(() => {
   nextTick(() => {
     scale.updateScale();
   });
+});
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>
 

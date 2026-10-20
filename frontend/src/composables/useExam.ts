@@ -74,20 +74,13 @@ export function useExam() {
     status.value = "ready";
   }
 
-  // 交卷评分
+  // 交卷评分（未填完的确认由调用方在 UI 层弹窗处理）
   function submitExam(
     flatPuzzles: SudokuPuzzle[],
     totalHoles: number,
     elapsedSeconds: number,
     config: PaperConfig
   ): ExamResult | null {
-    if (filledCount.value < totalHoles) {
-      const unDone = totalHoles - filledCount.value;
-      if (!confirm(`还有 ${unDone} 个空格未填写，确定现在交卷评分吗？`)) {
-        return null;
-      }
-    }
-
     status.value = "submitted";
 
     // 题目快速查找字典
