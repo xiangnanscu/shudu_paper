@@ -85,7 +85,7 @@ import { formatTime } from "../../composables/useExamTimer";
 const props = defineProps<{
   isOpen: boolean;
   result: ExamResult | null;
-  syncStatus: "idle" | "syncing" | "success" | "error";
+  syncStatus: "idle" | "syncing" | "success" | "error" | "offline_saved";
   syncError: string | null;
 }>();
 
@@ -142,6 +142,8 @@ const syncStatusText = computed(() => {
       return "⏳ 正在同步保存到云端数据库...";
     case "success":
       return "☁️ 成绩已成功保存至云端数据库";
+    case "offline_saved":
+      return "💾 离线模式：成绩已安全暂存本机，连网后将自动同步";
     case "error":
       return "⚠️ 云端保存失败，请检查网络连接";
     default:

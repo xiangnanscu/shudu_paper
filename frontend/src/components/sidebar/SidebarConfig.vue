@@ -96,6 +96,28 @@
           </svg>
           换一批全新试题 (重新做题)
         </button>
+
+        <button
+          v-if="!isStandalone && canInstall"
+          type="button"
+          class="btn btn-outline-install"
+          title="安装应用到平板或电脑桌面"
+          @click="promptInstall"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          安装到平板或电脑桌面
+        </button>
       </div>
     </aside>
   </div>
@@ -106,6 +128,9 @@ import type { PaperConfig } from "../../types/config";
 import SpecSection from "./SpecSection.vue";
 import LayoutSection from "./LayoutSection.vue";
 import AnswerSection from "./AnswerSection.vue";
+import { usePWAInstall } from "../../composables/usePWAInstall";
+
+const { canInstall, isStandalone, promptInstall } = usePWAInstall();
 
 defineProps<{
   config: PaperConfig;

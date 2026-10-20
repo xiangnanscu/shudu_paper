@@ -82,6 +82,12 @@
       @regenerate="handleRegenerate"
       @retry-sync="handleRetrySync"
     />
+
+    <!-- iOS / iPadOS 添加到主屏幕引导弹窗 -->
+    <IosInstallGuideModal
+      :visible="showIOSGuide"
+      @close="closeIOSGuide"
+    />
   </div>
 </template>
 
@@ -95,6 +101,7 @@ import { useKeypad } from "./composables/useKeypad";
 import { useCloudRecords } from "./composables/useCloudRecords";
 import { useResponsiveScale } from "./composables/useResponsiveScale";
 import { useKeyboard } from "./composables/useKeyboard";
+import { usePWAInstall } from "./composables/usePWAInstall";
 
 import SidebarConfig from "./components/sidebar/SidebarConfig.vue";
 import ExamTopBar from "./components/exam/ExamTopBar.vue";
@@ -102,6 +109,9 @@ import PaperScaleContainer from "./components/paper/PaperScaleContainer.vue";
 import KeypadPopover from "./components/exam/KeypadPopover.vue";
 import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
 import ScoreModal from "./components/exam/ScoreModal.vue";
+import IosInstallGuideModal from "./components/exam/IosInstallGuideModal.vue";
+
+const { showIOSGuide, closeIOSGuide } = usePWAInstall();
 
 // 试卷及考务基础配置
 const config = reactive<PaperConfig>({

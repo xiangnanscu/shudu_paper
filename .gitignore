@@ -2,7 +2,7 @@
 node_modules/
 
 # 构建产物（本项目中 Vite 构建输出目录为 public/，由 Wrangler static assets 提供静态服务）
-public/
+/public/
 dist/
 dist-ssr/
 

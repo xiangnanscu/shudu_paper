@@ -131,6 +131,12 @@
   color: #166534;
 }
 
+.cloud-sync-status-card.offline_saved {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
 .cloud-sync-status-card.error {
   background: #fef2f2;
   border-color: #fecaca;

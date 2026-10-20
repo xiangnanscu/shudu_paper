@@ -238,6 +238,24 @@
   background: #f8fafc;
 }
 
+.btn-outline-install {
+  background: #f0fdf4;
+  color: var(--accent);
+  border: 1px solid #bbf7d0;
+}
+
+.btn-outline-install:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .sidebar-footer {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+
 /* 遮罩层 */
 .sidebar-backdrop {
   display: none;

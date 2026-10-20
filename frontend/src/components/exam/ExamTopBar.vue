@@ -67,6 +67,17 @@
         <span>↺ 重新作答</span>
       </button>
 
+      <!-- PWA 安装按钮 (仅在非 Standalone 且可安装时显示) -->
+      <button
+        v-if="!isStandalone && canInstall"
+        class="btn-install-pwa"
+        type="button"
+        title="安装应用到平板或电脑桌面"
+        @click="promptInstall"
+      >
+        <span>📥 安装</span>
+      </button>
+
       <!-- 历史记录侧栏按钮 -->
       <button
         class="btn-drawer-toggle"
@@ -83,6 +94,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ExamStatus } from "../../types/exam";
+import { usePWAInstall } from "../../composables/usePWAInstall";
+
+const { canInstall, isStandalone, promptInstall } = usePWAInstall();
 
 const props = defineProps<{
   examStatus: ExamStatus;

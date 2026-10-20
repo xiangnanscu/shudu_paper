@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --config frontend/vite.config.ts",
     "dev:worker": "wrangler dev",
-    "build:frontend": "vite build --config frontend/vite.config.ts",
+    "generate-icons": "node scripts/generate-icons.js",
+    "build:frontend": "node scripts/generate-icons.js && vite build --config frontend/vite.config.ts",
     "build": "npm run build:frontend",
     "deploy": "npm run build && wrangler deploy"
   },
@@ -19,6 +20,7 @@
     "@vitejs/plugin-vue": "^5.1.4",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
+    "vite-plugin-pwa": "^2.0.0",
     "vue-tsc": "^2.1.10",
     "wrangler": "^4.42.0"
   }
