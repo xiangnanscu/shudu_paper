@@ -9,15 +9,14 @@
         stroke="currentColor"
         stroke-width="2"
       >
-        <polygon
-          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-        />
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
       </svg>
-      卷头与考生信息
+      卷头
     </div>
 
     <div class="form-group">
-      <label for="paperTitle">试卷主标题</label>
+      <label for="paperTitle">🏷️ 主标题</label>
       <input
         id="paperTitle"
         v-model="config.paperTitle"
@@ -27,7 +26,7 @@
     </div>
 
     <div class="form-group">
-      <label for="paperSubtitle">做题说明 / 规则提示</label>
+      <label for="paperSubtitle">💬 说明</label>
       <input
         id="paperSubtitle"
         v-model="config.paperSubtitle"
@@ -38,44 +37,44 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label for="inputStudentName">学生姓名</label>
+        <label for="inputStudentName">👤 姓名</label>
         <input
           id="inputStudentName"
           v-model="config.studentName"
           type="text"
           class="form-control"
-          placeholder="做题人姓名"
+          placeholder="姓名"
         />
       </div>
       <div class="form-group">
-        <label for="inputStudentClass">班级</label>
+        <label for="inputStudentClass">🏫 班级</label>
         <input
           id="inputStudentClass"
           v-model="config.studentClass"
           type="text"
           class="form-control"
-          placeholder="例如：一年级"
+          placeholder="班级"
         />
       </div>
     </div>
 
     <div class="form-group">
-      <label>考务信息栏显示</label>
+      <label>📋 信息栏</label>
       <div class="checkbox-group">
         <label class="checkbox-label">
-          <input v-model="config.showName" type="checkbox" /> 姓名
+          <input v-model="config.showName" type="checkbox" /> 👤 姓名
         </label>
         <label class="checkbox-label">
-          <input v-model="config.showClass" type="checkbox" /> 班级
+          <input v-model="config.showClass" type="checkbox" /> 🏫 班级
         </label>
         <label class="checkbox-label">
-          <input v-model="config.showDate" type="checkbox" /> 日期
+          <input v-model="config.showDate" type="checkbox" /> 📅 日期
         </label>
         <label class="checkbox-label">
-          <input v-model="config.showTime" type="checkbox" /> 用时
+          <input v-model="config.showTime" type="checkbox" /> ⏱️ 用时
         </label>
         <label class="checkbox-label">
-          <input v-model="config.showScore" type="checkbox" /> 得分
+          <input v-model="config.showScore" type="checkbox" /> 💯 得分
         </label>
       </div>
     </div>

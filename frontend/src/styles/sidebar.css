@@ -15,7 +15,7 @@
 }
 
 .sidebar-header {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
   background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
   color: #ffffff;
@@ -35,7 +35,7 @@
 }
 
 .sidebar-header h1 {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -110,14 +110,8 @@
   font-weight: 600;
   color: #334155;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.form-group label span.tip {
-  font-size: 0.75rem;
-  font-weight: normal;
-  color: var(--text-muted);
+  gap: 5px;
 }
 
 .form-control,
@@ -178,6 +172,12 @@
   background: #ffffff;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.footer-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 

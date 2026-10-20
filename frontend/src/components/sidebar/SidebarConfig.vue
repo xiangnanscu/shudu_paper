@@ -13,16 +13,15 @@
         <button
           class="sidebar-close-btn"
           type="button"
-          aria-label="关闭设置"
+          aria-label="关闭"
           @click="emit('close')"
         >
           ✕
         </button>
-        <!-- <span class="title-badge">A4 打印优化 · 在线互动答题版</span> -->
         <h1>
           <svg
-            width="22"
-            height="22"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -36,72 +35,75 @@
             <path d="M7 8h.01" />
             <path d="M17 16h.01" />
           </svg>
-          四宫格数独试卷
+          设置
         </h1>
-        <!-- <p>动态出题 · 唯一解算法 · 在线答题评分</p> -->
       </div>
 
       <div class="sidebar-body">
-        <!-- 试卷核心参数 -->
+        <!-- 规格 -->
         <SpecSection
           :config="config"
           @change-structure="emit('changeStructure')"
         />
 
-        <!-- 试卷版面定制 -->
+        <!-- 卷头 -->
         <LayoutSection :config="config" />
 
-        <!-- 答案选项 -->
+        <!-- 答案 -->
         <AnswerSection :config="config" />
       </div>
 
       <!-- 底部操作按钮 -->
       <div class="sidebar-footer">
-        <button
-          type="button"
-          class="btn btn-primary"
-          @click="emit('print')"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
+        <div class="footer-btn-row">
+          <button
+            type="button"
+            class="btn btn-primary"
+            title="打印试卷或另存为 PDF"
+            @click="emit('print')"
           >
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path
-              d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
-            />
-            <rect x="6" y="14" width="12" height="8" />
-          </svg>
-          立即打印试卷 / 另存为 PDF
-        </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path
+                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+              />
+              <rect x="6" y="14" width="12" height="8" />
+            </svg>
+            打印 / PDF
+          </button>
 
-        <button
-          type="button"
-          class="btn btn-secondary"
-          @click="emit('regenerate')"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
+          <button
+            type="button"
+            class="btn btn-secondary"
+            title="换一批题目"
+            @click="emit('regenerate')"
           >
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-          </svg>
-          换一批全新试题 (重新做题)
-        </button>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            换一批
+          </button>
+        </div>
 
         <button
           v-if="!isStandalone && canInstall"
           type="button"
           class="btn btn-outline-install"
-          title="安装应用到平板或电脑桌面"
+          title="安装应用"
           @click="promptInstall"
         >
           <svg
@@ -116,7 +118,7 @@
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          安装到平板或电脑桌面
+          安装应用
         </button>
       </div>
     </aside>

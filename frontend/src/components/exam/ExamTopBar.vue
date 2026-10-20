@@ -5,7 +5,7 @@
       <button
         class="btn-mobile-sidebar"
         type="button"
-        title="设置试卷参数"
+        title="设置"
         @click="emit('openSidebar')"
       >
         <span>⚙️ 设置</span>

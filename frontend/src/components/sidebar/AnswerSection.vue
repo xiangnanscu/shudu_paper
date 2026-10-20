@@ -12,20 +12,20 @@
         <polyline points="9 11 12 14 22 4" />
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
       </svg>
-      答案与批改
+      答案
     </div>
 
     <div class="form-group">
       <label class="checkbox-label" style="font-weight: 600">
         <input v-model="config.appendAnswerPage" type="checkbox" />
-        试卷末尾附参考答案页 (与试卷同布局 · 便于比对)
+        📄 附答案页
       </label>
     </div>
 
     <div class="form-group">
       <label class="checkbox-label" style="font-weight: 600">
         <input v-model="config.showAnswers" type="checkbox" />
-        在试卷中直接浮现答案 (老师投屏/电子对答案)
+        👁️ 显示答案
       </label>
     </div>
   </div>

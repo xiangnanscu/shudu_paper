@@ -15,12 +15,12 @@
         <line x1="16" y1="17" x2="8" y2="17" />
         <polyline points="10 9 9 9 8 9" />
       </svg>
-      出题规格
+      规格
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label for="pagesCount">试卷页数</label>
+        <label for="pagesCount">📄 页数</label>
         <select
           id="pagesCount"
           v-model.number="config.pagesCount"
@@ -31,79 +31,58 @@
           <option :value="2">2 页</option>
           <option :value="3">3 页</option>
           <option :value="5">5 页</option>
-          <option :value="10">10 页 (大批量)</option>
+          <option :value="10">10 页</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="rowsPerPage">
-          每页行数
-          <span class="tip">(每行固定3题)</span>
-        </label>
+        <label for="rowsPerPage">⊞ 行数</label>
         <select
           id="rowsPerPage"
           v-model.number="config.rowsPerPage"
           class="form-select"
           @change="emit('changeStructure')"
         >
-          <option :value="2">2 行 (6题 · 启蒙特大 · 推荐)</option>
-          <option :value="3">3 行 (9题 · 超大格)</option>
-          <option :value="4">4 行 (12题 · 进阶训练)</option>
-          <option :value="5">5 行 (15题 · 紧凑版)</option>
+          <option :value="2">2 行 (6题)</option>
+          <option :value="3">3 行 (9题)</option>
+          <option :value="4">4 行 (12题)</option>
+          <option :value="5">5 行 (15题)</option>
         </select>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="difficulty">难度等级</label>
+      <label for="difficulty">⚡ 难度</label>
       <select
         id="difficulty"
         v-model="config.difficulty"
         class="form-select"
         @change="emit('changeStructure')"
       >
-        <option value="starter">
-          入门级 (13~14个已知数 · 空2~3格，幼儿启蒙首选)
-        </option>
-        <option value="easy">
-          初级 (9~12个已知数 · 空4~7格，巩固基础规则)
-        </option>
-        <option value="medium">
-          中级 (6~8个已知数 · 空8~10格，行列交叉排除)
-        </option>
-        <option value="medium_hypo_direct">
-          🎯 中级假设 · 直接排除 (二选一试数 · 冲突直显 · 专项)
-        </option>
-        <option value="medium_hypo_deep">
-          🎯 中级假设 · 深度尝试 (二选一试数 · 局部隐藏 · 进阶)
-        </option>
-        <option value="medium_hypo_mixed">
-          🎯 中级假设 · 综合专项 (直接排除 + 深度尝试混合)
-        </option>
-        <option value="hard">
-          高级 (4~5个已知数 · 空11~12格，极少提示挑战)
-        </option>
-        <option value="mixed_page">
-          阶梯递进 (每页从入门→初级→中级→高级)
-        </option>
-        <option value="random">
-          随机混合 (全范围4~14个已知数)
-        </option>
+        <option value="starter">★ 入门</option>
+        <option value="easy">★★ 初级</option>
+        <option value="medium">★★★ 中级</option>
+        <option value="medium_hypo_direct">🎯 假设·直显</option>
+        <option value="medium_hypo_deep">🎯 假设·深度</option>
+        <option value="medium_hypo_mixed">🎯 假设·综合</option>
+        <option value="hard">★★★★ 高级</option>
+        <option value="mixed_page">📈 阶梯</option>
+        <option value="random">🎲 随机</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label for="symbolType">题型元素</label>
+      <label for="symbolType">🔣 元素</label>
       <select
         id="symbolType"
         v-model="config.symbolType"
         class="form-select"
       >
-        <option value="numbers">经典数字 (1, 2, 3, 4)</option>
-        <option value="letters">英文字母 (A, B, C, D)</option>
-        <option value="shapes">几何形状 (●, ▲, ■, ★)</option>
-        <option value="fruits">趣味水果 (🍎, 🍌, 🍇, 🍓)</option>
-        <option value="animals">萌趣动物 (🐱, 🐶, 🐰, 🐼)</option>
+        <option value="numbers">1 2 3 4</option>
+        <option value="letters">A B C D</option>
+        <option value="shapes">● ▲ ■ ★</option>
+        <option value="fruits">🍎 🍌 🍇 🍓</option>
+        <option value="animals">🐱 🐶 🐰 🐼</option>
       </select>
     </div>
   </div>
