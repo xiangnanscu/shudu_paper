@@ -79,6 +79,21 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.drawer-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.drawer-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* 顶部小程序统计大卡片 */
@@ -102,23 +117,39 @@
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
   text-align: center;
 }
 
+.stat-item + .stat-item {
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 .stat-item .stat-num {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 800;
   line-height: 1.2;
+}
+
+.stat-item .stat-num .stat-unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-left: 2px;
+  opacity: 0.85;
 }
 
 .stat-item .stat-label {
   font-size: 0.72rem;
   opacity: 0.8;
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 /* 时间段分组容器 */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .timeline-section {
   display: flex;
   flex-direction: column;
@@ -128,88 +159,104 @@
 .timeline-header {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #64748b;
-  letter-spacing: 0.4px;
+  color: #475569;
+  letter-spacing: 0.3px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding-left: 4px;
+  gap: 8px;
+  padding-left: 2px;
+  margin-top: 2px;
 }
 
 .timeline-header::before {
   content: "";
   width: 4px;
-  height: 12px;
+  height: 13px;
   background: var(--primary);
   border-radius: 2px;
 }
 
-/* 单条做题卡片 (微信小程序风格) */
+.timeline-count {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+/* 单条做题卡片 (微信小程序风格)：上内容下操作的两段式布局 */
 .record-card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.04);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  overflow: hidden;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .record-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   border-color: #cbd5e1;
 }
 
-.btn-record-redo {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #c2410c;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+.record-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.record-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.btn-record-redo,
+.btn-record-view {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-record-redo {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  color: #c2410c;
 }
 
 .btn-record-redo:hover {
-  background: #ffedd5;
+  background: #fff7ed;
   border-color: #fdba74;
   color: #9a3412;
 }
 
 .btn-record-view {
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
-  color: #1d4ed8;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .btn-record-view:hover {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.record-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .score-circle {
@@ -220,10 +267,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 1.1rem;
   color: #ffffff;
   flex-shrink: 0;
+  line-height: 1;
+}
+
+.score-circle .score-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.score-circle .score-unit {
+  font-size: 0.58rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 2px;
+  letter-spacing: 1px;
 }
 
 .score-circle.score-perfect {
@@ -246,71 +305,64 @@
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
 }
 
-.record-details {
+.record-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  min-width: 0;
 }
 
 .record-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #0f172a;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.record-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .record-meta {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: #64748b;
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
-.record-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.meta-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
 }
 
-.btn-record-action {
-  background: #f1f5f9;
-  border: none;
-  color: #475569;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 5px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.1s ease;
-}
-
-.btn-record-action:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-.btn-record-action.btn-del {
+.meta-time {
   color: #94a3b8;
-}
-
-.btn-record-action.btn-del:hover {
-  background: #fee2e2;
-  color: #dc2626;
 }
 
 .cloud-tag {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   color: #0284c7;
-  background: #e0f2fe;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: 600;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .cloud-loading-state {

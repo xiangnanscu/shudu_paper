@@ -6,7 +6,8 @@
       class="timeline-section"
     >
       <div class="timeline-header">
-        {{ group.label }} ({{ group.list.length }}次)
+        {{ group.label }}
+        <span class="timeline-count">{{ group.list.length }} 次</span>
       </div>
       <RecordCard
         v-for="rec in group.list"

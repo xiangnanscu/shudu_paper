@@ -1,28 +1,29 @@
 <template>
   <div class="record-card" @click="emit('viewDetail', record.id)">
-    <div class="record-left">
+    <div class="record-main">
       <!-- 微信小程序风格彩色分数圈 -->
       <div class="score-circle" :class="scoreCircleClass">
-        {{ record.score }}
+        <span class="score-num">{{ record.score }}</span>
+        <span class="score-unit">分</span>
       </div>
 
-      <div class="record-details">
+      <div class="record-info">
         <div class="record-title">
-          <span>{{ difficultyText }}</span>
+          <span class="record-name">{{ difficultyText }}</span>
           <span class="cloud-tag">☁️ 云端已同步</span>
         </div>
         <div class="record-meta">
-          <span>{{ record.total_puzzles ?? record.totalPuzzles ?? 0 }} 题</span>
-          <span>·</span>
+          <span>{{ totalPuzzles }} 题</span>
+          <i class="meta-dot"></i>
           <span>用时 {{ formattedDuration }}</span>
-          <span>·</span>
-          <span>{{ timeStr }}</span>
+          <i class="meta-dot"></i>
+          <span class="meta-time">{{ timeStr }}</span>
         </div>
       </div>
     </div>
 
-    <!-- 快捷操作区 -->
-    <div class="record-actions" @click.stop>
+    <!-- 底部操作区：与内容分隔，避免按钮与文字挤压 -->
+    <div class="record-footer" @click.stop>
       <!-- 做错的试卷高亮提供重做错卷按钮 -->
       <button
         v-if="isWrongExam"
@@ -31,7 +32,20 @@
         title="重新挑战此套做错的试卷"
         @click="emit('redo', record.id)"
       >
-        ↺ 重做
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+          <polyline points="3 4 3 9 8 9"></polyline>
+        </svg>
+        重新挑战
       </button>
 
       <button
@@ -40,7 +54,19 @@
         title="查看试卷详情与步骤复盘"
         @click="emit('viewDetail', record.id)"
       >
-        复盘 ❯
+        查看复盘
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 6 15 12 9 18"></polyline>
+        </svg>
       </button>
     </div>
   </div>
@@ -74,6 +100,10 @@ const scoreCircleClass = computed(() => {
   if (s >= 60) return "score-mid";
   return "score-low";
 });
+
+const totalPuzzles = computed(
+  () => props.record.total_puzzles ?? props.record.totalPuzzles ?? 0
+);
 
 const difficultyText = computed(() => {
   const diffLabels: Record<string, string> = {

@@ -15,7 +15,9 @@
         <div class="stat-label">平均分</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">{{ formattedTotalTime }}</div>
+        <div class="stat-num">
+          {{ totalTime.num }}<span class="stat-unit">{{ totalTime.unit }}</span>
+        </div>
         <div class="stat-label">累计用时</div>
       </div>
     </div>
@@ -30,9 +32,9 @@ const props = defineProps<{
   stats: ExamStats;
 }>();
 
-const formattedTotalTime = computed(() => {
+const totalTime = computed(() => {
   const sec = props.stats.totalTimeSpent || 0;
   const mins = Math.round(sec / 60);
-  return mins > 0 ? `${mins}分` : `${sec}秒`;
+  return mins > 0 ? { num: mins, unit: "分钟" } : { num: sec, unit: "秒" };
 });
 </script>
