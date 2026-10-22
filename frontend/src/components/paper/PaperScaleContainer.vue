@@ -23,7 +23,6 @@
         :exam-result="examResult"
         :is-answer-sheet="false"
         @select-cell="(elem, pId, r, c) => emit('selectCell', elem, pId, r, c)"
-        @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
       />
 
       <!-- 附录答案页 -->
@@ -80,7 +79,6 @@ const emit = defineEmits<{
     r: number,
     c: number
   ): void;
-  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);

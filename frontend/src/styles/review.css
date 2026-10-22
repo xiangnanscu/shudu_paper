@@ -1124,30 +1124,4 @@
   border-color: #93c5fd;
 }
 
-/* 卷面批改状态下的订正按钮 */
-.btn-card-redo {
-  padding: 2px 8px;
-  border-radius: 6px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #dc2626;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.btn-card-redo:hover {
-  background: #fee2e2;
-  border-color: #f87171;
-}
-
-.btn-card-redo.corrected {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #15803d;
-}
 

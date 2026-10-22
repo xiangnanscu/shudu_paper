@@ -45,7 +45,6 @@
         :container-height="scale.containerHeight.value"
         :container-margin-bottom="scale.containerMarginBottom.value"
         @select-cell="handleSelectCell"
-        @redo-puzzle="handleOpenSingleRedo"
       />
     </main>
 

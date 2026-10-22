@@ -11,25 +11,26 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 3px;
+  align-items: center;
+  margin-bottom: 4px;
   padding: 0 2px;
   box-sizing: border-box;
 }
 
 .sudoku-card-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #0f172a;
   display: flex;
   align-items: center;
-  gap: 4px;
+  white-space: nowrap;
 }
 
 .sudoku-difficulty-tag {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #64748b;
-  font-weight: 500;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* 4x4 数独盘面 */

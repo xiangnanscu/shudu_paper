@@ -3,42 +3,12 @@
     <div class="sudoku-card-header" :style="{ width: boardSize }">
       <div class="sudoku-card-title">
         <span>第 {{ puzzle.id }} 题</span>
-        <button
-          v-if="isWrong"
-          type="button"
-          class="btn-card-redo no-print"
-          title="单题重新订正此错题"
-          @click.stop="emit('redoPuzzle', puzzle)"
-        >
-          ↺ 订正
-        </button>
       </div>
       <div
-        class="sudoku-difficulty-tag"
-        :class="{ 'answer-tag': isAnswerSheet }"
+        v-if="isAnswerSheet"
+        class="sudoku-difficulty-tag answer-tag"
       >
-        <template v-if="isAnswerSheet">
-          <template v-if="puzzle.hypoType === 'direct'">
-            答案 · 假设直接排除 · 给{{ puzzle.cluesCount }}数
-          </template>
-          <template v-else-if="puzzle.hypoType === 'deep'">
-            答案 · 假设深度尝试 · 给{{ puzzle.cluesCount }}数
-          </template>
-          <template v-else>
-            答案 · 给{{ puzzle.cluesCount }}数
-          </template>
-        </template>
-        <template v-else>
-          <template v-if="puzzle.hypoType === 'direct'">
-            🎯 假设·直接排除 · 给 {{ puzzle.cluesCount }} 数
-          </template>
-          <template v-else-if="puzzle.hypoType === 'deep'">
-            🎯 假设·深度尝试 · 给 {{ puzzle.cluesCount }} 数
-          </template>
-          <template v-else>
-            给 {{ puzzle.cluesCount }} 数
-          </template>
-        </template>
+        答案
       </div>
     </div>
 
@@ -75,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import type { SudokuPuzzle } from "../../types/sudoku";
 import type { ExamStatus, UserAnswers, ActiveCell } from "../../types/exam";
 import SudokuCell from "./SudokuCell.vue";
@@ -107,21 +76,5 @@ const emit = defineEmits<{
     r: number,
     c: number
   ): void;
-  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
 }>();
-
-const isWrong = computed(() => {
-  if (props.examStatus !== "submitted" || props.isAnswerSheet) return false;
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
-      if (props.puzzle.puzzle[r][c] === 0) {
-        const key = `${props.puzzle.id}_${r}_${c}`;
-        if (props.userAnswers[key] !== props.puzzle.solution[r][c]) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-});
 </script>
