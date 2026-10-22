@@ -42,9 +42,18 @@
         <div class="step-player-board-panel">
           <!-- 题目与题型标签 -->
           <div style="display: flex; align-items: center; justify-content: space-between; width: 260px;">
-            <span style="font-weight: 700; font-size: 1rem; color: #0f172a;">
-              第 {{ currentDisplayPuzzle.id }} 题
-            </span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 700; font-size: 1rem; color: #0f172a;">
+                第 {{ currentDisplayPuzzle.id }} 题
+              </span>
+              <button
+                type="button"
+                class="btn-redo-puzzle-player"
+                @click="emit('redoPuzzle', currentDisplayPuzzle)"
+              >
+                ↺ 重做
+              </button>
+            </div>
             <span class="review-tag">
               {{ currentDisplayPuzzle.hypoType === 'direct' ? '假设·直接排除' : currentDisplayPuzzle.hypoType === 'deep' ? '假设·深度尝试' : '给 ' + currentDisplayPuzzle.cluesCount + ' 数' }}
             </span>
@@ -102,9 +111,19 @@
             :class="diagnosisCardClass"
           >
             <div class="diag-icon">{{ diagnosisIcon }}</div>
-            <div class="diag-body">
+            <div class="diag-body" style="flex: 1;">
               <strong>{{ diagnosisTitle }}</strong>
               <div>{{ diagnosisMessage }}</div>
+              <div v-if="diagnosisCardClass === 'diag-wrong'" style="margin-top: 8px;">
+                <button
+                  type="button"
+                  class="btn-redo-puzzle-player"
+                  style="background: #ffffff; border-color: #fca5a5; color: #b91c1c;"
+                  @click="emit('redoPuzzle', currentDisplayPuzzle)"
+                >
+                  ↺ 亲自订正此题
+                </button>
+              </div>
             </div>
           </div>
 
@@ -256,6 +275,10 @@ const props = withDefaults(
     initialPuzzleId: 0,
   }
 );
+
+const emit = defineEmits<{
+  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
+}>();
 
 const selectedPuzzleId = ref<number>(props.initialPuzzleId || 0);
 const currentStepIndex = ref<number>(0);

@@ -722,3 +722,432 @@
     max-height: 240px;
   }
 }
+
+/* ==========================================================================
+   单题重做专属样式 (Single Puzzle Redo Modal & Cards)
+   ========================================================================== */
+
+/* 遮罩背景 (层级高于复盘弹窗 1050) */
+.single-redo-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: reviewFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 弹窗主体卡片 */
+.single-redo-modal {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.22), 0 0 1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: reviewSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 弹窗顶部栏 */
+.single-redo-header {
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.single-redo-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.single-redo-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.single-redo-timer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 弹窗主体区 */
+.single-redo-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+}
+
+/* 4x4 大号盘面 */
+.single-redo-board {
+  width: 280px;
+  height: 280px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  border: 2.5px solid #1e293b;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.single-redo-board.shake {
+  animation: singleRedoShake 0.4s ease;
+}
+
+@keyframes singleRedoShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* 盘面单元格 */
+.single-redo-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
+  border-right: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* 2x2 宫加粗边框 */
+.single-redo-cell.col-border {
+  border-right: 2.5px solid #1e293b;
+}
+
+.single-redo-cell.row-border {
+  border-bottom: 2.5px solid #1e293b;
+}
+
+/* 初始已知数线索格 */
+.single-redo-cell.clue-cell {
+  background: #f8fafc;
+  color: #1e293b;
+  cursor: default;
+}
+
+/* 空格待填 */
+.single-redo-cell.empty-cell {
+  background: #ffffff;
+  color: #2563eb;
+}
+
+.single-redo-cell.empty-cell:hover:not(.clue-cell) {
+  background: #f8fafc;
+}
+
+/* 选中高亮格 */
+.single-redo-cell.is-selected {
+  background: #eff6ff !important;
+  box-shadow: 0 0 0 2.5px #2563eb inset;
+}
+
+/* 校验错误格 */
+.single-redo-cell.is-wrong {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+}
+
+/* 校验正确格 */
+.single-redo-cell.is-correct {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+}
+
+/* 参考答案角标 */
+.single-redo-cell .redo-ans-hint {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* 反馈状态栏 */
+.single-redo-feedback {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.single-redo-feedback.normal {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.single-redo-feedback.success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.single-redo-feedback.warning {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+/* 底部触控大键盘 */
+.single-redo-keypad {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.single-redo-key-btn {
+  height: 52px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.single-redo-key-btn:active {
+  transform: scale(0.95);
+  background: #e2e8f0;
+}
+
+.single-redo-key-btn.erase-key {
+  font-size: 1.1rem;
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+.single-redo-key-btn.erase-key:active {
+  background: #ffe4e6;
+}
+
+/* 辅助控制按钮栏 */
+.single-redo-tools {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.single-redo-tools .tool-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.single-redo-tools .tool-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.single-redo-tools .tool-btn.primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  flex: 1.4;
+}
+
+.single-redo-tools .tool-btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.single-redo-tools .tool-btn.success-done {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+  flex: 2;
+  font-size: 0.9rem;
+}
+
+.single-redo-tools .tool-btn.success-done:hover {
+  background: #15803d;
+}
+
+/* --------------------------------------------------------------------------
+   复盘总览卡片中的重做按钮与徽标样式
+   -------------------------------------------------------------------------- */
+
+.review-puzzle-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-redo-puzzle {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-redo-puzzle:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-redo-puzzle.is-wrong {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+  font-weight: 700;
+}
+
+.btn-redo-puzzle.is-wrong:hover {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+.btn-redo-puzzle.is-corrected {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.btn-redo-puzzle.is-corrected:hover {
+  background: #dcfce7;
+}
+
+/* 已订正与状态徽标 */
+.badge-corrected {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #dcfce7;
+  color: #15803d;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.badge-wrong-mark {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #fee2e2;
+  color: #dc2626;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 推演播放器内的重做按钮 */
+.btn-redo-puzzle-player {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-redo-puzzle-player:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+/* 卷面批改状态下的订正按钮 */
+.btn-card-redo {
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn-card-redo:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.btn-card-redo.corrected {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+

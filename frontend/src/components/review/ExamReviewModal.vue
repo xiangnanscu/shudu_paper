@@ -124,7 +124,9 @@
           :user-answers="record.userAnswers"
           :steps="record.steps"
           :symbol-map="symbolMap"
+          :corrected-puzzle-ids="correctedPuzzleIds"
           @inspect-puzzle="handleInspectPuzzle"
+          @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
         />
 
         <!-- 视图 B：步骤推演播放器 -->
@@ -134,6 +136,7 @@
           :steps="record.steps"
           :symbol-map="symbolMap"
           :initial-puzzle-id="inspectingPuzzleId"
+          @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
         />
       </div>
     </div>
@@ -143,20 +146,28 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import type { ExamRecordDetail } from "../../types/record";
+import type { SudokuPuzzle } from "../../types/sudoku";
 import ReviewPaperOverview from "./ReviewPaperOverview.vue";
 import ReviewStepPlayer from "./ReviewStepPlayer.vue";
 
-const props = defineProps<{
-  isOpen: boolean;
-  loading: boolean;
-  loadError: string | null;
-  record: ExamRecordDetail | null;
-  symbolMap: Record<number, string>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    loading: boolean;
+    loadError: string | null;
+    record: ExamRecordDetail | null;
+    symbolMap: Record<number, string>;
+    correctedPuzzleIds?: Set<number>;
+  }>(),
+  {
+    correctedPuzzleIds: () => new Set<number>(),
+  }
+);
 
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "redo", record: ExamRecordDetail): void;
+  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
 }>();
 
 const currentTab = ref<"overview" | "player">("overview");

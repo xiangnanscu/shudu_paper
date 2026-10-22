@@ -45,6 +45,7 @@
         :container-height="scale.containerHeight.value"
         :container-margin-bottom="scale.containerMarginBottom.value"
         @select-cell="handleSelectCell"
+        @redo-puzzle="handleOpenSingleRedo"
       />
     </main>
 
@@ -80,8 +81,19 @@
       :load-error="reviewError"
       :record="reviewRecordDetail"
       :symbol-map="sudoku.currentSymbolMap.value"
+      :corrected-puzzle-ids="correctedPuzzleIds"
       @close="isReviewModalOpen = false"
       @redo="handleRedoRecord"
+      @redo-puzzle="handleOpenSingleRedo"
+    />
+
+    <!-- 单题订正重做模态窗 (Single Puzzle Redo Modal) -->
+    <SingleRedoModal
+      :is-open="isSingleRedoOpen"
+      :puzzle="activeRedoPuzzle"
+      :symbol-map="sudoku.currentSymbolMap.value"
+      @close="isSingleRedoOpen = false"
+      @success="handleSingleRedoSuccess"
     />
 
     <!-- 成绩批改弹窗 (Score Modal) -->
@@ -116,6 +128,7 @@
 import { reactive, ref, toRef, watch, onMounted, onUnmounted, nextTick } from "vue";
 import type { PaperConfig } from "./types/config";
 import type { ExamRecordDetail } from "./types/record";
+import type { SudokuPuzzle } from "./types/sudoku";
 import { useSudoku } from "./composables/useSudoku";
 import { useExamTimer } from "./composables/useExamTimer";
 import { useExam } from "./composables/useExam";
@@ -133,6 +146,7 @@ import KeypadPopover from "./components/exam/KeypadPopover.vue";
 import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
 import ScoreModal from "./components/exam/ScoreModal.vue";
 import ExamReviewModal from "./components/review/ExamReviewModal.vue";
+import SingleRedoModal from "./components/review/SingleRedoModal.vue";
 import IosInstallGuideModal from "./components/exam/IosInstallGuideModal.vue";
 import ConfirmDialog from "./components/common/ConfirmDialog.vue";
 
@@ -152,6 +166,11 @@ const isReviewModalOpen = ref(false);
 const reviewLoading = ref(false);
 const reviewError = ref<string | null>(null);
 const reviewRecordDetail = ref<ExamRecordDetail | null>(null);
+
+// 单题订正重做状态
+const isSingleRedoOpen = ref(false);
+const activeRedoPuzzle = ref<SudokuPuzzle | null>(null);
+const correctedPuzzleIds = ref<Set<number>>(new Set());
 
 // 试卷及考务基础配置
 const config = reactive<PaperConfig>({
@@ -311,9 +330,43 @@ function handleKeypadFill(val: number) {
   keypad.close();
 }
 
+// 打开单题订正重做
+function handleOpenSingleRedo(puzzle: SudokuPuzzle) {
+  activeRedoPuzzle.value = puzzle;
+  isSingleRedoOpen.value = true;
+}
+
+// 单题重做订正成功闭环处理
+function handleSingleRedoSuccess(payload: {
+  puzzleId: number;
+  timeSpent: number;
+  userAnswers: Record<string, number>;
+}) {
+  const nextSet = new Set(correctedPuzzleIds.value);
+  nextSet.add(payload.puzzleId);
+  correctedPuzzleIds.value = nextSet;
+
+  // 若处于已交卷批改状态，同步更正主试卷中的答案，让错题在卷面上实时转绿
+  if (exam.status.value === "submitted") {
+    Object.entries(payload.userAnswers).forEach(([posKey, val]) => {
+      const key = `${payload.puzzleId}_${posKey}`;
+      exam.userAnswers.value[key] = val;
+    });
+  }
+
+  // 若当前正在查看历史复盘，同步更正复盘详情中的作答
+  if (reviewRecordDetail.value) {
+    Object.entries(payload.userAnswers).forEach(([posKey, val]) => {
+      const key = `${payload.puzzleId}_${posKey}`;
+      reviewRecordDetail.value!.userAnswers[key] = val;
+    });
+  }
+}
+
 // 打开试卷详情与步骤复盘
 async function handleViewRecordDetail(recordId: string) {
   cloudRecords.closeDrawer();
+  correctedPuzzleIds.value = new Set();
   isReviewModalOpen.value = true;
   reviewLoading.value = true;
   reviewError.value = null;
@@ -372,8 +425,10 @@ async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
   // 关闭所有弹层
   cloudRecords.closeDrawer();
   isReviewModalOpen.value = false;
+  isSingleRedoOpen.value = false;
   exam.closeScoreModal();
   keypad.close();
+  correctedPuzzleIds.value = new Set();
 
   // 恢复试卷参数
   if (detail.difficulty) {
@@ -445,6 +500,8 @@ async function handleSubmitExam() {
 
 // 重新开始当前这一套题
 function handleRestartExam() {
+  correctedPuzzleIds.value = new Set();
+  isSingleRedoOpen.value = false;
   exam.restartCurrentExam();
   timer.reset();
   timer.start();
@@ -458,6 +515,8 @@ async function handleRegenerate() {
 }
 
 function applyRegenerate() {
+  correctedPuzzleIds.value = new Set();
+  isSingleRedoOpen.value = false;
   sudoku.generateAll();
   snapshotAppliedStructure();
   exam.resetExam();

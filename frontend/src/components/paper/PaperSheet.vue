@@ -25,6 +25,7 @@
         :active-cell="activeCell"
         :is-answer-sheet="isAnswerSheet"
         @select-cell="(elem, pId, r, c) => emit('selectCell', elem, pId, r, c)"
+        @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
       />
     </div>
 
@@ -73,5 +74,6 @@ const emit = defineEmits<{
     r: number,
     c: number
   ): void;
+  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
 }>();
 </script>

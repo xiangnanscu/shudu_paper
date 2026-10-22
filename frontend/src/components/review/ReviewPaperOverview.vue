@@ -59,12 +59,32 @@
 
         <div class="review-puzzle-action-bar">
           <button
+            type="button"
+            class="btn-redo-puzzle"
+            :class="{
+              'is-corrected': correctedPuzzleIds?.has(puzzle.id),
+              'is-wrong': isPuzzleWrong(puzzle) && !correctedPuzzleIds?.has(puzzle.id)
+            }"
+            @click="emit('redoPuzzle', puzzle)"
+          >
+            <template v-if="correctedPuzzleIds?.has(puzzle.id)">
+              ✓ 已订正 (再练一次)
+            </template>
+            <template v-else-if="isPuzzleWrong(puzzle)">
+              ↺ 重做此错题
+            </template>
+            <template v-else>
+              ↺ 单题重做
+            </template>
+          </button>
+
+          <button
             v-if="hasSteps"
             type="button"
             class="btn-inspect-puzzle"
             @click="emit('inspectPuzzle', puzzle.id)"
           >
-            🔍 分步推演此题
+            🔍 分步推演
           </button>
         </div>
       </div>
@@ -84,14 +104,17 @@ const props = withDefaults(
     userAnswers: UserAnswers;
     steps?: AnswerStep[];
     symbolMap: Record<number, string>;
+    correctedPuzzleIds?: Set<number>;
   }>(),
   {
     steps: () => [],
+    correctedPuzzleIds: () => new Set<number>(),
   }
 );
 
 const emit = defineEmits<{
   (e: "inspectPuzzle", puzzleId: number): void;
+  (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
 }>();
 
 const showStepBadge = ref(true);
