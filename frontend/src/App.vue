@@ -23,29 +23,52 @@
         :formatted-time="timer.formattedTime.value"
         :filled-count="exam.filledCount.value"
         :total-holes="sudoku.totalHoles.value"
+        :view-mode="viewMode"
         @open-sidebar="isSidebarOpen = true"
         @start-exam="handleStartExam"
         @submit-exam="handleSubmitExam"
         @restart-exam="handleRestartExam"
         @open-drawer="cloudRecords.openDrawer"
+        @toggle-view-mode="toggleViewMode"
       />
 
-      <!-- 动态缩放容器 (保证 A4 移动端贴合且排版一致) -->
-      <PaperScaleContainer
-        :puzzles-data="sudoku.puzzlesData.value"
-        :board-size="sudoku.boardSize.value"
-        :cell-font-size="sudoku.cellFontSize.value"
-        :symbol-map="sudoku.currentSymbolMap.value"
+      <!-- 移动端单题专注做题视图 (一次只显示一道题，超大盘面，防误触) -->
+      <MobileSingleExam
+        v-if="viewMode === 'single'"
+        :puzzles="sudoku.flatPuzzles.value"
         :exam-status="exam.status.value"
         :user-answers="exam.userAnswers.value"
-        :active-cell="keypad.activeCell.value"
-        :config="config"
+        :symbol-map="sudoku.currentSymbolMap.value"
         :exam-result="exam.currentResult.value"
-        :scale="scale.scale.value"
-        :container-height="scale.containerHeight.value"
-        :container-margin-bottom="scale.containerMarginBottom.value"
-        @select-cell="handleSelectCell"
+        :corrected-puzzle-ids="correctedPuzzleIds"
+        @start-exam="handleStartExam"
+        @submit-exam="handleSubmitExam"
+        @fill="handleSingleExamFill"
+        @redo-puzzle="handleOpenSingleRedo"
+        @toggle-view-mode="toggleViewMode"
       />
+
+      <!-- 动态缩放容器 (保证 A4 移动端贴合且排版一致，在打印模式下始终完整呈现) -->
+      <div
+        class="paper-container-wrapper"
+        :class="{ 'hidden-on-screen': viewMode === 'single' }"
+      >
+        <PaperScaleContainer
+          :puzzles-data="sudoku.puzzlesData.value"
+          :board-size="sudoku.boardSize.value"
+          :cell-font-size="sudoku.cellFontSize.value"
+          :symbol-map="sudoku.currentSymbolMap.value"
+          :exam-status="exam.status.value"
+          :user-answers="exam.userAnswers.value"
+          :active-cell="keypad.activeCell.value"
+          :config="config"
+          :exam-result="exam.currentResult.value"
+          :scale="scale.scale.value"
+          :container-height="scale.containerHeight.value"
+          :container-margin-bottom="scale.containerMarginBottom.value"
+          @select-cell="handleSelectCell"
+        />
+      </div>
     </main>
 
     <!-- 浮动小键盘 -->
@@ -140,6 +163,7 @@ import { useConfirmDialog } from "./composables/useConfirmDialog";
 
 import SidebarConfig from "./components/sidebar/SidebarConfig.vue";
 import ExamTopBar from "./components/exam/ExamTopBar.vue";
+import MobileSingleExam from "./components/exam/MobileSingleExam.vue";
 import PaperScaleContainer from "./components/paper/PaperScaleContainer.vue";
 import KeypadPopover from "./components/exam/KeypadPopover.vue";
 import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
@@ -205,6 +229,20 @@ const scale = useResponsiveScale(
   toRef(config, "pagesCount"),
   toRef(config, "appendAnswerPage")
 );
+
+// 视图模式：'single' (手机单题专注做题) 或 'paper' (A4整卷排版)
+// 手机屏幕 (<= 768px) 默认开启单题模式，一次只显示一道题，保证触控与点击舒适度
+const isMobileScreen = ref(typeof window !== "undefined" && window.innerWidth <= 768);
+const viewMode = ref<"single" | "paper">(isMobileScreen.value ? "single" : "paper");
+
+function toggleViewMode() {
+  viewMode.value = viewMode.value === "single" ? "paper" : "single";
+  if (viewMode.value === "paper") {
+    nextTick(() => {
+      scale.updateScale();
+    });
+  }
+}
 
 // 键盘快捷键监听
 useKeyboard({
@@ -327,6 +365,35 @@ function handleKeypadFill(val: number) {
     solutionVal
   );
   keypad.close();
+}
+
+// 移动端单题专注视图下的填数处理
+async function handleSingleExamFill(payload: {
+  puzzleId: number;
+  r: number;
+  c: number;
+  val: number;
+}) {
+  if (exam.status.value === "submitted") return;
+
+  if (exam.status.value === "ready") {
+    if (!(await confirmStartExam())) return;
+    exam.startExam();
+    timer.start();
+  }
+
+  const { puzzleId, r, c, val } = payload;
+  const targetPuzzle = sudoku.flatPuzzles.value.find((p) => p.id === puzzleId);
+  const solutionVal = targetPuzzle ? targetPuzzle.solution[r][c] : undefined;
+
+  exam.fillCell(
+    puzzleId,
+    r,
+    c,
+    val,
+    timer.elapsedSeconds.value,
+    solutionVal
+  );
 }
 
 // 打开单题订正重做

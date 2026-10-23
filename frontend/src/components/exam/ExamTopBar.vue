@@ -11,6 +11,16 @@
         <span>⚙️ 设置</span>
       </button>
 
+      <!-- 视图模式切换按钮（单题 / 整卷） -->
+      <button
+        class="btn-view-mode-toggle"
+        type="button"
+        :title="viewMode === 'single' ? '切换为 A4 整卷排版预览' : '切换为单题专注做题'"
+        @click="emit('toggleViewMode')"
+      >
+        <span>{{ viewMode === 'single' ? '📄 卷面' : '📱 单题' }}</span>
+      </button>
+
       <!-- 做题状态胶囊 -->
       <div class="exam-status-badge" :class="statusBadgeClass">
         <span>{{ statusIcon }}</span>
@@ -98,12 +108,18 @@ import { usePWAInstall } from "../../composables/usePWAInstall";
 
 const { canInstall, isStandalone, promptInstall } = usePWAInstall();
 
-const props = defineProps<{
-  examStatus: ExamStatus;
-  formattedTime: string;
-  filledCount: number;
-  totalHoles: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    examStatus: ExamStatus;
+    formattedTime: string;
+    filledCount: number;
+    totalHoles: number;
+    viewMode?: "single" | "paper";
+  }>(),
+  {
+    viewMode: "single",
+  }
+);
 
 const emit = defineEmits<{
   (e: "openSidebar"): void;
@@ -111,6 +127,7 @@ const emit = defineEmits<{
   (e: "submitExam"): void;
   (e: "restartExam"): void;
   (e: "openDrawer"): void;
+  (e: "toggleViewMode"): void;
 }>();
 
 const statusBadgeClass = computed(() => {

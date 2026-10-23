@@ -35,16 +35,48 @@
   }
 
   .top-exam-bar {
-    padding: 8px 12px;
+    padding: 8px 10px;
     gap: 8px;
   }
 
   .exam-info-group {
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .exam-actions-group {
+    gap: 6px;
+  }
+
+  .exam-timer {
+    font-size: 0.85rem;
+    padding: 3px 8px;
+  }
+
+  .exam-status-badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
   }
 
   .wechat-drawer {
     width: 100vw;
     max-width: 100vw;
+  }
+}
+
+/* 屏幕模式控制与打印兼容 */
+.paper-container-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.paper-container-wrapper.hidden-on-screen {
+  display: none !important;
+}
+
+@media print {
+  .paper-container-wrapper.hidden-on-screen {
+    display: block !important;
   }
 }

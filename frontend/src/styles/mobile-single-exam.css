@@ -1,0 +1,500 @@
+/* ==========================================================================
+   移动端单题专注做题视图样式 (Mobile Single Exam View)
+   针对手机小屏幕优化：单题超大 4x4 盘面、大字号、防误触、底部大触控键盘与快速切题
+   ========================================================================== */
+
+.mobile-single-exam-wrapper {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+  animation: singleExamFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes singleExamFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 顶部信息卡片 */
+.mobile-exam-header-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05), 0 0 1px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  gap: 8px;
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mobile-puzzle-number {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.mobile-puzzle-total {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.mobile-puzzle-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.mobile-status-pill.is-complete {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.mobile-status-pill.status-correct {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.mobile-status-pill.status-wrong {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-header-view-toggle {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.btn-header-view-toggle:active {
+  background: #e2e8f0;
+}
+
+/* 4x4 数独盘面主卡片 */
+.mobile-board-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08), 0 0 1px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  touch-action: pan-y;
+  position: relative;
+}
+
+/* 4x4 大号盘面 */
+.mobile-sudoku-board {
+  width: min(340px, 86vw);
+  height: min(340px, 86vw);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  border: 2.5px solid #1e293b;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* 盘面单元格 */
+.mobile-sudoku-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  border-right: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background-color 0.12s ease, outline-color 0.12s ease;
+  box-sizing: border-box;
+}
+
+/* 2x2 宫分界粗线 */
+.mobile-sudoku-cell.col-border {
+  border-right: 2.5px solid #1e293b;
+}
+
+.mobile-sudoku-cell.row-border {
+  border-bottom: 2.5px solid #1e293b;
+}
+
+/* 初始已知数格 */
+.mobile-sudoku-cell.is-clue {
+  background-color: #f8fafc;
+  color: #0f172a;
+  cursor: default;
+}
+
+/* 空白格交互 */
+.mobile-sudoku-cell.is-empty {
+  background-color: #ffffff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.mobile-sudoku-cell.is-empty:active {
+  background-color: #f1f5f9;
+}
+
+/* 选中高亮格 (深蓝色粗线呼吸框) */
+.mobile-sudoku-cell.is-selected {
+  background-color: #eff6ff !important;
+  outline: 3px solid #2563eb !important;
+  outline-offset: -2px;
+  z-index: 5;
+}
+
+/* 用户填入的值 */
+.mobile-sudoku-cell .user-val {
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+/* 批改正确 */
+.mobile-sudoku-cell.is-graded-correct {
+  background-color: #ecfdf5 !important;
+  color: #059669 !important;
+}
+
+.mobile-sudoku-cell.is-graded-correct::after {
+  content: "✓";
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #059669;
+  line-height: 1;
+}
+
+/* 批改错误 */
+.mobile-sudoku-cell.is-graded-wrong {
+  background-color: #fef2f2 !important;
+}
+
+.mobile-sudoku-cell.is-graded-wrong .user-val {
+  color: #dc2626 !important;
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+
+/* 批改遗漏未填 */
+.mobile-sudoku-cell.is-graded-missed {
+  background-color: #fffbeb !important;
+}
+
+/* 错题或未填题的标准答案角标 */
+.mobile-cell-hint {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #059669;
+  line-height: 1;
+}
+
+.mobile-sudoku-cell.is-graded-missed .mobile-cell-hint {
+  color: #d97706;
+}
+
+/* 下方操作与输入区 */
+.mobile-action-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 底部触控大数字键盘 */
+.mobile-keypad {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.mobile-keypad-btn {
+  height: 52px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.12s ease;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.mobile-keypad-btn:active {
+  transform: scale(0.94);
+  background: #e2e8f0;
+}
+
+.mobile-keypad-btn.btn-erase {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+  font-size: 1.15rem;
+}
+
+.mobile-keypad-btn.btn-erase:active {
+  background: #ffe4e6;
+}
+
+/* 批改诊断与反馈卡片 */
+.mobile-review-feedback {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-review-feedback.feedback-perfect {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.mobile-review-feedback.feedback-has-wrong {
+  background: #fffafa;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.mobile-review-feedback-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.btn-mobile-redo {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.btn-mobile-redo:active {
+  transform: scale(0.96);
+}
+
+.badge-corrected-inline {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* 底部题目切换与题号快速滑轨 */
+.mobile-nav-bar {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.btn-mobile-nav {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.btn-mobile-nav:active:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.btn-mobile-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-mobile-nav.primary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.btn-mobile-nav.submit-highlight {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+}
+
+/* 题号快速选择滑轨 */
+.mobile-puzzle-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-width: 180px;
+}
+
+.mobile-puzzle-dots::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-dot-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mobile-dot-btn.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+  transform: scale(1.08);
+}
+
+.mobile-dot-btn.dot-filled {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.mobile-dot-btn.dot-correct {
+  background: #dcfce7;
+  border-color: #4ade80;
+  color: #15803d;
+}
+
+.mobile-dot-btn.dot-wrong {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+.mobile-dot-btn.dot-corrected {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #16a34a;
+}
+
+/* 打印模式下彻底隐藏移动端单题视图 */
+@media print {
+  .mobile-single-exam-wrapper {
+    display: none !important;
+  }
+}
