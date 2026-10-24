@@ -359,11 +359,14 @@
 
   .sudoku-cell {
     color: #000000 !important;
+    font-weight: 700 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .sudoku-cell.filled-clue {
+    color: #000000 !important;
+    font-weight: 700 !important;
     background-color: #ffffff !important;
   }
 
@@ -503,21 +506,37 @@
     print-color-adjust: exact !important;
   }
 
-  /* 打印时老师批改大红勾与错题红字的原汁原味呈现 */
-  .teacher-big-check {
+  /* 打印时老师批改大红勾与大红叉的高清原彩呈现 (必须禁用动画并锁定 opacity: 1) */
+  .teacher-big-check,
+  .teacher-wrong-mark {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     opacity: 1 !important;
     animation: none !important;
     display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .teacher-check-svg {
+  .teacher-check-svg,
+  .teacher-wrong-svg {
+    width: 92% !important;
+    height: 92% !important;
     filter: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .teacher-check-path {
+  .teacher-check-path,
+  .teacher-wrong-path,
+  .teacher-wrong-mark line {
     stroke: #dc2626 !important;
+    stroke-width: 4 !important;
+    stroke-dasharray: none !important;
     stroke-dashoffset: 0 !important;
     animation: none !important;
     -webkit-print-color-adjust: exact !important;
@@ -532,23 +551,26 @@
     print-color-adjust: exact !important;
   }
 
-  .teacher-wrong-mark line {
-    stroke: #dc2626 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  .teacher-puzzle-tag {
+    display: none !important;
   }
 
-  .teacher-puzzle-tag {
-    color: #dc2626 !important;
-    border-color: #dc2626 !important;
-    background: transparent !important;
+  /* 打印时用户填入数字 ABC 样式规范：
+     A (题目条件数): 黑色，粗细 700
+     B (用户填对数): 蓝色 (#1d4ed8)，粗细 700 (与网页端一致)
+     C (用户填错数): 红色 (#dc2626)，粗细 700 (代表错误，无中划线，同字号同粗细)
+  */
+  .sudoku-cell .user-val {
+    font-weight: 700 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .sudoku-cell.graded-correct .user-val {
-    color: #000000 !important;
-    font-weight: 800 !important;
+    color: #1d4ed8 !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .sudoku-cell.graded-wrong {
@@ -557,15 +579,23 @@
 
   .sudoku-cell.graded-wrong .user-val {
     color: #dc2626 !important;
-    text-decoration: line-through !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    opacity: 1 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .sudoku-cell.graded-wrong .correct-hint,
-  .sudoku-cell.graded-missed .correct-hint {
-    color: #dc2626 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  /* 打印时去除干扰角标与提示，保持盘面纯净整洁 */
+  .sudoku-cell.graded-correct::after {
+    display: none !important;
+  }
+
+  .sudoku-cell .correct-hint {
+    display: none !important;
+  }
+
+  .sudoku-cell .step-badge {
+    display: none !important;
   }
 }

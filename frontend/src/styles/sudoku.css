@@ -164,22 +164,53 @@
   print-color-adjust: exact !important;
 }
 
-/* 错题老师红叉标记 (位于盘面右上角，指示需订正) */
+/* 错题老师红叉标记 (与正确的大红勾同级大小和粗细，居中统领错题视觉) */
 .teacher-wrong-mark {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 28px;
-  height: 28px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 10;
-  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wrongDraw 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .teacher-wrong-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(220, 38, 38, 0.3));
+  width: 92%;
+  height: 92%;
+  filter: drop-shadow(0 1px 1.5px rgba(220, 38, 38, 0.25));
+}
+
+.teacher-wrong-path {
+  stroke: #dc2626;
+  stroke-dasharray: 150;
+  stroke-dashoffset: 0;
+  animation: wrongStroke 0.4s ease-out forwards;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+@keyframes wrongStroke {
+  0% {
+    stroke-dashoffset: 150;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wrongDraw {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
 }
 
 /* 题号旁的老师批改小标签 */
@@ -214,7 +245,7 @@
 /* 用户填入的值样式 */
 .sudoku-cell .user-val {
   color: #1d4ed8;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* 批改后的状态呈现 (真实老师红笔批改质感) */
@@ -224,6 +255,7 @@
 
 .sudoku-cell.graded-correct .user-val {
   color: #1d4ed8;
+  font-weight: 700;
 }
 
 /* 全对题目中去除单个格子琐碎的绿勾，由盘面大红勾统一接管统领视觉 */
@@ -249,6 +281,7 @@
 
 .sudoku-cell.graded-wrong .user-val {
   color: #dc2626;
+  font-weight: 700;
   text-decoration: line-through;
   opacity: 0.85;
 }

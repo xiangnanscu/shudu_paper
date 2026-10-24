@@ -89,6 +89,36 @@
             />
           </svg>
         </div>
+
+        <!-- 老师批改大红叉 (手机单题有错误时展现同级大红叉) -->
+        <div
+          v-else-if="examStatus === 'submitted' && !isPuzzleAllCorrect"
+          class="teacher-wrong-mark"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 100 100" class="teacher-wrong-svg">
+            <line
+              x1="18"
+              y1="18"
+              x2="82"
+              y2="82"
+              stroke="#dc2626"
+              stroke-width="4"
+              stroke-linecap="round"
+              class="teacher-wrong-path"
+            />
+            <line
+              x1="82"
+              y1="18"
+              x2="18"
+              y2="82"
+              stroke="#dc2626"
+              stroke-width="4"
+              stroke-linecap="round"
+              class="teacher-wrong-path"
+            />
+          </svg>
+        </div>
       </div>
     </div>
 
