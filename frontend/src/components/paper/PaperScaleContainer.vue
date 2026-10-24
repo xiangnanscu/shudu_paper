@@ -21,6 +21,7 @@
         :active-cell="activeCell"
         :config="config"
         :exam-result="examResult"
+        :corrected-puzzle-ids="correctedPuzzleIds"
         :is-answer-sheet="false"
         @select-cell="(elem, pId, r, c) => emit('selectCell', elem, pId, r, c)"
       />
@@ -42,6 +43,7 @@
           :active-cell="activeCell"
           :config="config"
           :exam-result="examResult"
+          :corrected-puzzle-ids="correctedPuzzleIds"
           :is-answer-sheet="true"
         />
       </template>
@@ -56,20 +58,26 @@ import type { ExamStatus, UserAnswers, ActiveCell, ExamResult } from "../../type
 import type { PaperConfig } from "../../types/config";
 import PaperSheet from "./PaperSheet.vue";
 
-const props = defineProps<{
-  puzzlesData: SudokuPuzzle[][];
-  boardSize: string;
-  cellFontSize: string;
-  symbolMap: Record<number, string>;
-  examStatus: ExamStatus;
-  userAnswers: UserAnswers;
-  activeCell: ActiveCell | null;
-  config: PaperConfig;
-  examResult: ExamResult | null;
-  scale: number;
-  containerHeight: string;
-  containerMarginBottom: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    puzzlesData: SudokuPuzzle[][];
+    boardSize: string;
+    cellFontSize: string;
+    symbolMap: Record<number, string>;
+    examStatus: ExamStatus;
+    userAnswers: UserAnswers;
+    activeCell: ActiveCell | null;
+    config: PaperConfig;
+    examResult: ExamResult | null;
+    scale: number;
+    containerHeight: string;
+    containerMarginBottom: string;
+    correctedPuzzleIds?: Set<number>;
+  }>(),
+  {
+    correctedPuzzleIds: () => new Set<number>(),
+  }
+);
 
 const emit = defineEmits<{
   (

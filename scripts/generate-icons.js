@@ -1,6 +1,18 @@
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
+
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  const outDir = path.resolve(__dirname, '../frontend/public/icons');
+  if (fs.existsSync(path.join(outDir, 'icon-512x512.png'))) {
+    console.log('PWA icons already exist, skipping generation (sharp not installed).');
+    process.exit(0);
+  }
+  console.error('Error: sharp module not found and icons do not exist.');
+  process.exit(1);
+}
 
 // Ensure output directories exist
 const outDir = path.resolve(__dirname, '../frontend/public/icons');

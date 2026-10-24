@@ -53,6 +53,14 @@
       <div class="score-modal-footer">
         <button
           type="button"
+          class="btn btn-success"
+          title="直接打印老师批改样式的试卷，可贴在墙上激励孩子持续努力"
+          @click="emit('print')"
+        >
+          🖨️ 打印批改试卷 (可贴墙)
+        </button>
+        <button
+          type="button"
           class="btn btn-primary"
           @click="emit('close')"
         >
@@ -94,6 +102,7 @@ const emit = defineEmits<{
   (e: "restart"): void;
   (e: "regenerate"): void;
   (e: "retrySync"): void;
+  (e: "print"): void;
 }>();
 
 const formattedTime = computed(() => {

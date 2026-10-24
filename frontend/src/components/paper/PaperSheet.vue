@@ -24,6 +24,7 @@
         :user-answers="userAnswers"
         :active-cell="activeCell"
         :is-answer-sheet="isAnswerSheet"
+        :corrected-puzzle-ids="correctedPuzzleIds"
         @select-cell="(elem, pId, r, c) => emit('selectCell', elem, pId, r, c)"
       />
     </div>
@@ -59,9 +60,11 @@ const props = withDefaults(
     config: PaperConfig;
     examResult: ExamResult | null;
     isAnswerSheet?: boolean;
+    correctedPuzzleIds?: Set<number>;
   }>(),
   {
     isAnswerSheet: false,
+    correctedPuzzleIds: () => new Set<number>(),
   }
 );
 

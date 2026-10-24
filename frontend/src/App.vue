@@ -30,6 +30,7 @@
         @restart-exam="handleRestartExam"
         @open-drawer="cloudRecords.openDrawer"
         @toggle-view-mode="toggleViewMode"
+        @print-exam="handlePrint"
       />
 
       <!-- 移动端单题专注做题视图 (一次只显示一道题，超大盘面，防误触) -->
@@ -51,7 +52,10 @@
       <!-- 动态缩放容器 (保证 A4 移动端贴合且排版一致，在打印模式下始终完整呈现) -->
       <div
         class="paper-container-wrapper"
-        :class="{ 'hidden-on-screen': viewMode === 'single' }"
+        :class="{
+          'hidden-on-screen': viewMode === 'single',
+          'hidden-for-review-print': isReviewModalOpen && reviewRecordDetail
+        }"
       >
         <PaperScaleContainer
           :puzzles-data="sudoku.puzzlesData.value"
@@ -63,10 +67,36 @@
           :active-cell="keypad.activeCell.value"
           :config="config"
           :exam-result="exam.currentResult.value"
+          :corrected-puzzle-ids="correctedPuzzleIds"
           :scale="scale.scale.value"
           :container-height="scale.containerHeight.value"
           :container-margin-bottom="scale.containerMarginBottom.value"
           @select-cell="handleSelectCell"
+        />
+      </div>
+
+      <!-- 历史复盘试卷专用 A4 打印容器 (当在复盘详情弹窗中点击打印时，高清输出老师批改试卷) -->
+      <div
+        v-if="isReviewModalOpen && reviewRecordDetail"
+        class="review-print-sheet-wrapper"
+      >
+        <PaperSheet
+          v-for="(pagePuzzles, idx) in reviewPagesData"
+          :key="'review-print-page-' + idx"
+          :page-index="idx"
+          :current-page-number="idx + 1"
+          :total-sheets="reviewPagesData.length"
+          :puzzles="pagePuzzles"
+          :board-size="reviewBoardSize"
+          :cell-font-size="reviewCellFontSize"
+          :symbol-map="reviewSymbolMap"
+          exam-status="submitted"
+          :user-answers="reviewRecordDetail.userAnswers"
+          :active-cell="null"
+          :config="reviewPaperConfig"
+          :exam-result="reviewExamResult"
+          :corrected-puzzle-ids="correctedPuzzleIds"
+          :is-answer-sheet="false"
         />
       </div>
     </main>
@@ -107,6 +137,7 @@
       @close="isReviewModalOpen = false"
       @redo="handleRedoRecord"
       @redo-puzzle="handleOpenSingleRedo"
+      @print="handlePrintReviewExam"
     />
 
     <!-- 单题订正重做模态窗 (Single Puzzle Redo Modal) -->
@@ -128,6 +159,7 @@
       @restart="handleRestartExam"
       @regenerate="handleRegenerate"
       @retry-sync="handleRetrySync"
+      @print="handlePrintFromScoreModal"
     />
 
     <!-- iOS / iPadOS 添加到主屏幕引导弹窗 -->
@@ -147,10 +179,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, toRef, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { reactive, ref, computed, toRef, watch, onMounted, onUnmounted, nextTick } from "vue";
 import type { PaperConfig } from "./types/config";
 import type { ExamRecordDetail } from "./types/record";
 import type { SudokuPuzzle } from "./types/sudoku";
+import type { ExamResult } from "./types/exam";
+import { SYMBOL_SETS } from "./core/symbols";
 import { useSudoku } from "./composables/useSudoku";
 import { useExamTimer } from "./composables/useExamTimer";
 import { useExam } from "./composables/useExam";
@@ -165,6 +199,7 @@ import SidebarConfig from "./components/sidebar/SidebarConfig.vue";
 import ExamTopBar from "./components/exam/ExamTopBar.vue";
 import MobileSingleExam from "./components/exam/MobileSingleExam.vue";
 import PaperScaleContainer from "./components/paper/PaperScaleContainer.vue";
+import PaperSheet from "./components/paper/PaperSheet.vue";
 import KeypadPopover from "./components/exam/KeypadPopover.vue";
 import HistoryDrawer from "./components/drawer/HistoryDrawer.vue";
 import ScoreModal from "./components/exam/ScoreModal.vue";
@@ -451,6 +486,80 @@ async function handleViewRecordDetail(recordId: string) {
   }
 }
 
+// 历史复盘试卷专用 A4 打印数据切片与配置
+const reviewPagesData = computed<SudokuPuzzle[][]>(() => {
+  if (!reviewRecordDetail.value || !reviewRecordDetail.value.puzzles) return [];
+  const puzzles = reviewRecordDetail.value.puzzles;
+  const rows = reviewRecordDetail.value.rows_per_page ?? reviewRecordDetail.value.rowsPerPage ?? 2;
+  const perPage = rows * 3;
+  const pages: SudokuPuzzle[][] = [];
+  for (let i = 0; i < puzzles.length; i += perPage) {
+    pages.push(puzzles.slice(i, i + perPage));
+  }
+  return pages.length > 0 ? pages : [puzzles];
+});
+
+const reviewPaperConfig = computed<PaperConfig>(() => {
+  const r = reviewRecordDetail.value;
+  return {
+    pagesCount: reviewPagesData.value.length || 1,
+    rowsPerPage: (r?.rows_per_page ?? r?.rowsPerPage ?? 2) as 2 | 3,
+    difficulty: (r?.difficulty ?? "medium_hypo_direct") as any,
+    symbolType: (r?.symbol_type ?? r?.symbolType ?? "numbers") as any,
+    paperTitle: "四宫格数独 · 作答批改试卷",
+    paperSubtitle: "老师已批改完成 · 错题请认真订正并分析推导过程",
+    studentName: r?.student_name ?? r?.studentName ?? config.studentName ?? "",
+    studentClass: r?.student_class ?? r?.studentClass ?? config.studentClass ?? "",
+    showName: true,
+    showClass: true,
+    showDate: true,
+    showTime: true,
+    showScore: true,
+    appendAnswerPage: false,
+    showAnswers: false,
+  };
+});
+
+const reviewExamResult = computed<ExamResult | null>(() => {
+  const r = reviewRecordDetail.value;
+  if (!r) return null;
+  return {
+    score: r.score,
+    timeSpent: r.time_spent ?? r.timeSpent ?? 0,
+    totalPuzzles: r.total_puzzles ?? r.totalPuzzles ?? r.puzzles.length,
+    correctPuzzles: r.correct_puzzles ?? r.correctPuzzles ?? 0,
+    totalHoles: r.total_holes ?? r.totalHoles ?? 0,
+    correctHoles: r.correct_holes ?? r.correctHoles ?? 0,
+    wrongHoles: (r.total_holes ?? r.totalHoles ?? 0) - (r.correct_holes ?? r.correctHoles ?? 0),
+    difficulty: r.difficulty,
+    symbolType: r.symbol_type ?? r.symbolType ?? "numbers",
+    studentName: r.student_name ?? r.studentName ?? config.studentName ?? "",
+    studentClass: r.student_class ?? r.studentClass ?? config.studentClass ?? "",
+    pagesCount: reviewPagesData.value.length || 1,
+    rowsPerPage: r.rows_per_page ?? r.rowsPerPage ?? 2,
+    createdAt: r.created_at ?? r.createdAt ?? "",
+  };
+});
+
+const reviewBoardSize = computed(() => {
+  const rows = reviewRecordDetail.value?.rows_per_page ?? reviewRecordDetail.value?.rowsPerPage ?? 2;
+  return rows === 3 ? "172px" : "198px";
+});
+
+const reviewCellFontSize = computed(() => {
+  const rows = reviewRecordDetail.value?.rows_per_page ?? reviewRecordDetail.value?.rowsPerPage ?? 2;
+  return rows === 3 ? "24px" : "28px";
+});
+
+const reviewSymbolMap = computed(() => {
+  const type = (reviewRecordDetail.value?.symbol_type ?? reviewRecordDetail.value?.symbolType ?? "numbers") as keyof typeof SYMBOL_SETS;
+  return SYMBOL_SETS[type] || SYMBOL_SETS.numbers;
+});
+
+function handlePrintReviewExam() {
+  window.print();
+}
+
 // 重做选中的历史试卷 (错卷重做)
 async function handleRedoRecord(recordOrId: string | ExamRecordDetail) {
   let detail: ExamRecordDetail | null = null;
@@ -615,6 +724,14 @@ async function handleStructureChange() {
 // 打印试卷
 function handlePrint() {
   window.print();
+}
+
+// 从成绩弹窗直接打印批改试卷
+function handlePrintFromScoreModal() {
+  exam.closeScoreModal();
+  nextTick(() => {
+    window.print();
+  });
 }
 
 // 重试云端同步

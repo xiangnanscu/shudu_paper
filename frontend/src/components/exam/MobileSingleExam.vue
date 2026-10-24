@@ -80,6 +80,25 @@
             </div>
           </template>
         </template>
+
+        <!-- 老师批改大红勾 (手机单题全对时展现大红勾激励) -->
+        <div
+          v-if="examStatus === 'submitted' && isPuzzleAllCorrect"
+          class="teacher-big-check"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 100 100" class="teacher-check-svg">
+            <path
+              d="M 16 52 C 24 60 32 70 41 82 C 54 54 70 30 89 12"
+              fill="none"
+              stroke="#dc2626"
+              stroke-width="8.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="teacher-check-path"
+            />
+          </svg>
+        </div>
       </div>
     </div>
 

@@ -43,6 +43,15 @@
           <button
             v-if="record"
             type="button"
+            class="btn-print-review-exam"
+            title="直接打印老师批改样式的试卷，可贴在墙上激励孩子"
+            @click="emit('print', record)"
+          >
+            🖨️ 打印批改试卷
+          </button>
+          <button
+            v-if="record"
+            type="button"
             class="btn-redo-exam"
             @click="emit('redo', record)"
           >
@@ -125,8 +134,10 @@
           :steps="record.steps"
           :symbol-map="symbolMap"
           :corrected-puzzle-ids="correctedPuzzleIds"
+          :record="record"
           @inspect-puzzle="handleInspectPuzzle"
           @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
+          @print="emit('print', record)"
         />
 
         <!-- 视图 B：步骤推演播放器 -->
@@ -168,6 +179,7 @@ const emit = defineEmits<{
   (e: "close"): void;
   (e: "redo", record: ExamRecordDetail): void;
   (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
+  (e: "print", record: ExamRecordDetail): void;
 }>();
 
 const currentTab = ref<"overview" | "player">("overview");

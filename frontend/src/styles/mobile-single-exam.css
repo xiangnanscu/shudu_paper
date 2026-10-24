@@ -152,6 +152,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   user-select: none;
   box-sizing: border-box;
+  position: relative;
 }
 
 /* 盘面单元格 */
@@ -213,46 +214,36 @@
 
 /* 批改正确 */
 .mobile-sudoku-cell.is-graded-correct {
-  background-color: #ecfdf5 !important;
-  color: #059669 !important;
-}
-
-.mobile-sudoku-cell.is-graded-correct::after {
-  content: "✓";
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  font-size: 13px;
-  font-weight: 900;
-  color: #059669;
-  line-height: 1;
+  background-color: #fbfcfe !important;
+  color: #1d4ed8 !important;
 }
 
 /* 批改错误 */
 .mobile-sudoku-cell.is-graded-wrong {
-  background-color: #fef2f2 !important;
+  background-color: #fff1f2 !important;
 }
 
 .mobile-sudoku-cell.is-graded-wrong .user-val {
   color: #dc2626 !important;
   text-decoration: line-through;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 /* 批改遗漏未填 */
 .mobile-sudoku-cell.is-graded-missed {
-  background-color: #fffbeb !important;
+  background-color: #fff1f2 !important;
 }
 
-/* 错题或未填题的标准答案角标 */
+/* 错题或未填题的老师标准答案红笔批改角标 */
 .mobile-cell-hint {
   position: absolute;
   bottom: 2px;
   right: 4px;
   font-size: 13px;
-  font-weight: 800;
-  color: #059669;
+  font-weight: 900;
+  color: #dc2626;
   line-height: 1;
+  font-family: "STKaiti", "KaiTi", sans-serif;
 }
 
 .mobile-sudoku-cell.is-graded-missed .mobile-cell-hint {

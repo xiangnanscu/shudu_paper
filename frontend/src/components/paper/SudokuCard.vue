@@ -1,8 +1,32 @@
 <template>
-  <div class="sudoku-card">
+  <div class="sudoku-card" :class="cardClasses">
     <div class="sudoku-card-header" :style="{ width: boardSize }">
       <div class="sudoku-card-title">
         <span>第 {{ puzzle.id }} 题</span>
+        <!-- 批改状态下题号旁老师标记 -->
+        <template v-if="examStatus === 'submitted' && !isAnswerSheet">
+          <span
+            v-if="isCorrected"
+            class="teacher-puzzle-tag tag-corrected"
+            title="该题已完成订正"
+          >
+            ✓ 订正对
+          </span>
+          <span
+            v-else-if="isAllCorrect"
+            class="teacher-puzzle-tag tag-correct"
+            title="该题全对"
+          >
+            ✓ 全对
+          </span>
+          <span
+            v-else-if="isWrong"
+            class="teacher-puzzle-tag tag-wrong"
+            title="该题有错误"
+          >
+            ✕ 需订正
+          </span>
+        </template>
       </div>
       <div
         v-if="isAnswerSheet"
@@ -34,17 +58,68 @@
               activeCell?.c === c - 1
             "
             :is-answer-sheet="isAnswerSheet"
+            :is-puzzle-all-correct="isAllCorrect"
             :step-index="stepMap?.[`${puzzle.id}_${r - 1}_${c - 1}`]"
             :show-step-badge="showStepBadge"
             @select="(elem) => emit('selectCell', elem, puzzle.id, r - 1, c - 1)"
           />
         </template>
       </template>
+
+      <!-- 老师批改的大红勾 (全对题或订正对的题目展示，震撼大勾，激励孩子，打印贴墙倍有面子) -->
+      <div
+        v-if="examStatus === 'submitted' && !isAnswerSheet && (isAllCorrect || isCorrected)"
+        class="teacher-big-check"
+        :class="{ 'is-corrected': isCorrected }"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 100 100" class="teacher-check-svg">
+          <path
+            d="M 16 52 C 24 60 32 70 41 82 C 54 54 70 30 89 12"
+            fill="none"
+            stroke="#dc2626"
+            stroke-width="8.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="teacher-check-path"
+          />
+        </svg>
+        <span v-if="isCorrected" class="teacher-check-sub">订正✓</span>
+      </div>
+
+      <!-- 老师批改错题标记 (存在错误且未订正) -->
+      <div
+        v-else-if="examStatus === 'submitted' && !isAnswerSheet && isWrong"
+        class="teacher-wrong-mark"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 100 100" class="teacher-wrong-svg">
+          <line
+            x1="28"
+            y1="28"
+            x2="72"
+            y2="72"
+            stroke="#dc2626"
+            stroke-width="7"
+            stroke-linecap="round"
+          />
+          <line
+            x1="72"
+            y1="28"
+            x2="28"
+            y2="72"
+            stroke="#dc2626"
+            stroke-width="7"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import type { SudokuPuzzle } from "../../types/sudoku";
 import type { ExamStatus, UserAnswers, ActiveCell } from "../../types/exam";
 import SudokuCell from "./SudokuCell.vue";
@@ -61,6 +136,7 @@ const props = withDefaults(
     isAnswerSheet?: boolean;
     stepMap?: Record<string, number>;
     showStepBadge?: boolean;
+    correctedPuzzleIds?: Set<number>;
   }>(),
   {
     isAnswerSheet: false,
@@ -77,4 +153,52 @@ const emit = defineEmits<{
     c: number
   ): void;
 }>();
+
+const isAllCorrect = computed(() => {
+  if (props.isAnswerSheet || props.examStatus !== "submitted") return false;
+  let hasHoles = false;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (props.puzzle.puzzle[r][c] === 0) {
+        hasHoles = true;
+        const key = `${props.puzzle.id}_${r}_${c}`;
+        const uVal = props.userAnswers[key];
+        const sVal = props.puzzle.solution[r][c];
+        if (uVal !== sVal) {
+          return false;
+        }
+      }
+    }
+  }
+  return hasHoles;
+});
+
+const isWrong = computed(() => {
+  if (props.isAnswerSheet || props.examStatus !== "submitted") return false;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      if (props.puzzle.puzzle[r][c] === 0) {
+        const key = `${props.puzzle.id}_${r}_${c}`;
+        const uVal = props.userAnswers[key];
+        const sVal = props.puzzle.solution[r][c];
+        if (uVal !== sVal) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+});
+
+const isCorrected = computed(() => {
+  return props.correctedPuzzleIds?.has(props.puzzle.id) ?? false;
+});
+
+const cardClasses = computed(() => {
+  return {
+    "is-all-correct": isAllCorrect.value,
+    "is-wrong": isWrong.value,
+    "is-corrected": isCorrected.value,
+  };
+});
 </script>

@@ -67,15 +67,24 @@
         <span>✓ 交卷评分</span>
       </button>
 
-      <!-- 已提交批改状态显示“再做一次” -->
-      <button
-        v-else-if="examStatus === 'submitted'"
-        class="btn btn-secondary"
-        type="button"
-        @click="emit('restartExam')"
-      >
-        <span>↺ 重新作答</span>
-      </button>
+      <!-- 已提交批改状态显示“打印批改卷”与“再做一次” -->
+      <template v-else-if="examStatus === 'submitted'">
+        <button
+          class="btn-print-topbar"
+          type="button"
+          title="打印老师批改样式的试卷，可贴在墙上激励孩子"
+          @click="emit('printExam')"
+        >
+          <span>🖨️ 打印批改卷</span>
+        </button>
+        <button
+          class="btn btn-secondary"
+          type="button"
+          @click="emit('restartExam')"
+        >
+          <span>↺ 重新作答</span>
+        </button>
+      </template>
 
       <!-- PWA 安装按钮 (仅在非 Standalone 且可安装时显示) -->
       <button
@@ -128,6 +137,7 @@ const emit = defineEmits<{
   (e: "restartExam"): void;
   (e: "openDrawer"): void;
   (e: "toggleViewMode"): void;
+  (e: "printExam"): void;
 }>();
 
 const statusBadgeClass = computed(() => {

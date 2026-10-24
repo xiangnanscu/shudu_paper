@@ -121,6 +121,112 @@
   }
 }
 
+/* 卷眉右上角：老师红笔批改大分数 (大红字、满分双横线、评语印章) */
+.teacher-grade-badge {
+  position: absolute;
+  right: 6px;
+  top: -2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  transform: rotate(-3deg);
+  z-index: 10;
+  pointer-events: none;
+  animation: teacherScorePop 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.teacher-score-wrapper {
+  display: flex;
+  align-items: baseline;
+  line-height: 1;
+}
+
+.teacher-score-num {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 0.92;
+  color: #dc2626;
+  font-family: "Caveat", "STKaiti", "KaiTi", "PingFang SC", "Comic Sans MS", cursive, sans-serif;
+  letter-spacing: -2px;
+  text-shadow: 0.5px 0.5px 0 rgba(220, 38, 38, 0.25);
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.teacher-score-unit {
+  font-size: 19px;
+  font-weight: 800;
+  color: #dc2626;
+  margin-left: 2px;
+  font-family: "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* 经典老师批改红线 (100分专属双横线，其他分数单横线) */
+.teacher-score-lines {
+  width: 100%;
+  min-width: 66px;
+  height: 3.2px;
+  background-color: #dc2626;
+  border-radius: 2px;
+  margin-top: 3px;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.teacher-score-lines.is-perfect {
+  box-shadow: 0 4.5px 0 #dc2626;
+  margin-bottom: 5px;
+}
+
+/* 老师鼓励印章 */
+.teacher-praise-seal {
+  margin-top: 4px;
+  border: 1.8px solid #dc2626;
+  border-radius: 12px;
+  padding: 1.5px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #dc2626;
+  background-color: rgba(254, 242, 242, 0.95);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  transform: rotate(2.5deg);
+  font-family: "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.15);
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.score-handwritten {
+  display: inline-block;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 900;
+  border-bottom: 1.5px solid #dc2626;
+  padding: 0 4px;
+  line-height: 14px;
+  letter-spacing: -0.2px;
+  font-family: "STKaiti", "KaiTi", sans-serif;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+@keyframes teacherScorePop {
+  0% {
+    transform: scale(1.5) rotate(8deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(-3deg);
+    opacity: 1;
+  }
+}
+
 /* 核心网格布局：严格一行放 3 个数独宫格 */
 .paper-grid-container {
   display: grid;
@@ -155,6 +261,11 @@
   font-weight: 600;
 }
 
+/* 历史复盘试卷专用 A4 打印容器 (屏幕上隐藏，打印时激活) */
+.review-print-sheet-wrapper {
+  display: none;
+}
+
 /* 打印样式极致校准 - 绝不出现多余空白页，完全隐藏一切操作控件 */
 @media print {
   @page {
@@ -178,8 +289,19 @@
   .cell-keypad-popover,
   .drawer-backdrop,
   .modal-backdrop,
+  .review-backdrop,
+  .review-modal,
   .no-print {
     display: none !important;
+  }
+
+  .hidden-for-review-print {
+    display: none !important;
+  }
+
+  .review-print-sheet-wrapper {
+    display: block !important;
+    width: 100% !important;
   }
 
   .preview-container {
@@ -263,5 +385,93 @@
 
   .sudoku-cell:nth-child(n + 5):nth-child(-n + 8) {
     border-bottom-color: #000000 !important;
+  }
+
+  /* 打印时老师批改大分数与印章的高清原彩呈现 */
+  .teacher-grade-badge {
+    position: absolute !important;
+    right: 8mm !important;
+    top: 0 !important;
+    display: flex !important;
+    color: #dc2626 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-score-num,
+  .teacher-score-unit,
+  .teacher-score-lines,
+  .teacher-praise-seal,
+  .score-handwritten {
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 打印时老师批改大红勾与错题红字的原汁原味呈现 */
+  .teacher-big-check {
+    opacity: 1 !important;
+    animation: none !important;
+    display: flex !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-check-svg {
+    filter: none !important;
+  }
+
+  .teacher-check-path {
+    stroke: #dc2626 !important;
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-check-sub {
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-wrong-mark line {
+    stroke: #dc2626 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-puzzle-tag {
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sudoku-cell.graded-correct .user-val {
+    color: #000000 !important;
+    font-weight: 800 !important;
+  }
+
+  .sudoku-cell.graded-wrong {
+    background-color: transparent !important;
+  }
+
+  .sudoku-cell.graded-wrong .user-val {
+    color: #dc2626 !important;
+    text-decoration: line-through !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sudoku-cell.graded-wrong .correct-hint,
+  .sudoku-cell.graded-missed .correct-hint {
+    color: #dc2626 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

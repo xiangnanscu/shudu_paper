@@ -21,26 +21,26 @@
         </div>
         <div class="info-item">
           <span>班级：</span>
-          <span class="info-line">{{ config.studentClass || "" }}</span>
+          <span class="info-line">{{ displayStudentClass }}</span>
         </div>
         <div class="info-item">
           <span>姓名：</span>
-          <span class="info-line">{{ config.studentName || "" }}</span>
+          <span class="info-line">{{ displayStudentName }}</span>
         </div>
       </template>
 
       <template v-else>
         <div v-if="config.showClass" class="info-item">
           <span>班级：</span>
-          <span class="info-line">{{ config.studentClass || "" }}</span>
+          <span class="info-line">{{ displayStudentClass }}</span>
         </div>
         <div v-if="config.showName" class="info-item">
           <span>姓名：</span>
-          <span class="info-line">{{ config.studentName || "" }}</span>
+          <span class="info-line">{{ displayStudentName }}</span>
         </div>
         <div v-if="config.showDate" class="info-item">
           <span>日期：</span>
-          <span class="info-line">{{ currentDateStr }}</span>
+          <span class="info-line">{{ displayDateStr }}</span>
         </div>
         <div v-if="config.showTime" class="info-item">
           <span>用时：</span>
@@ -49,13 +49,33 @@
         <div v-if="config.showScore" class="info-item">
           <span>得分：</span>
           <template v-if="examResult">
-            <span class="score-stamp">💯 {{ examResult.score }}分</span>
+            <span class="score-handwritten">{{ examResult.score }}分</span>
           </template>
           <template v-else>
             <span class="info-line"></span>
           </template>
         </div>
       </template>
+    </div>
+
+    <!-- 卷眉右上角：老师红笔批改大分数 (大字号、鲜艳红字、满分双横线、评语印章，打印贴墙极其亮眼) -->
+    <div
+      v-if="examResult && !isAnswerSheet && pageIndex === 0"
+      class="teacher-grade-badge"
+    >
+      <div class="teacher-score-wrapper">
+        <span class="teacher-score-num">{{ examResult.score }}</span>
+        <span class="teacher-score-unit">分</span>
+      </div>
+      <!-- 经典老师批改红线 (100分专属双横线，其他分数单横线) -->
+      <div
+        class="teacher-score-lines"
+        :class="{ 'is-perfect': examResult.score === 100 }"
+      ></div>
+      <!-- 老师激励评语章 -->
+      <div class="teacher-praise-seal">
+        {{ praiseComment }}
+      </div>
     </div>
   </div>
 </template>
@@ -77,8 +97,34 @@ const props = withDefaults(
   }
 );
 
-const currentDateStr = computed(() => {
+const displayStudentName = computed(() => {
+  return props.examResult?.studentName || props.config.studentName || "";
+});
+
+const displayStudentClass = computed(() => {
+  return props.examResult?.studentClass || props.config.studentClass || "";
+});
+
+const displayDateStr = computed(() => {
+  if (props.examResult?.createdAt) {
+    try {
+      const d = new Date(props.examResult.createdAt);
+      if (!isNaN(d.getTime())) {
+        return d.toISOString().split("T")[0];
+      }
+    } catch {}
+  }
   return new Date().toISOString().split("T")[0];
+});
+
+const praiseComment = computed(() => {
+  if (!props.examResult) return "";
+  const s = props.examResult.score;
+  if (s === 100) return "💯 满分 · 太棒了!";
+  if (s >= 90) return "⭐ 优秀 · 敏捷!";
+  if (s >= 80) return "👍 良好 · 棒!";
+  if (s >= 60) return "✓ 及格 · 继续努力!";
+  return "💪 加油 · 每天进步!";
 });
 
 const hasAnyInfo = computed(() => {

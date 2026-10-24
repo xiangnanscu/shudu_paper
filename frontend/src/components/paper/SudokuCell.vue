@@ -73,12 +73,14 @@ const props = withDefaults(
     examStatus: ExamStatus;
     isActive?: boolean;
     isAnswerSheet?: boolean;
+    isPuzzleAllCorrect?: boolean;
     stepIndex?: number;
     showStepBadge?: boolean;
   }>(),
   {
     isActive: false,
     isAnswerSheet: false,
+    isPuzzleAllCorrect: false,
     showStepBadge: false,
   }
 );
@@ -107,6 +109,9 @@ const cellClasses = computed(() => {
   if (props.examStatus === "submitted") {
     if (props.userVal === props.ansVal) {
       list.push("graded-correct");
+      if (props.isPuzzleAllCorrect) {
+        list.push("puzzle-all-correct");
+      }
     } else if (props.userVal !== undefined) {
       list.push("graded-wrong");
     } else {
