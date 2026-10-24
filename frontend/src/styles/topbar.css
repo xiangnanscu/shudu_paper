@@ -1,7 +1,7 @@
 /* ==========================================================================
    试卷工作区与顶部做题工具栏 (Exam Top Bar)
-   统一规范：所有控制项高度统一 34px、圆角 8px、垂直居中严格对齐
-   三态精简设计：ready (准备) / doing (作答沉浸) / submitted (复盘批改)
+   极简规范：去边框、去背景色，直接显示图标与文字，轻量通透
+   三态精简设计：ready (待开始) / doing (作答沉浸) / submitted (复盘批改)
    ========================================================================== */
 
 /* 右侧主工作区 */
@@ -22,26 +22,26 @@
   z-index: 70;
   width: 100%;
   max-width: 210mm;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 8px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px 14px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   box-sizing: border-box;
 }
 
-/* 左右按钮分组 */
+/* 左右分组 */
 .topbar-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -56,17 +56,17 @@
 }
 
 /* ==========================================================================
-   统一控制项按钮体系 (高度统一 34px, 统一圆角 8px, 统一垂直对齐)
+   功能菜单与操作项 (去边框去背景，直接展示图标与文字，极简通透)
    ========================================================================== */
 .topbar-btn {
-  height: 34px;
-  padding: 0 12px;
-  font-size: 0.8125rem; /* 13px */
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #475569;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -75,90 +75,75 @@
   box-sizing: border-box;
   white-space: nowrap;
   user-select: none;
-  transition: all 0.15s ease;
+  box-shadow: none;
+  transition: color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
 }
 
 .topbar-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: rgba(15, 23, 42, 0.05);
   color: #0f172a;
 }
 
 .topbar-btn:active {
-  transform: scale(0.96);
+  opacity: 0.7;
 }
 
 /* 侧边栏按钮：PC 桌面端已有常驻侧栏，默认隐藏；移动端/小屏通过媒体查询开启 */
 .topbar-btn-sidebar {
   display: none;
-  background: #eff6ff;
-  color: var(--primary);
-  border-color: #bfdbfe;
+  color: #2563eb;
+  font-weight: 600;
 }
 
 .topbar-btn-sidebar:hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
+  background: rgba(37, 99, 235, 0.08);
   color: #1d4ed8;
 }
 
-/* 主操作按钮：开始做题 (亮蓝渐变) */
+/* 主操作：开始做题 (高亮蓝，纯粹无边框背景) */
 .topbar-btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: #ffffff;
-  border: 1px solid #1d4ed8;
+  color: #2563eb;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
 }
 
 .topbar-btn-primary:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.38);
-  color: #ffffff;
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
 }
 
-/* 主操作按钮：交卷评分 (翡翠绿渐变) */
+/* 主操作：交卷评分 (翡翠绿，纯粹无边框背景) */
 .topbar-btn-submit {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  border: 1px solid #059669;
+  color: #059669;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.28);
 }
 
 .topbar-btn-submit:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.38);
-  color: #ffffff;
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
 }
 
-/* 主操作按钮：打印批改卷 (墨绿渐变) */
+/* 操作：打印批改卷 (墨绿，纯粹无边框背景) */
 .topbar-btn-print {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: #ffffff;
-  border: 1px solid #047857;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+  color: #059669;
+  font-weight: 600;
 }
 
 .topbar-btn-print:hover {
-  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.35);
-  color: #ffffff;
+  background: rgba(5, 150, 105, 0.08);
+  color: #047857;
 }
 
 /* ==========================================================================
-   实时计时胶囊与紧凑进度条 (与按钮高度严格一致 34px)
+   实时计时与做题进度 (无边框无背景，通透清爽)
    ========================================================================== */
 .topbar-timer-pill {
-  height: 34px;
-  padding: 0 10px;
+  height: 32px;
+  padding: 0 4px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
   color: #1e40af;
   box-sizing: border-box;
   white-space: nowrap;
@@ -166,33 +151,32 @@
 }
 
 .topbar-timer-pill.is-finished {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
+  color: #64748b;
 }
 
 .timer-icon {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1;
 }
 
 .timer-digits {
-  font-size: 0.875rem;
+  font-size: 0.9375rem; /* 15px */
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
-/* 紧凑做题进度条 */
+/* 紧凑做题进度 */
 .topbar-progress-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: #64748b;
   font-variant-numeric: tabular-nums;
   user-select: none;
+  padding: 0 4px;
 }
 
 .progress-label {
@@ -201,7 +185,7 @@
 
 .progress-track {
   width: 44px;
-  height: 6px;
+  height: 4px;
   background: #e2e8f0;
   border-radius: 9999px;
   overflow: hidden;
@@ -217,6 +201,6 @@
 /* iOS 顶部刘海屏适配 */
 @supports (padding-top: env(safe-area-inset-top)) {
   .top-exam-bar {
-    padding-top: max(8px, env(safe-area-inset-top));
+    padding-top: max(6px, env(safe-area-inset-top));
   }
 }

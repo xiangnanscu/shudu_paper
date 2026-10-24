@@ -23,13 +23,11 @@
         :formatted-time="timer.formattedTime.value"
         :filled-count="exam.filledCount.value"
         :total-holes="sudoku.totalHoles.value"
-        :view-mode="viewMode"
         @open-sidebar="isSidebarOpen = true"
         @start-exam="handleStartExam"
         @submit-exam="handleSubmitExam"
         @restart-exam="handleRestartExam"
         @open-drawer="cloudRecords.openDrawer"
-        @toggle-view-mode="toggleViewMode"
         @print-exam="handlePrint"
       />
 
@@ -46,7 +44,6 @@
         @submit-exam="handleSubmitExam"
         @fill="handleSingleExamFill"
         @redo-puzzle="handleOpenSingleRedo"
-        @toggle-view-mode="toggleViewMode"
       />
 
       <!-- 动态缩放容器 (保证 A4 移动端贴合且排版一致，在打印模式下始终完整呈现) -->
@@ -270,17 +267,21 @@ const scale = useResponsiveScale(
   toRef(config, "appendAnswerPage")
 );
 
-// 视图模式：'single' (手机单题专注做题) 或 'paper' (A4整卷排版)
-// 手机屏幕 (<= 768px) 默认开启单题模式，一次只显示一道题，保证触控与点击舒适度
+// 视图模式：手机自动单题 ('single')，宽屏自动整卷排版 ('paper')
+// 智能自适应屏幕尺寸，无需用户手动常驻切换
 const isMobileScreen = ref(typeof window !== "undefined" && window.innerWidth <= 768);
 const viewMode = ref<"single" | "paper">(isMobileScreen.value ? "single" : "paper");
 
-function toggleViewMode() {
-  viewMode.value = viewMode.value === "single" ? "paper" : "single";
-  if (viewMode.value === "paper") {
-    nextTick(() => {
-      scale.updateScale();
-    });
+function handleScreenResize() {
+  const isMobile = window.innerWidth <= 768;
+  if (isMobileScreen.value !== isMobile) {
+    isMobileScreen.value = isMobile;
+    viewMode.value = isMobile ? "single" : "paper";
+    if (!isMobile) {
+      nextTick(() => {
+        scale.updateScale();
+      });
+    }
   }
 }
 
@@ -775,6 +776,8 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
 
 onMounted(() => {
   window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("resize", handleScreenResize);
+  window.addEventListener("orientationchange", handleScreenResize);
 
   // 清理旧版无效缓存
   try {
@@ -795,6 +798,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("resize", handleScreenResize);
+  window.removeEventListener("orientationchange", handleScreenResize);
 });
 </script>
 

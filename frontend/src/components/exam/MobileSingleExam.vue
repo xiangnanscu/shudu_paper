@@ -226,7 +226,6 @@ const emit = defineEmits<{
     payload: { puzzleId: number; r: number; c: number; val: number }
   ): void;
   (e: "redoPuzzle", puzzle: SudokuPuzzle): void;
-  (e: "toggleViewMode"): void;
 }>();
 
 // 内部状态

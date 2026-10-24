@@ -36,10 +36,10 @@
   }
 
   .top-exam-bar {
-    padding: 6px 10px;
+    padding: 5px 8px;
     margin-bottom: 8px;
     gap: 6px;
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   .topbar-group {
@@ -47,27 +47,28 @@
   }
 
   .topbar-btn {
-    height: 32px;
-    padding: 0 9px;
-    font-size: 0.775rem;
-    gap: 4px;
+    height: 30px;
+    padding: 0 6px;
+    font-size: 0.8125rem;
+    gap: 3px;
   }
 
   .topbar-timer-pill {
-    height: 32px;
-    padding: 0 8px;
-    font-size: 0.825rem;
-    gap: 4px;
+    height: 30px;
+    padding: 0 2px;
+    font-size: 0.85rem;
+    gap: 3px;
   }
 
   .topbar-progress-pill {
-    font-size: 0.725rem;
+    font-size: 0.75rem;
     gap: 4px;
+    padding: 0 2px;
   }
 
   .progress-track {
-    width: 36px;
-    height: 5px;
+    width: 32px;
+    height: 4px;
   }
 
   .wechat-drawer {
@@ -78,7 +79,7 @@
 
 @media (max-width: 420px) {
   .top-exam-bar {
-    padding: 5px 8px;
+    padding: 4px 6px;
     gap: 4px;
   }
 
@@ -87,17 +88,18 @@
   }
 
   .topbar-btn {
-    padding: 0 7px;
-    font-size: 0.75rem;
+    padding: 0 4px;
+    font-size: 0.775rem;
+    gap: 2px;
   }
 
   .topbar-timer-pill {
-    padding: 0 6px;
-    font-size: 0.8rem;
+    padding: 0 1px;
+    font-size: 0.8125rem;
   }
 
   .progress-track {
-    width: 28px;
+    width: 24px;
   }
 }
 
