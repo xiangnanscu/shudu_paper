@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   box-sizing: border-box;
   animation: singleExamFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -26,16 +26,17 @@
   }
 }
 
-/* 顶部信息卡片 */
+/* 顶部信息卡片 (精简紧凑、高审美排版) */
 .mobile-exam-header-card {
   width: 100%;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05), 0 0 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
   gap: 8px;
 }
@@ -44,25 +45,25 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .mobile-puzzle-number {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #0f172a;
 }
 
 .mobile-puzzle-total {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: #64748b;
 }
 
 .mobile-puzzle-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
   border-radius: 6px;
   background: #eff6ff;
   color: #2563eb;
@@ -72,14 +73,14 @@
 .mobile-header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .mobile-status-pill {
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 3px 9px;
+  border-radius: 6px;
   background: #f1f5f9;
   color: #475569;
   display: inline-flex;
@@ -91,35 +92,19 @@
 .mobile-status-pill.is-complete {
   background: #ecfdf5;
   color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
 .mobile-status-pill.status-correct {
   background: #dcfce7;
   color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .mobile-status-pill.status-wrong {
   background: #fee2e2;
   color: #dc2626;
-}
-
-.btn-header-view-toggle {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  transition: all 0.15s ease;
-}
-
-.btn-header-view-toggle:active {
-  background: #e2e8f0;
+  border: 1px solid #fecaca;
 }
 
 /* 4x4 数独盘面主卡片 */

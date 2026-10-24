@@ -1,121 +1,162 @@
 <template>
-  <div class="top-exam-bar">
-    <div class="exam-info-group">
-      <!-- 移动端侧边栏切换按钮 -->
-      <button
-        class="btn-mobile-sidebar"
-        type="button"
-        title="设置"
-        @click="emit('openSidebar')"
-      >
-        <span>⚙️ 设置</span>
-      </button>
+  <div class="top-exam-bar" :class="`is-${examStatus}`">
+    <!-- 状态 1：ready (待开始) -->
+    <!-- 纯粹准备态：
+         左侧：⚙️ 设置（移动端抽屉唤起入口）、📄 卷面/📱 单题 视图切换
+         右侧：📊 记录、▶ 开始做题（醒目蓝色 CTA）
+         彻底移除：00:00、待开始标签、未开始的进度条、安装按钮 -->
+    <template v-if="examStatus === 'ready'">
+      <div class="topbar-group topbar-group-left">
+        <button
+          class="topbar-btn topbar-btn-sidebar"
+          type="button"
+          title="打开出题与排版设置"
+          @click="emit('openSidebar')"
+        >
+          <span>⚙️ 设置</span>
+        </button>
 
-      <!-- 视图模式切换按钮（单题 / 整卷） -->
-      <button
-        class="btn-view-mode-toggle"
-        type="button"
-        :title="viewMode === 'single' ? '切换为 A4 整卷排版预览' : '切换为单题专注做题'"
-        @click="emit('toggleViewMode')"
-      >
-        <span>{{ viewMode === 'single' ? '📄 卷面' : '📱 单题' }}</span>
-      </button>
-
-      <!-- 做题状态胶囊 -->
-      <div class="exam-status-badge" :class="statusBadgeClass">
-        <span>{{ statusIcon }}</span>
-        <span>{{ statusText }}</span>
+        <button
+          class="topbar-btn"
+          type="button"
+          :title="viewMode === 'single' ? '切换为 A4 整卷排版预览' : '切换为单题专注做题'"
+          @click="emit('toggleViewMode')"
+        >
+          <span>{{ viewMode === 'single' ? '📄 卷面' : '📱 单题' }}</span>
+        </button>
       </div>
 
-      <!-- 实时计时器 -->
-      <div class="exam-timer" title="答题累计用时">
-        <span>⏱️</span>
-        <span>{{ formattedTime }}</span>
-      </div>
+      <div class="topbar-group topbar-group-right">
+        <button
+          class="topbar-btn"
+          type="button"
+          title="查看做题历史记录与统计"
+          @click="emit('openDrawer')"
+        >
+          <span>📊 记录</span>
+        </button>
 
-      <!-- 答题进度 -->
-      <div class="exam-progress">
-        <span>已填 {{ filledCount }}/{{ totalHoles }}</span>
-        <div class="exam-progress-bar-bg">
-          <div
-            class="exam-progress-bar-fill"
-            :style="{ width: progressPercentage + '%' }"
-          ></div>
+        <button
+          class="topbar-btn topbar-btn-primary"
+          type="button"
+          @click="emit('startExam')"
+        >
+          <span>▶ 开始做题</span>
+        </button>
+      </div>
+    </template>
+
+    <!-- 状态 2：doing (在线作答中) -->
+    <!-- 纯粹沉浸态：
+         左侧：📄 卷面/📱 单题 切换、⏱️ 实时等宽跳动计时器、紧凑做题进度指示
+         右侧：✓ 交卷评分（翡翠绿主操作）
+         彻底隐藏：设置、做题记录、安装按钮、“在线作答中”无意义文字标签
+         全屏专注，单行无折行！ -->
+    <template v-else-if="examStatus === 'doing'">
+      <div class="topbar-group topbar-group-left">
+        <button
+          class="topbar-btn"
+          type="button"
+          :title="viewMode === 'single' ? '切换为 A4 整卷排版预览' : '切换为单题专注做题'"
+          @click="emit('toggleViewMode')"
+        >
+          <span>{{ viewMode === 'single' ? '📄 卷面' : '📱 单题' }}</span>
+        </button>
+
+        <!-- 实时计时器 (等宽数字、清爽微蓝药丸，与按钮高度严格对齐) -->
+        <div class="topbar-timer-pill" title="答题累计用时">
+          <span class="timer-icon">⏱️</span>
+          <span class="timer-digits">{{ formattedTime }}</span>
+        </div>
+
+        <!-- 紧凑单行进度条 (已填 12/24) -->
+        <div class="topbar-progress-pill" title="整卷填空完成度">
+          <span class="progress-label">{{ filledCount }}/{{ totalHoles }}</span>
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              :style="{ width: progressPercentage + '%' }"
+            ></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 考务操作按钮组 -->
-    <div class="exam-actions-group">
-      <!-- 待开始状态显示“开始做题” -->
-      <button
-        v-if="examStatus === 'ready'"
-        class="btn-start-exam"
-        type="button"
-        @click="emit('startExam')"
-      >
-        <span>▶ 开始做题</span>
-      </button>
-
-      <!-- 作答中状态显示“交卷评分” -->
-      <button
-        v-else-if="examStatus === 'doing'"
-        class="btn-submit-exam"
-        type="button"
-        @click="emit('submitExam')"
-      >
-        <span>✓ 交卷评分</span>
-      </button>
-
-      <!-- 已提交批改状态显示“打印批改卷”与“再做一次” -->
-      <template v-else-if="examStatus === 'submitted'">
+      <div class="topbar-group topbar-group-right">
         <button
-          class="btn-print-topbar"
+          class="topbar-btn topbar-btn-submit"
+          type="button"
+          @click="emit('submitExam')"
+        >
+          <span>✓ 交卷评分</span>
+        </button>
+      </div>
+    </template>
+
+    <!-- 状态 3：submitted (已交卷批改) -->
+    <!-- 复盘评价态：
+         左侧：⚙️ 设置、📄 卷面/📱 单题 切换、⏱️ 本次答题总耗时
+         右侧：🖨️ 打印批改卷、↺ 重新作答、📊 记录 -->
+    <template v-else-if="examStatus === 'submitted'">
+      <div class="topbar-group topbar-group-left">
+        <button
+          class="topbar-btn topbar-btn-sidebar"
+          type="button"
+          title="打开出题与排版设置"
+          @click="emit('openSidebar')"
+        >
+          <span>⚙️ 设置</span>
+        </button>
+
+        <button
+          class="topbar-btn"
+          type="button"
+          :title="viewMode === 'single' ? '切换为 A4 整卷排版预览' : '切换为单题专注做题'"
+          @click="emit('toggleViewMode')"
+        >
+          <span>{{ viewMode === 'single' ? '📄 卷面' : '📱 单题' }}</span>
+        </button>
+
+        <div class="topbar-timer-pill is-finished" title="本次答题总耗时">
+          <span class="timer-icon">⏱️</span>
+          <span class="timer-digits">{{ formattedTime }}</span>
+        </div>
+      </div>
+
+      <div class="topbar-group topbar-group-right">
+        <button
+          class="topbar-btn topbar-btn-print"
           type="button"
           title="打印老师批改样式的试卷，可贴在墙上激励孩子"
           @click="emit('printExam')"
         >
           <span>🖨️ 打印批改卷</span>
         </button>
+
         <button
-          class="btn btn-secondary"
+          class="topbar-btn"
           type="button"
+          title="重新作答当前试卷"
           @click="emit('restartExam')"
         >
-          <span>↺ 重新作答</span>
+          <span>↺ 重做</span>
         </button>
-      </template>
 
-      <!-- PWA 安装按钮 (仅在非 Standalone 且可安装时显示) -->
-      <button
-        v-if="!isStandalone && canInstall"
-        class="btn-install-pwa"
-        type="button"
-        title="安装应用到平板或电脑桌面"
-        @click="promptInstall"
-      >
-        <span>📥 安装</span>
-      </button>
-
-      <!-- 历史记录侧栏按钮 -->
-      <button
-        class="btn-drawer-toggle"
-        type="button"
-        title="查看历史答题记录与统计"
-        @click="emit('openDrawer')"
-      >
-        <span>📊 记录</span>
-      </button>
-    </div>
+        <button
+          class="topbar-btn"
+          type="button"
+          title="查看做题历史记录与统计"
+          @click="emit('openDrawer')"
+        >
+          <span>📊 记录</span>
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ExamStatus } from "../../types/exam";
-import { usePWAInstall } from "../../composables/usePWAInstall";
-
-const { canInstall, isStandalone, promptInstall } = usePWAInstall();
 
 const props = withDefaults(
   defineProps<{
@@ -139,32 +180,6 @@ const emit = defineEmits<{
   (e: "toggleViewMode"): void;
   (e: "printExam"): void;
 }>();
-
-const statusBadgeClass = computed(() => {
-  return `status-${props.examStatus}`;
-});
-
-const statusIcon = computed(() => {
-  switch (props.examStatus) {
-    case "ready":
-      return "⏸️";
-    case "doing":
-      return "📝";
-    case "submitted":
-      return "✅";
-  }
-});
-
-const statusText = computed(() => {
-  switch (props.examStatus) {
-    case "ready":
-      return "待开始";
-    case "doing":
-      return "在线作答中";
-    case "submitted":
-      return "已交卷·已批改";
-  }
-});
 
 const progressPercentage = computed(() => {
   if (props.totalHoles <= 0) return 0;

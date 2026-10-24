@@ -1,3 +1,9 @@
+/* ==========================================================================
+   试卷工作区与顶部做题工具栏 (Exam Top Bar)
+   统一规范：所有控制项高度统一 34px、圆角 8px、垂直居中严格对齐
+   三态精简设计：ready (准备) / doing (作答沉浸) / submitted (复盘批改)
+   ========================================================================== */
+
 /* 右侧主工作区 */
 .preview-container {
   flex: 1;
@@ -16,248 +22,201 @@
   z-index: 70;
   width: 100%;
   max-width: 210mm;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid #cbd5e1;
   border-radius: 12px;
-  padding: 10px 16px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-md);
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
-.exam-info-group {
+/* 左右按钮分组 */
+.topbar-group {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.exam-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary);
-  background: var(--primary-light);
-  padding: 4px 10px;
-  border-radius: 9999px;
-  transition: all 0.2s ease;
+.topbar-group-left {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
 }
 
-.exam-status-badge.status-ready {
-  color: #b45309;
-  background: #fef3c7;
-  border: 1px solid #fde68a;
+.topbar-group-right {
+  justify-content: flex-end;
 }
 
-.exam-status-badge.status-doing {
-  color: #2563eb;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-}
-
-.exam-status-badge.status-submitted {
-  color: #059669;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-}
-
-.btn-start-exam {
-  padding: 8px 16px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: #ffffff;
-  border: none;
+/* ==========================================================================
+   统一控制项按钮体系 (高度统一 34px, 统一圆角 8px, 统一垂直对齐)
+   ========================================================================== */
+.topbar-btn {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 600;
   border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+  justify-content: center;
+  gap: 5px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
-.btn-start-exam:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.45);
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+.topbar-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
-.exam-timer {
+.topbar-btn:active {
+  transform: scale(0.96);
+}
+
+/* 侧边栏按钮：PC 桌面端已有常驻侧栏，默认隐藏；移动端/小屏通过媒体查询开启 */
+.topbar-btn-sidebar {
+  display: none;
+  background: #eff6ff;
+  color: var(--primary);
+  border-color: #bfdbfe;
+}
+
+.topbar-btn-sidebar:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* 主操作按钮：开始做题 (亮蓝渐变) */
+.topbar-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: 1px solid #1d4ed8;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
+}
+
+.topbar-btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.38);
+  color: #ffffff;
+}
+
+/* 主操作按钮：交卷评分 (翡翠绿渐变) */
+.topbar-btn-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid #059669;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.28);
+}
+
+.topbar-btn-submit:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.38);
+  color: #ffffff;
+}
+
+/* 主操作按钮：打印批改卷 (墨绿渐变) */
+.topbar-btn-print {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: 1px solid #047857;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+}
+
+.topbar-btn-print:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.35);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   实时计时胶囊与紧凑进度条 (与按钮高度严格一致 34px)
+   ========================================================================== */
+.topbar-timer-pill {
+  height: 34px;
+  padding: 0 10px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #0f172a;
-  font-variant-numeric: tabular-nums;
-  background: #f8fafc;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
+  box-sizing: border-box;
+  white-space: nowrap;
+  user-select: none;
 }
 
-.exam-progress {
-  font-size: 0.825rem;
-  color: var(--text-muted);
-  display: flex;
+.topbar-timer-pill.is-finished {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.timer-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.timer-digits {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* 紧凑做题进度条 */
+.topbar-progress-pill {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
 }
 
-.exam-progress-bar-bg {
-  width: 70px;
+.progress-label {
+  white-space: nowrap;
+}
+
+.progress-track {
+  width: 44px;
   height: 6px;
   background: #e2e8f0;
   border-radius: 9999px;
   overflow: hidden;
 }
 
-.exam-progress-bar-fill {
+.progress-bar {
   height: 100%;
-  background: var(--primary);
-  width: 0%;
+  background: #2563eb;
+  border-radius: 9999px;
   transition: width 0.2s ease;
 }
 
-.exam-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-submit-exam {
-  padding: 8px 16px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
-  transition: all 0.15s ease;
-}
-
-.btn-submit-exam:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
-}
-
-.btn-print-topbar {
-  padding: 8px 14px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
-  transition: all 0.15s ease;
-}
-
-.btn-print-topbar:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.4);
-}
-
-.btn-drawer-toggle {
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: #ffffff;
-  color: #334155;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.btn-drawer-toggle:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.btn-mobile-sidebar {
-  display: none;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  cursor: pointer;
-  align-items: center;
-  gap: 5px;
-}
-
-.btn-view-mode-toggle {
-  display: inline-flex;
-  padding: 6px 12px;
-  font-size: 0.825rem;
-  font-weight: 700;
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  cursor: pointer;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.btn-view-mode-toggle:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-.btn-view-mode-toggle:active {
-  transform: scale(0.96);
-}
-
-.btn-install-pwa {
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: #eff6ff;
-  color: var(--primary);
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.btn-install-pwa:hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  transform: translateY(-1px);
-}
-
+/* iOS 顶部刘海屏适配 */
 @supports (padding-top: env(safe-area-inset-top)) {
   .top-exam-bar {
-    padding-top: max(10px, env(safe-area-inset-top));
+    padding-top: max(8px, env(safe-area-inset-top));
   }
 }
-

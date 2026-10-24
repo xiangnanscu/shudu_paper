@@ -4,7 +4,7 @@
     <div class="mobile-exam-header-card">
       <div class="mobile-header-left">
         <span class="mobile-puzzle-number">第 {{ currentIndex + 1 }} 题</span>
-        <span class="mobile-puzzle-total">/ 共 {{ totalPuzzles }} 题</span>
+        <span class="mobile-puzzle-total">/ {{ totalPuzzles }} 题</span>
         <span class="mobile-puzzle-tag">{{ difficultyText }}</span>
       </div>
 
@@ -15,7 +15,7 @@
             class="mobile-status-pill"
             :class="isPuzzleAllCorrect ? 'status-correct' : 'status-wrong'"
           >
-            {{ isPuzzleAllCorrect ? '✓ 本题正确' : '✗ 存在错格' }}
+            {{ isPuzzleAllCorrect ? '✓ 全部正确' : `✗ 错 ${currentWrongCount} 格` }}
           </span>
         </template>
         <!-- 作答状态下显示填写进度 -->
@@ -24,19 +24,9 @@
             class="mobile-status-pill"
             :class="{ 'is-complete': isCurrentPuzzleFilled }"
           >
-            {{ isCurrentPuzzleFilled ? '✓ 已填满' : `已填 ${currentFilledCount}/${currentHolesCount} 格` }}
+            {{ isCurrentPuzzleFilled ? '✓ 已填满' : `${currentFilledCount}/${currentHolesCount} 格` }}
           </span>
         </template>
-
-        <!-- 模式切换入口 -->
-        <button
-          type="button"
-          class="btn-header-view-toggle"
-          title="切换为整卷纸张排版预览"
-          @click="emit('toggleViewMode')"
-        >
-          📄 预览整卷
-        </button>
       </div>
     </div>
 

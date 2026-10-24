@@ -25,41 +25,79 @@
     display: flex;
   }
 
+  .topbar-btn-sidebar,
   .btn-mobile-sidebar {
     display: inline-flex;
   }
 
   .preview-container {
-    padding: 12px 10px 32px;
+    padding: 8px 8px 24px;
     width: 100%;
   }
 
   .top-exam-bar {
-    padding: 8px 10px;
-    gap: 8px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    gap: 6px;
+    border-radius: 10px;
   }
 
-  .exam-info-group {
+  .topbar-group {
     gap: 6px;
   }
 
-  .exam-actions-group {
-    gap: 6px;
+  .topbar-btn {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 0.775rem;
+    gap: 4px;
   }
 
-  .exam-timer {
-    font-size: 0.85rem;
-    padding: 3px 8px;
+  .topbar-timer-pill {
+    height: 32px;
+    padding: 0 8px;
+    font-size: 0.825rem;
+    gap: 4px;
   }
 
-  .exam-status-badge {
-    font-size: 0.75rem;
-    padding: 3px 8px;
+  .topbar-progress-pill {
+    font-size: 0.725rem;
+    gap: 4px;
+  }
+
+  .progress-track {
+    width: 36px;
+    height: 5px;
   }
 
   .wechat-drawer {
     width: 100vw;
     max-width: 100vw;
+  }
+}
+
+@media (max-width: 420px) {
+  .top-exam-bar {
+    padding: 5px 8px;
+    gap: 4px;
+  }
+
+  .topbar-group {
+    gap: 4px;
+  }
+
+  .topbar-btn {
+    padding: 0 7px;
+    font-size: 0.75rem;
+  }
+
+  .topbar-timer-pill {
+    padding: 0 6px;
+    font-size: 0.8rem;
+  }
+
+  .progress-track {
+    width: 28px;
   }
 }
 
