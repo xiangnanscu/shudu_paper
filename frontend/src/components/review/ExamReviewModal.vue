@@ -135,6 +135,8 @@
           :symbol-map="symbolMap"
           :corrected-puzzle-ids="correctedPuzzleIds"
           :record="record"
+          :paper-config="paperConfig"
+          :exam-result="examResult"
           @inspect-puzzle="handleInspectPuzzle"
           @redo-puzzle="(puzzle) => emit('redoPuzzle', puzzle)"
           @print="emit('print', record)"
@@ -158,6 +160,8 @@
 import { ref, computed, watch } from "vue";
 import type { ExamRecordDetail } from "../../types/record";
 import type { SudokuPuzzle } from "../../types/sudoku";
+import type { PaperConfig } from "../../types/config";
+import type { ExamResult } from "../../types/exam";
 import ReviewPaperOverview from "./ReviewPaperOverview.vue";
 import ReviewStepPlayer from "./ReviewStepPlayer.vue";
 
@@ -169,9 +173,13 @@ const props = withDefaults(
     record: ExamRecordDetail | null;
     symbolMap: Record<number, string>;
     correctedPuzzleIds?: Set<number>;
+    paperConfig?: PaperConfig;
+    examResult?: ExamResult | null;
   }>(),
   {
     correctedPuzzleIds: () => new Set<number>(),
+    paperConfig: undefined,
+    examResult: undefined,
   }
 );
 

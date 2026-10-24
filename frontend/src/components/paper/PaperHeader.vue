@@ -70,40 +70,27 @@
           <span class="teacher-score-num">{{ examResult.score }}</span>
           <span class="teacher-score-unit">分</span>
         </div>
-        <!-- 老师红笔潇洒手绘横线 (100分专属双横线，其他分数单横线) -->
+        <!-- 老师红笔潇洒手绘双横线 (不论分数高低，老师批卷打分下方均划两条红线定分) -->
         <svg
           class="teacher-lines-svg"
           viewBox="0 0 100 16"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <!-- 100分满分双横线 -->
-          <template v-if="examResult.score === 100">
-            <path
-              d="M 2 4 C 28 2, 65 6, 98 3"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-            <path
-              d="M 6 12 C 32 10, 72 14, 96 11"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-          </template>
-          <!-- 普通分数单横线 -->
-          <template v-else>
-            <path
-              d="M 4 8 C 30 6, 68 11, 96 8"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-          </template>
+          <path
+            d="M 2 4 C 28 2, 65 6, 98 3"
+            fill="none"
+            stroke="#dc2626"
+            stroke-width="3.2"
+            stroke-linecap="round"
+          />
+          <path
+            d="M 6 12 C 32 10, 72 14, 96 11"
+            fill="none"
+            stroke="#dc2626"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
         </svg>
       </div>
     </div>

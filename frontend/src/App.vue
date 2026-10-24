@@ -51,6 +51,7 @@
 
       <!-- 动态缩放容器 (保证 A4 移动端贴合且排版一致，在打印模式下始终完整呈现) -->
       <div
+        v-if="!(isReviewModalOpen && reviewRecordDetail)"
         class="paper-container-wrapper"
         :class="{
           'hidden-on-screen': viewMode === 'single',
@@ -132,8 +133,10 @@
       :loading="reviewLoading"
       :load-error="reviewError"
       :record="reviewRecordDetail"
-      :symbol-map="sudoku.currentSymbolMap.value"
+      :symbol-map="reviewSymbolMap"
       :corrected-puzzle-ids="correctedPuzzleIds"
+      :paper-config="reviewPaperConfig"
+      :exam-result="reviewExamResult"
       @close="isReviewModalOpen = false"
       @redo="handleRedoRecord"
       @redo-puzzle="handleOpenSingleRedo"
@@ -506,8 +509,8 @@ const reviewPaperConfig = computed<PaperConfig>(() => {
     rowsPerPage: (r?.rows_per_page ?? r?.rowsPerPage ?? 2) as 2 | 3,
     difficulty: (r?.difficulty ?? "medium_hypo_direct") as any,
     symbolType: (r?.symbol_type ?? r?.symbolType ?? "numbers") as any,
-    paperTitle: "四宫格数独 · 作答批改试卷",
-    paperSubtitle: "老师已批改完成 · 错题请认真订正并分析推导过程",
+    paperTitle: config.paperTitle || "四宫格数独思维训练",
+    paperSubtitle: config.paperSubtitle || "培养专注力 · 建立数感 · 锻炼逻辑推理",
     studentName: r?.student_name ?? r?.studentName ?? config.studentName ?? "",
     studentClass: r?.student_class ?? r?.studentClass ?? config.studentClass ?? "",
     showName: true,
@@ -523,20 +526,22 @@ const reviewPaperConfig = computed<PaperConfig>(() => {
 const reviewExamResult = computed<ExamResult | null>(() => {
   const r = reviewRecordDetail.value;
   if (!r) return null;
+  const totalHoles = r.total_holes ?? r.totalHoles ?? 0;
+  const correctHoles = r.correct_holes ?? r.correctHoles ?? 0;
   return {
-    score: r.score,
+    score: r.score ?? 0,
     timeSpent: r.time_spent ?? r.timeSpent ?? 0,
-    totalPuzzles: r.total_puzzles ?? r.totalPuzzles ?? r.puzzles.length,
+    totalPuzzles: r.total_puzzles ?? r.totalPuzzles ?? (r.puzzles ? r.puzzles.length : 0),
     correctPuzzles: r.correct_puzzles ?? r.correctPuzzles ?? 0,
-    totalHoles: r.total_holes ?? r.totalHoles ?? 0,
-    correctHoles: r.correct_holes ?? r.correctHoles ?? 0,
-    wrongHoles: (r.total_holes ?? r.totalHoles ?? 0) - (r.correct_holes ?? r.correctHoles ?? 0),
-    difficulty: r.difficulty,
-    symbolType: r.symbol_type ?? r.symbolType ?? "numbers",
+    totalHoles,
+    correctHoles,
+    wrongHoles: totalHoles - correctHoles,
+    difficulty: (r.difficulty ?? "medium_hypo_direct") as any,
+    symbolType: (r.symbol_type ?? r.symbolType ?? "numbers") as any,
     studentName: r.student_name ?? r.studentName ?? config.studentName ?? "",
     studentClass: r.student_class ?? r.studentClass ?? config.studentClass ?? "",
     pagesCount: reviewPagesData.value.length || 1,
-    rowsPerPage: r.rows_per_page ?? r.rowsPerPage ?? 2,
+    rowsPerPage: (r.rows_per_page ?? r.rowsPerPage ?? 2) as 2 | 3,
     createdAt: r.created_at ?? r.createdAt ?? "",
   };
 });

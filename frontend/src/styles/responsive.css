@@ -79,4 +79,9 @@
   .paper-container-wrapper.hidden-on-screen {
     display: block !important;
   }
+
+  .paper-container-wrapper.hidden-for-review-print,
+  .hidden-for-review-print {
+    display: none !important;
+  }
 }

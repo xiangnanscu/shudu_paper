@@ -1,74 +1,13 @@
 <template>
   <div class="review-overview-container">
-    <!-- 老师批改试卷抬头卡片 (真实考卷质感，大红分数、姓名班级、双横线与评语印章) -->
-    <div v-if="record" class="review-teacher-header-card">
-      <div class="review-paper-header-left">
-        <div class="review-paper-title">
-          {{ displayTitle }}
-        </div>
-        <div class="review-paper-meta-items">
-          <div v-if="record.student_class || record.studentClass" class="paper-meta-col">
-            <span class="meta-col-lbl">班级：</span>
-            <span class="meta-col-val">{{ record.student_class || record.studentClass }}</span>
-          </div>
-          <div v-if="record.student_name || record.studentName" class="paper-meta-col">
-            <span class="meta-col-lbl">姓名：</span>
-            <span class="meta-col-val">{{ record.student_name || record.studentName }}</span>
-          </div>
-          <div class="paper-meta-col">
-            <span class="meta-col-lbl">日期：</span>
-            <span class="meta-col-val">{{ displayDate }}</span>
-          </div>
-          <div class="paper-meta-col">
-            <span class="meta-col-lbl">用时：</span>
-            <span class="meta-col-val">{{ formattedDuration }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右上角老师批改大红分 (大字号、满分手绘双横线、评语印章) -->
-      <div class="review-teacher-score-stamp">
-        <div class="review-score-praise">
-          {{ praiseComment }}
-        </div>
-        <div class="review-score-num-box">
-          <span class="review-score-val">{{ record.score }}</span>
-          <span class="review-score-unit">分</span>
-        </div>
-        <!-- 老师红笔潇洒手绘横线 (满分专属双横线) -->
-        <svg
-          class="review-lines-svg"
-          viewBox="0 0 100 16"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <template v-if="record.score === 100">
-            <path
-              d="M 2 4 C 28 2, 65 6, 98 3"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-            <path
-              d="M 6 12 C 32 10, 72 14, 96 11"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-          </template>
-          <template v-else>
-            <path
-              d="M 4 8 C 30 6, 68 11, 96 8"
-              fill="none"
-              stroke="#dc2626"
-              stroke-width="3.2"
-              stroke-linecap="round"
-            />
-          </template>
-        </svg>
-      </div>
+    <!-- 老师红笔批改试卷抬头卡片 (与交卷后试卷完全一致的排版，右上醒目大红分、双横线与评语印章) -->
+    <div v-if="record" class="review-paper-header-card">
+      <PaperHeader
+        :config="resolvedPaperConfig"
+        :page-index="0"
+        :is-answer-sheet="false"
+        :exam-result="overviewExamResult"
+      />
     </div>
 
     <!-- 顶部控制条 -->
@@ -179,8 +118,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import type { SudokuPuzzle } from "../../types/sudoku";
-import type { UserAnswers, AnswerStep } from "../../types/exam";
+import type { UserAnswers, AnswerStep, ExamResult } from "../../types/exam";
 import type { ExamRecordDetail } from "../../types/record";
+import type { PaperConfig } from "../../types/config";
+import PaperHeader from "../paper/PaperHeader.vue";
 import SudokuCard from "../paper/SudokuCard.vue";
 
 const props = withDefaults(
@@ -191,11 +132,15 @@ const props = withDefaults(
     symbolMap: Record<number, string>;
     correctedPuzzleIds?: Set<number>;
     record?: ExamRecordDetail | null;
+    paperConfig?: PaperConfig;
+    examResult?: ExamResult | null;
   }>(),
   {
     steps: () => [],
     correctedPuzzleIds: () => new Set<number>(),
     record: null,
+    paperConfig: undefined,
+    examResult: undefined,
   }
 );
 
@@ -212,50 +157,50 @@ const hasSteps = computed(() => {
   return Array.isArray(props.steps) && props.steps.length > 0;
 });
 
-const displayTitle = computed(() => {
-  const diffLabels: Record<string, string> = {
-    starter: "入门级 (13-14数)",
-    easy: "初级 (9-12数)",
-    medium: "中级 (6-8数)",
-    medium_hypo_direct: "中级假设专项训练卷",
-    medium_hypo_deep: "中级假设·深度尝试训练卷",
-    medium_hypo_mixed: "中级假设·综合专项训练卷",
-    hard: "高级 (4-5数) 挑战卷",
-    mixed_page: "阶梯递进训练卷",
-    random: "随机混合数独卷",
+const resolvedPaperConfig = computed<PaperConfig>(() => {
+  if (props.paperConfig) return props.paperConfig;
+  const r = props.record;
+  return {
+    pagesCount: 1,
+    rowsPerPage: (r?.rows_per_page ?? r?.rowsPerPage ?? 2) as 2 | 3,
+    difficulty: (r?.difficulty ?? "medium_hypo_direct") as any,
+    symbolType: (r?.symbol_type ?? r?.symbolType ?? "numbers") as any,
+    paperTitle: "四宫格数独思维训练",
+    paperSubtitle: "培养专注力 · 建立数感 · 锻炼逻辑推理",
+    studentName: r?.student_name ?? r?.studentName ?? "",
+    studentClass: r?.student_class ?? r?.studentClass ?? "",
+    showName: true,
+    showClass: true,
+    showDate: true,
+    showTime: true,
+    showScore: true,
+    appendAnswerPage: false,
+    showAnswers: false,
   };
-  const diff = props.record?.difficulty || "";
-  return `四宫格数独 · ${diffLabels[diff] || "练习卷"} · 批改详情`;
 });
 
-const displayDate = computed(() => {
-  const raw = props.record?.created_at || props.record?.createdAt;
-  if (!raw) return "";
-  try {
-    const d = new Date(raw);
-    if (isNaN(d.getTime())) return "";
-    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
-  } catch {
-    return "";
-  }
-});
-
-const formattedDuration = computed(() => {
-  if (!props.record) return "0秒";
-  const sec = props.record.time_spent ?? props.record.timeSpent ?? 0;
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return m > 0 ? `${m}分${s}秒` : `${s}秒`;
-});
-
-const praiseComment = computed(() => {
-  if (!props.record) return "";
-  const s = props.record.score;
-  if (s === 100) return "满分 · 太棒了!";
-  if (s >= 90) return "优秀 · 敏捷!";
-  if (s >= 80) return "良好 · 棒!";
-  if (s >= 60) return "及格 · 继续努力!";
-  return "加油 · 每天进步!";
+const overviewExamResult = computed<ExamResult | null>(() => {
+  if (props.examResult) return props.examResult;
+  const r = props.record;
+  if (!r) return null;
+  const totalHoles = r.total_holes ?? r.totalHoles ?? 0;
+  const correctHoles = r.correct_holes ?? r.correctHoles ?? 0;
+  return {
+    score: r.score ?? 0,
+    timeSpent: r.time_spent ?? r.timeSpent ?? 0,
+    totalPuzzles: r.total_puzzles ?? r.totalPuzzles ?? (r.puzzles ? r.puzzles.length : 0),
+    correctPuzzles: r.correct_puzzles ?? r.correctPuzzles ?? 0,
+    totalHoles,
+    correctHoles,
+    wrongHoles: totalHoles - correctHoles,
+    difficulty: (r.difficulty ?? "medium_hypo_direct") as any,
+    symbolType: (r.symbol_type ?? r.symbolType ?? "numbers") as any,
+    studentName: r.student_name ?? r.studentName ?? "",
+    studentClass: r.student_class ?? r.studentClass ?? "",
+    pagesCount: 1,
+    rowsPerPage: (r.rows_per_page ?? r.rowsPerPage ?? 2) as 2 | 3,
+    createdAt: r.created_at ?? r.createdAt ?? "",
+  };
 });
 
 // 计算最终每个格子生效的步骤序号映射
