@@ -81,24 +81,26 @@
         v-if="isReviewModalOpen && reviewRecordDetail"
         class="review-print-sheet-wrapper"
       >
-        <PaperSheet
-          v-for="(pagePuzzles, idx) in reviewPagesData"
-          :key="'review-print-page-' + idx"
-          :page-index="idx"
-          :current-page-number="idx + 1"
-          :total-sheets="reviewPagesData.length"
-          :puzzles="pagePuzzles"
-          :board-size="reviewBoardSize"
-          :cell-font-size="reviewCellFontSize"
-          :symbol-map="reviewSymbolMap"
-          exam-status="submitted"
-          :user-answers="reviewRecordDetail.userAnswers"
-          :active-cell="null"
-          :config="reviewPaperConfig"
-          :exam-result="reviewExamResult"
-          :corrected-puzzle-ids="correctedPuzzleIds"
-          :is-answer-sheet="false"
-        />
+        <div id="pagesWrapper">
+          <PaperSheet
+            v-for="(pagePuzzles, idx) in reviewPagesData"
+            :key="'review-print-page-' + idx"
+            :page-index="idx"
+            :current-page-number="idx + 1"
+            :total-sheets="reviewPagesData.length"
+            :puzzles="pagePuzzles"
+            :board-size="reviewBoardSize"
+            :cell-font-size="reviewCellFontSize"
+            :symbol-map="reviewSymbolMap"
+            exam-status="submitted"
+            :user-answers="reviewRecordDetail.userAnswers"
+            :active-cell="null"
+            :config="reviewPaperConfig"
+            :exam-result="reviewExamResult"
+            :corrected-puzzle-ids="correctedPuzzleIds"
+            :is-answer-sheet="false"
+          />
+        </div>
       </div>
     </main>
 
@@ -562,7 +564,9 @@ const reviewSymbolMap = computed(() => {
 });
 
 function handlePrintReviewExam() {
-  window.print();
+  nextTick(() => {
+    window.print();
+  });
 }
 
 // 重做选中的历史试卷 (错卷重做)

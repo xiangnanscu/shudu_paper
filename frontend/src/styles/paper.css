@@ -254,9 +254,15 @@
   font-weight: 600;
 }
 
-/* 历史复盘试卷专用 A4 打印容器 (屏幕上隐藏，打印时激活) */
+/* 历史复盘试卷专用 A4 打印容器 (平时离屏预渲染避免打印突变时布局丢失或动画未就绪，打印时无缝激活) */
 .review-print-sheet-wrapper {
-  display: none;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 210mm;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -9999;
 }
 
 /* 打印样式极致校准 - 绝不出现多余空白页，完全隐藏一切操作控件 */
@@ -294,7 +300,12 @@
 
   .review-print-sheet-wrapper {
     display: block !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
     width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .preview-container {
@@ -380,26 +391,107 @@
     border-bottom-color: #000000 !important;
   }
 
-  /* 打印时老师批改大分数与印章的高清原彩呈现 */
+  /* 打印时老师批改大分数、手绘双横线与印章的高清原彩呈现 (严防动画首帧透明) */
   .teacher-grade-badge {
     position: absolute !important;
     right: 8mm !important;
     top: 0 !important;
     display: flex !important;
+    align-items: flex-end !important;
+    gap: 10px !important;
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+    color: #dc2626 !important;
+    z-index: 10 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-score-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    transform: rotate(-4deg) !important;
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .teacher-score-wrapper {
+    display: flex !important;
+    align-items: baseline !important;
+    line-height: 1 !important;
+  }
+
+  .teacher-score-num {
+    font-size: 46px !important;
+    font-weight: 900 !important;
+    line-height: 0.9 !important;
+    color: #dc2626 !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-score-unit {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: #dc2626 !important;
+    opacity: 1 !important;
+    margin-left: 2px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-lines-svg {
+    display: block !important;
+    width: 100% !important;
+    min-width: 66px !important;
+    height: 12px !important;
+    margin-top: 1px !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-lines-svg path {
+    stroke: #dc2626 !important;
+    stroke-width: 3.2 !important;
+    opacity: 1 !important;
+    animation: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .teacher-praise-seal {
+    display: block !important;
+    opacity: 1 !important;
+    animation: none !important;
+    transform: rotate(-10deg) !important;
+    border: 1.8px solid #dc2626 !important;
+    outline: 1px solid #dc2626 !important;
+    outline-offset: -3px !important;
+    color: #dc2626 !important;
+    border-radius: 14px !important;
+    padding: 2.5px 8px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .seal-text {
+    display: inline-block !important;
+    opacity: 1 !important;
     color: #dc2626 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .teacher-score-num,
-  .teacher-score-unit,
-  .teacher-lines-svg path,
-  .teacher-praise-seal,
-  .seal-text,
   .score-handwritten {
     color: #dc2626 !important;
     border-color: #dc2626 !important;
     stroke: #dc2626 !important;
+    opacity: 1 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
