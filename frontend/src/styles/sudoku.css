@@ -164,55 +164,6 @@
   print-color-adjust: exact !important;
 }
 
-/* 错题老师红叉标记 (与正确的大红勾同级大小和粗细，居中统领错题视觉) */
-.teacher-wrong-mark {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: wrongDraw 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-.teacher-wrong-svg {
-  width: 92%;
-  height: 92%;
-  filter: drop-shadow(0 1px 1.5px rgba(220, 38, 38, 0.25));
-}
-
-.teacher-wrong-path {
-  stroke: #dc2626;
-  stroke-dasharray: 150;
-  stroke-dashoffset: 0;
-  animation: wrongStroke 0.4s ease-out forwards;
-  -webkit-print-color-adjust: exact !important;
-  print-color-adjust: exact !important;
-}
-
-@keyframes wrongStroke {
-  0% {
-    stroke-dashoffset: 150;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes wrongDraw {
-  0% {
-    transform: scale(0.85);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.95;
-  }
-}
-
 /* 题号旁的老师批改小标签 */
 .teacher-puzzle-tag {
   display: inline-block;
@@ -258,21 +209,40 @@
   font-weight: 700;
 }
 
-/* 全对题目中去除单个格子琐碎的绿勾，由盘面大红勾统一接管统领视觉 */
+/* 全对题目中去除单个格子琐碎的标记，由盘面大红勾统一接管统领视觉 */
 .sudoku-cell.graded-correct.puzzle-all-correct::after {
   display: none !important;
 }
 
-/* 存在错题的盘面中，对对格标注老师红勾 */
+/* 存在错题的盘面中，对对格标注老师小红勾 (位于每个填对宫格的右下角) */
 .sudoku-cell.graded-correct:not(.puzzle-all-correct)::after {
   content: "✓";
   position: absolute;
-  top: 1px;
-  right: 2px;
+  bottom: 2px;
+  right: 3px;
+  font-size: 11px;
+  line-height: 1;
+  color: #dc2626;
+  font-weight: 900;
+  pointer-events: none;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* 存在错题的盘面中，对错格或漏填格标注老师小红叉 (位于每个填错宫格的右下角) */
+.sudoku-cell.graded-wrong::after,
+.sudoku-cell.graded-missed::after {
+  content: "✕";
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
   font-size: 10px;
   line-height: 1;
   color: #dc2626;
   font-weight: 900;
+  pointer-events: none;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
 .sudoku-cell.graded-wrong {
@@ -282,31 +252,11 @@
 .sudoku-cell.graded-wrong .user-val {
   color: #dc2626;
   font-weight: 700;
-  text-decoration: line-through;
-  opacity: 0.85;
+  text-decoration: none;
 }
 
-.sudoku-cell.graded-wrong .correct-hint {
-  position: absolute;
-  bottom: 1px;
-  right: 2px;
-  font-size: 11px;
-  line-height: 1;
-  color: #dc2626;
-  font-weight: 900;
-  font-family: "STKaiti", "KaiTi", sans-serif;
-}
-
-.sudoku-cell.graded-missed {
-  background-color: #fff1f2 !important;
-}
-
-.sudoku-cell.graded-missed .correct-hint {
-  color: #dc2626;
-  font-size: 13px;
-  font-weight: 900;
-  font-family: "STKaiti", "KaiTi", sans-serif;
-  opacity: 0.9;
+.sudoku-cell .correct-hint {
+  display: none !important;
 }
 
 .sudoku-cell .answer-preview {

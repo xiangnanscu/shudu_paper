@@ -59,14 +59,6 @@
               <template v-else-if="getUserVal(r - 1, c - 1)">
                 <span class="cell-symbol user-val">{{ symbolMap[getUserVal(r - 1, c - 1)] }}</span>
               </template>
-
-              <!-- 批改状态下错误格或漏填格的标准答案提示 -->
-              <span
-                v-if="examStatus === 'submitted' && isShowAnswerHint(r - 1, c - 1)"
-                class="mobile-cell-hint"
-              >
-                {{ symbolMap[currentPuzzle.solution[r - 1][c - 1]] }}
-              </span>
             </div>
           </template>
         </template>
@@ -86,36 +78,6 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               class="teacher-check-path"
-            />
-          </svg>
-        </div>
-
-        <!-- 老师批改大红叉 (手机单题有错误时展现同级大红叉) -->
-        <div
-          v-else-if="examStatus === 'submitted' && !isPuzzleAllCorrect"
-          class="teacher-wrong-mark"
-          aria-hidden="true"
-        >
-          <svg viewBox="0 0 100 100" class="teacher-wrong-svg">
-            <line
-              x1="18"
-              y1="18"
-              x2="82"
-              y2="82"
-              stroke="#dc2626"
-              stroke-width="4"
-              stroke-linecap="round"
-              class="teacher-wrong-path"
-            />
-            <line
-              x1="82"
-              y1="18"
-              x2="18"
-              y2="82"
-              stroke="#dc2626"
-              stroke-width="4"
-              stroke-linecap="round"
-              class="teacher-wrong-path"
             />
           </svg>
         </div>
@@ -330,22 +292,14 @@ function getCellStatusClass(r: number, c: number): string {
   const sVal = currentPuzzle.value.solution[r][c];
 
   if (uVal === sVal) {
-    return "is-graded-correct";
+    return isPuzzleAllCorrect.value
+      ? "is-graded-correct puzzle-all-correct"
+      : "is-graded-correct";
   } else if (uVal > 0 && uVal !== sVal) {
     return "is-graded-wrong";
   } else {
     return "is-graded-missed";
   }
-}
-
-// 是否显示标准答案提示（错题或漏填）
-function isShowAnswerHint(r: number, c: number): boolean {
-  if (props.examStatus !== "submitted" || isClue(r, c) || !currentPuzzle.value) {
-    return false;
-  }
-  const uVal = getUserVal(r, c);
-  const sVal = currentPuzzle.value.solution[r][c];
-  return uVal !== sVal;
 }
 
 // 本题总空格数

@@ -210,8 +210,7 @@
 
 .mobile-sudoku-cell.is-graded-wrong .user-val {
   color: #dc2626 !important;
-  text-decoration: line-through;
-  opacity: 0.85;
+  text-decoration: none;
 }
 
 /* 批改遗漏未填 */
@@ -219,20 +218,34 @@
   background-color: #fff1f2 !important;
 }
 
-/* 错题或未填题的老师标准答案红笔批改角标 */
-.mobile-cell-hint {
+/* 错题盘面中单元格右下角小红勾与小红叉 */
+.mobile-sudoku-cell.is-graded-correct:not(.puzzle-all-correct)::after {
+  content: "✓";
   position: absolute;
   bottom: 2px;
   right: 4px;
   font-size: 13px;
-  font-weight: 900;
-  color: #dc2626;
   line-height: 1;
-  font-family: "STKaiti", "KaiTi", sans-serif;
+  color: #dc2626;
+  font-weight: 900;
+  pointer-events: none;
 }
 
-.mobile-sudoku-cell.is-graded-missed .mobile-cell-hint {
-  color: #d97706;
+.mobile-sudoku-cell.is-graded-wrong::after,
+.mobile-sudoku-cell.is-graded-missed::after {
+  content: "✕";
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 12px;
+  line-height: 1;
+  color: #dc2626;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.mobile-cell-hint {
+  display: none !important;
 }
 
 /* 下方操作与输入区 */

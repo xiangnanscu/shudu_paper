@@ -506,9 +506,8 @@
     print-color-adjust: exact !important;
   }
 
-  /* 打印时老师批改大红勾与大红叉的高清原彩呈现 (必须禁用动画并锁定 opacity: 1) */
-  .teacher-big-check,
-  .teacher-wrong-mark {
+  /* 打印时老师批改大红勾的高清原彩呈现 (必须禁用动画并锁定 opacity: 1) */
+  .teacher-big-check {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
@@ -522,8 +521,7 @@
     print-color-adjust: exact !important;
   }
 
-  .teacher-check-svg,
-  .teacher-wrong-svg {
+  .teacher-check-svg {
     width: 92% !important;
     height: 92% !important;
     filter: none !important;
@@ -531,9 +529,7 @@
     print-color-adjust: exact !important;
   }
 
-  .teacher-check-path,
-  .teacher-wrong-path,
-  .teacher-wrong-mark line {
+  .teacher-check-path {
     stroke: #dc2626 !important;
     stroke-width: 4 !important;
     stroke-dasharray: none !important;
@@ -586,8 +582,37 @@
     print-color-adjust: exact !important;
   }
 
-  /* 打印时去除干扰角标与提示，保持盘面纯净整洁 */
-  .sudoku-cell.graded-correct::after {
+  /* 打印时错题盘面中的格子右下角小红勾与小红叉 */
+  .sudoku-cell.graded-correct:not(.puzzle-all-correct)::after {
+    content: "✓" !important;
+    position: absolute !important;
+    bottom: 2px !important;
+    right: 3px !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    color: #dc2626 !important;
+    font-weight: 900 !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sudoku-cell.graded-wrong::after,
+  .sudoku-cell.graded-missed::after {
+    content: "✕" !important;
+    position: absolute !important;
+    bottom: 2px !important;
+    right: 3px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    color: #dc2626 !important;
+    font-weight: 900 !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .sudoku-cell.puzzle-all-correct::after {
     display: none !important;
   }
 

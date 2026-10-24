@@ -58,7 +58,7 @@
               activeCell?.c === c - 1
             "
             :is-answer-sheet="isAnswerSheet"
-            :is-puzzle-all-correct="isAllCorrect"
+            :is-puzzle-all-correct="isAllCorrect || isCorrected"
             :step-index="stepMap?.[`${puzzle.id}_${r - 1}_${c - 1}`]"
             :show-step-badge="showStepBadge"
             @select="(elem) => emit('selectCell', elem, puzzle.id, r - 1, c - 1)"
@@ -85,36 +85,6 @@
           />
         </svg>
         <span v-if="isCorrected" class="teacher-check-sub">订正✓</span>
-      </div>
-
-      <!-- 老师批改错题标记 (存在错误且未订正，与大红勾同级同比例大红叉) -->
-      <div
-        v-else-if="examStatus === 'submitted' && !isAnswerSheet && isWrong"
-        class="teacher-wrong-mark"
-        aria-hidden="true"
-      >
-        <svg viewBox="0 0 100 100" class="teacher-wrong-svg">
-          <line
-            x1="18"
-            y1="18"
-            x2="82"
-            y2="82"
-            stroke="#dc2626"
-            stroke-width="4"
-            stroke-linecap="round"
-            class="teacher-wrong-path"
-          />
-          <line
-            x1="82"
-            y1="18"
-            x2="18"
-            y2="82"
-            stroke="#dc2626"
-            stroke-width="4"
-            stroke-linecap="round"
-            class="teacher-wrong-path"
-          />
-        </svg>
       </div>
     </div>
   </div>

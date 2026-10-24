@@ -33,16 +33,9 @@
     <template v-else>
       <!-- 已批改状态 -->
       <template v-if="examStatus === 'submitted'">
-        <template v-if="userVal === ansVal">
-          <span class="user-val">{{ symbolMap[userVal] }}</span>
-        </template>
-        <template v-else-if="userVal !== undefined">
-          <span class="user-val">{{ symbolMap[userVal] }}</span>
-          <span class="correct-hint">{{ symbolMap[ansVal] }}</span>
-        </template>
-        <template v-else>
-          <span class="correct-hint">{{ symbolMap[ansVal] }}</span>
-        </template>
+        <span v-if="userVal !== undefined" class="user-val">
+          {{ symbolMap[userVal] }}
+        </span>
       </template>
 
       <!-- 作答中/待开始状态 -->
