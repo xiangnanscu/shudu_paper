@@ -26,20 +26,48 @@
         </div>
       </div>
 
-      <!-- 右上角老师批改大红分 (大字号、满分双横线、评语印章) -->
+      <!-- 右上角老师批改大红分 (大字号、满分手绘双横线、评语印章) -->
       <div class="review-teacher-score-stamp">
+        <div class="review-score-praise">
+          {{ praiseComment }}
+        </div>
         <div class="review-score-num-box">
           <span class="review-score-val">{{ record.score }}</span>
           <span class="review-score-unit">分</span>
         </div>
-        <!-- 经典红线 (满分双横线) -->
-        <div
-          class="review-score-lines"
-          :class="{ 'is-perfect': record.score === 100 }"
-        ></div>
-        <div class="review-score-praise">
-          {{ praiseComment }}
-        </div>
+        <!-- 老师红笔潇洒手绘横线 (满分专属双横线) -->
+        <svg
+          class="review-lines-svg"
+          viewBox="0 0 100 16"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <template v-if="record.score === 100">
+            <path
+              d="M 2 4 C 28 2, 65 6, 98 3"
+              fill="none"
+              stroke="#dc2626"
+              stroke-width="3.2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M 6 12 C 32 10, 72 14, 96 11"
+              fill="none"
+              stroke="#dc2626"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </template>
+          <template v-else>
+            <path
+              d="M 4 8 C 30 6, 68 11, 96 8"
+              fill="none"
+              stroke="#dc2626"
+              stroke-width="3.2"
+              stroke-linecap="round"
+            />
+          </template>
+        </svg>
       </div>
     </div>
 
@@ -205,7 +233,8 @@ const displayDate = computed(() => {
   if (!raw) return "";
   try {
     const d = new Date(raw);
-    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`;
+    if (isNaN(d.getTime())) return "";
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   } catch {
     return "";
   }
@@ -222,11 +251,11 @@ const formattedDuration = computed(() => {
 const praiseComment = computed(() => {
   if (!props.record) return "";
   const s = props.record.score;
-  if (s === 100) return "💯 满分 · 太棒了!";
-  if (s >= 90) return "⭐ 优秀 · 敏捷!";
-  if (s >= 80) return "👍 良好 · 棒!";
-  if (s >= 60) return "✓ 及格 · 继续努力!";
-  return "💪 加油 · 每天进步!";
+  if (s === 100) return "满分 · 太棒了!";
+  if (s >= 90) return "优秀 · 敏捷!";
+  if (s >= 80) return "良好 · 棒!";
+  if (s >= 60) return "及格 · 继续努力!";
+  return "加油 · 每天进步!";
 });
 
 // 计算最终每个格子生效的步骤序号映射

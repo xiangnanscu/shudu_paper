@@ -355,31 +355,28 @@
   font-family: "STKaiti", "KaiTi", sans-serif;
 }
 
-.review-score-lines {
+.review-lines-svg {
   width: 100%;
-  min-width: 60px;
-  height: 3px;
-  background-color: #dc2626;
-  border-radius: 2px;
+  min-width: 66px;
+  height: 12px;
   margin-top: 2px;
-}
-
-.review-score-lines.is-perfect {
-  box-shadow: 0 4px 0 #dc2626;
-  margin-bottom: 4px;
+  overflow: visible;
 }
 
 .review-score-praise {
-  margin-top: 4px;
+  margin-bottom: 2px;
   border: 1.5px solid #dc2626;
-  border-radius: 10px;
-  padding: 1px 8px;
+  outline: 1px solid #dc2626;
+  outline-offset: -3px;
+  border-radius: 12px;
+  padding: 1.5px 8px;
   font-size: 10.5px;
   font-weight: 900;
   color: #dc2626;
   background-color: #fef2f2;
   white-space: nowrap;
-  transform: rotate(2deg);
+  font-family: "STKaiti", "KaiTi", cursive;
+  transform: rotate(-3deg);
 }
 
 .review-overview-controls {

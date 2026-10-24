@@ -66,75 +66,63 @@
   font-weight: 600;
   border-top: 1px dashed #64748b;
   border-bottom: 1px dashed #64748b;
-  padding: 5px 6px;
-  margin-top: 4px;
+  padding: 6px 8px;
+  margin-top: 6px;
   color: #1e293b;
 }
 
 .info-item {
-  display: flex;
+  display: inline-flex;
   align-items: flex-end;
   gap: 3px;
   position: relative;
+  white-space: nowrap;
 }
 
 .info-line {
   display: inline-block;
-  width: 55px;
+  min-width: 58px;
   border-bottom: 1.2px solid #0f172a;
-  height: 12px;
+  height: 14px;
   text-align: center;
   font-size: 11px;
   font-weight: 700;
   color: #0f172a;
-  line-height: 12px;
+  line-height: 14px;
+  padding: 0 4px;
+  white-space: nowrap;
 }
 
 .info-line.wide {
-  width: 75px;
+  min-width: 85px;
 }
 
-/* 得分红印章与回填用时 */
-.score-stamp {
-  display: inline-block;
-  color: #dc2626;
-  font-size: 13.5px;
-  font-weight: 800;
-  border: 1.8px solid #dc2626;
-  border-radius: 4px;
-  padding: 0 4px;
-  line-height: 14px;
-  margin-left: 2px;
-  letter-spacing: -0.2px;
-  transform: rotate(-3deg);
-  animation: stampPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+.info-line.date-line {
+  min-width: 108px;
 }
 
-@keyframes stampPop {
-  0% {
-    transform: scale(1.6) rotate(10deg);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1) rotate(-3deg);
-    opacity: 1;
-  }
+.info-line.time-line {
+  min-width: 56px;
 }
 
-/* 卷眉右上角：老师红笔批改大分数 (大红字、满分双横线、评语印章) */
+/* 卷眉右上角：老师红笔批改大分数 (大红字、手绘双横线、评语小印章) */
 .teacher-grade-badge {
   position: absolute;
-  right: 6px;
-  top: -2px;
+  right: 8px;
+  top: -4px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #dc2626;
-  transform: rotate(-3deg);
+  align-items: flex-end;
+  gap: 10px;
   z-index: 10;
   pointer-events: none;
   animation: teacherScorePop 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.teacher-score-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotate(-4deg);
 }
 
 .teacher-score-wrapper {
@@ -144,11 +132,11 @@
 }
 
 .teacher-score-num {
-  font-size: 52px;
+  font-size: 46px;
   font-weight: 900;
-  line-height: 0.92;
+  line-height: 0.9;
   color: #dc2626;
-  font-family: "Caveat", "STKaiti", "KaiTi", "PingFang SC", "Comic Sans MS", cursive, sans-serif;
+  font-family: "Caveat", "Segoe Print", "STKaiti", "KaiTi", "PingFang SC", "Comic Sans MS", cursive, sans-serif;
   letter-spacing: -2px;
   text-shadow: 0.5px 0.5px 0 rgba(220, 38, 38, 0.25);
   -webkit-print-color-adjust: exact !important;
@@ -156,38 +144,36 @@
 }
 
 .teacher-score-unit {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 800;
   color: #dc2626;
   margin-left: 2px;
-  font-family: "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+  font-family: "STKaiti", "KaiTi", cursive;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
 }
 
-/* 经典老师批改红线 (100分专属双横线，其他分数单横线) */
-.teacher-score-lines {
+/* 老师手绘横线 SVG (满分双横线，自然笔触弧度) */
+.teacher-lines-svg {
   width: 100%;
   min-width: 66px;
-  height: 3.2px;
-  background-color: #dc2626;
-  border-radius: 2px;
-  margin-top: 3px;
+  height: 12px;
+  margin-top: 1px;
+  overflow: visible;
+}
+
+.teacher-lines-svg path {
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
 }
 
-.teacher-score-lines.is-perfect {
-  box-shadow: 0 4.5px 0 #dc2626;
-  margin-bottom: 5px;
-}
-
-/* 老师鼓励印章 */
+/* 老师鼓励小印章 (经典红色双圈印泥质感，斜扣在大红分旁) */
 .teacher-praise-seal {
-  margin-top: 4px;
   border: 1.8px solid #dc2626;
-  border-radius: 12px;
-  padding: 1.5px 8px;
+  outline: 1px solid #dc2626;
+  outline-offset: -3px;
+  border-radius: 14px;
+  padding: 2.5px 8px;
   font-size: 11px;
   font-weight: 900;
   line-height: 1.2;
@@ -195,9 +181,16 @@
   background-color: rgba(254, 242, 242, 0.95);
   letter-spacing: 0.5px;
   white-space: nowrap;
-  transform: rotate(2.5deg);
-  font-family: "STKaiti", "KaiTi", "PingFang SC", sans-serif;
+  transform: rotate(-5deg);
+  margin-bottom: 4px;
+  font-family: "STKaiti", "KaiTi", "PingFang SC", cursive;
   box-shadow: 0 1px 3px rgba(220, 38, 38, 0.15);
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.seal-text {
+  display: inline-block;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
 }
@@ -218,11 +211,11 @@
 
 @keyframes teacherScorePop {
   0% {
-    transform: scale(1.5) rotate(8deg);
+    transform: scale(1.4) rotate(6deg);
     opacity: 0;
   }
   100% {
-    transform: scale(1) rotate(-3deg);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
@@ -400,11 +393,20 @@
 
   .teacher-score-num,
   .teacher-score-unit,
-  .teacher-score-lines,
+  .teacher-lines-svg path,
   .teacher-praise-seal,
+  .seal-text,
   .score-handwritten {
     color: #dc2626 !important;
     border-color: #dc2626 !important;
+    stroke: #dc2626 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .info-item,
+  .info-line {
+    white-space: nowrap !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
