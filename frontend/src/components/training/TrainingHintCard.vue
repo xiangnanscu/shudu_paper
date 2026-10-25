@@ -1,15 +1,15 @@
 <template>
   <div
     class="training-hint-card"
-    :class="`level-${hintLevel > 0 ? hintLevel : 1}`"
+    :class="cardLevelClass"
   >
     <div class="hint-header">
       <div class="hint-title-group">
-        <span>{{ hintLevel === 0 ? '🤔' : hintLevel === 1 ? '💡' : hintLevel === 2 ? '⚡' : '✨' }}</span>
+        <span>{{ isCorrect ? '🎉' : hintLevel === 0 ? '🤔' : hintLevel === 1 ? '💡' : hintLevel === 2 ? '⚡' : '✨' }}</span>
         <span>{{ currentHintTitle }}</span>
       </div>
       <span class="hint-level-tag">
-        {{ hintLevel === 0 ? '等待思考' : `引导 ${hintLevel}/3 步` }}
+        {{ isCorrect ? '✨ 复盘点拨' : hintLevel === 0 ? '等待思考' : `引导 ${hintLevel}/3 步` }}
       </span>
     </div>
 
@@ -20,7 +20,7 @@
 
     <!-- 唯余法：四小天王收集池 (数字/水果/动物盘点) -->
     <div
-      v-if="question.technique === 'naked_single' && hintLevel >= 1"
+      v-if="question.technique === 'naked_single' && (hintLevel >= 1 || isCorrect)"
       class="naked-chips-pool"
     >
       <div
@@ -29,15 +29,15 @@
         class="naked-chip"
         :class="{
           'chip-seen': isDigitSeen(digit),
-          'chip-target': isDigitTarget(digit) && hintLevel === 3,
+          'chip-target': isDigitTarget(digit) && (hintLevel === 3 || isCorrect),
         }"
       >
         <span>{{ symbolMap[digit] }}</span>
-        <template v-if="isDigitSeen(digit)">
-          <span>已出现</span>
+        <template v-if="isDigitTarget(digit) && (hintLevel === 3 || isCorrect)">
+          <span>⭐ 唯余此数!</span>
         </template>
-        <template v-else-if="hintLevel === 3">
-          <span>⭐ 唯余答案!</span>
+        <template v-else-if="isDigitSeen(digit)">
+          <span>✓ 已就位</span>
         </template>
         <template v-else>
           <span>❓ 缺席</span>
@@ -47,7 +47,7 @@
 
     <!-- 摒除法：房间安全雷达池 -->
     <div
-      v-if="question.technique === 'hidden_single' && hintLevel >= 2"
+      v-if="question.technique === 'hidden_single' && (hintLevel >= 2 || isCorrect)"
       class="hidden-chips-pool"
     >
       <template
@@ -69,28 +69,59 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { TrainingQuestion } from "../../types/training";
+import { getBlockIndex } from "../../core/training";
 
-const props = defineProps<{
-  question: TrainingQuestion;
-  hintLevel: 0 | 1 | 2 | 3;
-  symbolMap: Record<number, string>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    question: TrainingQuestion;
+    hintLevel: 0 | 1 | 2 | 3;
+    symbolMap: Record<number, string>;
+    isCorrect?: boolean;
+  }>(),
+  {
+    isCorrect: false,
+  }
+);
+
+const cardLevelClass = computed<string>(() => {
+  if (props.isCorrect) return "level-3";
+  if (props.hintLevel === 0) return "level-1";
+  return `level-${props.hintLevel}`;
+});
 
 const currentHintTitle = computed<string>(() => {
+  if (props.isCorrect) {
+    return props.question.technique === "naked_single"
+      ? "唯余法原理复盘"
+      : "摒除法原理复盘";
+  }
   if (props.hintLevel === 0) {
     return props.question.technique === "naked_single"
-      ? "唯余法思考提示"
-      : "摒除法思考提示";
+      ? "唯余法观察提示"
+      : "摒除法观察提示";
   }
   const step = props.question.hints.find((h) => h.level === props.hintLevel);
   return step ? step.title : "魔法提示";
 });
 
 const currentHintDescription = computed<string>(() => {
+  const targetSym = props.symbolMap[props.question.targetValue];
+  const tr = props.question.targetCell.r + 1;
+  const tc = props.question.targetCell.c + 1;
+  const tb = getBlockIndex(props.question.targetCell.r, props.question.targetCell.c) + 1;
+
+  if (props.isCorrect) {
+    if (props.question.technique === "naked_single") {
+      return `复盘点拨：看盘面！🔵 第 ${tr} 排、🟣 第 ${tc} 列和 🟠 第 ${tb} 宫的三色彩色滚动流光交汇在此。同行同列同宫已经凑齐了其余 3 种伙伴，所以这里只能是【${targetSym}】！`;
+    } else {
+      return `复盘点拨：看盘面！外部已有相同数字发射红色激光封锁了其他房间，小城堡里只有这个安全房间没有被射中，所以【${targetSym}】必须住进这里！`;
+    }
+  }
+
   if (props.hintLevel === 0) {
     return props.question.technique === "naked_single"
       ? "观察黄色闪烁的小格子，看它的行、列和同一个宫内，其余 3 个伙伴是不是都已经到齐了？"
-      : `目标：在提示的区域内找到【${props.symbolMap[props.question.targetValue]}】的家！外部的同伴会发射激光排除其他房间哦~`;
+      : `目标：在提示的区域内找到【${targetSym}】的家！外部的同伴会发射激光排除其他房间哦~`;
   }
   const step = props.question.hints.find((h) => h.level === props.hintLevel);
   return step ? step.description : "";

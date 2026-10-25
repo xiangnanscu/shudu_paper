@@ -1,16 +1,20 @@
 /* ==========================================================================
-   技巧训练模块专属样式 (生动形象、儿童启蒙友好、支持动画与激光/十字雷达特效)
+   技巧训练模块专属样式 (生动形象、儿童启蒙友好、支持三色滚动虚线与激光探照特效)
    ========================================================================== */
 
 .training-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh; /* 适配移动端动态视口高度，防底部地址栏遮挡 */
+  width: 100%;
   background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fef3c7 100%);
   color: #1e293b;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", sans-serif;
   user-select: none;
   box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 顶部导航与状态条 */
@@ -18,36 +22,61 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.85);
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 641px) {
+  .training-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .training-header-top-row {
+    display: contents;
+  }
+  .btn-back-paper {
+    order: 1;
+  }
+  .training-mode-pills {
+    order: 2;
+  }
+  .training-header-right {
+    order: 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 }
 
 .training-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .btn-back-paper {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 4px;
+  padding: 7px 12px;
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   border-radius: 9999px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-back-paper:hover {
@@ -60,17 +89,17 @@
 .training-mode-pills {
   display: flex;
   background: #e2e8f0;
-  padding: 4px;
+  padding: 3px;
   border-radius: 9999px;
-  gap: 4px;
+  gap: 3px;
 }
 
 .mode-pill-btn {
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 9999px;
   border: none;
   background: transparent;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
@@ -81,7 +110,7 @@
 .mode-pill-btn.active {
   background: #ffffff;
   color: #2563eb;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.15);
 }
 
 .mode-pill-btn:hover:not(.active) {
@@ -92,21 +121,22 @@
 .training-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .training-stat-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 9999px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #334155;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
 }
 
 .training-stat-badge.streak-badge {
@@ -122,18 +152,19 @@
 }
 
 .btn-tutorial-open {
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 9999px;
   color: #1d4ed8;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-tutorial-open:hover {
@@ -146,8 +177,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px;
-  max-width: 600px;
+  padding: 12px 16px 28px;
+  max-width: 520px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
@@ -157,21 +188,23 @@
 .training-task-card {
   width: 100%;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 12px 18px;
-  margin-bottom: 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(226, 232, 240, 0.8);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .task-card-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .task-tag {
@@ -179,11 +212,12 @@
   align-items: center;
   gap: 4px;
   align-self: flex-start;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .task-tag.tag-naked {
@@ -199,25 +233,29 @@
 }
 
 .task-title-text {
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   font-weight: 700;
   color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-symbol-selector {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   background: #f8fafc;
-  padding: 3px;
+  padding: 2px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .symbol-tab-btn {
   border: none;
   background: transparent;
-  padding: 4px 6px;
-  font-size: 0.95rem;
+  padding: 3px 5px;
+  font-size: 0.9rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s;
@@ -228,17 +266,42 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 4x4 数独盘面包装容器 */
+/* 答对轻量提示横幅 (绝不遮挡题盘，位于盘面上方) */
+.success-floating-banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+  animation: bannerPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
+}
+
+@keyframes bannerPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 4x4 数独盘面包装容器 (针对移动端与矮屏幕自适应限高) */
 .training-board-wrapper {
   position: relative;
   background: #ffffff;
-  padding: 12px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  padding: 8px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.07), 0 4px 8px -4px rgba(0, 0, 0, 0.03);
   border: 2px solid #e2e8f0;
-  margin-bottom: 16px;
+  margin: 0 auto 12px;
   width: 100%;
-  max-width: 380px;
+  max-width: min(84vw, 340px, 42vh);
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
 }
@@ -249,11 +312,122 @@
   grid-template-rows: repeat(4, 1fr);
   width: 100%;
   height: 100%;
-  border: 3px solid #334155;
-  border-radius: 12px;
+  border: 2.5px solid #334155;
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
   background: #ffffff;
+}
+
+/* 唯余法：排、列、宫三色动态滚动虚线 SVG 图层 (Marching Ants) */
+.naked-marching-svg-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.marching-rect {
+  fill: transparent;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 1. 排 (行)：蓝色滚动虚线框 */
+.marching-row {
+  stroke: #0284c7;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  fill: rgba(2, 132, 199, 0.06);
+  animation: marchingAntsRow 0.8s linear infinite;
+}
+
+@keyframes marchingAntsRow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* 2. 列：紫色滚动虚线框 */
+.marching-col {
+  stroke: #9333ea;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  fill: rgba(147, 51, 234, 0.06);
+  animation: marchingAntsCol 0.8s linear infinite;
+}
+
+@keyframes marchingAntsCol {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* 3. 小宫格 (2x2 宫)：金橙色滚动虚线框 */
+.marching-block {
+  stroke: #f59e0b;
+  stroke-width: 3;
+  stroke-dasharray: 7 5;
+  fill: rgba(245, 158, 11, 0.08);
+  animation: marchingAntsBlock 1s linear infinite;
+}
+
+@keyframes marchingAntsBlock {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* 唯余法：三色流光图例提示栏 */
+.naked-legend-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: -6px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.legend-item.row-item {
+  color: #0284c7;
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
+
+.legend-item.col-item {
+  color: #9333ea;
+  border-color: #e9d5ff;
+  background: #faf5ff;
+}
+
+.legend-item.block-item {
+  color: #d97706;
+  border-color: #fde68a;
+  background: #fffbeb;
 }
 
 /* 单元格 */
@@ -264,21 +438,21 @@
   justify-content: center;
   border-right: 1px dashed #cbd5e1;
   border-bottom: 1px dashed #cbd5e1;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #1e293b;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-sizing: border-box;
 }
 
 /* 2x2 宫粗分界线 */
 .t-cell.border-col-2 {
-  border-right: 3px solid #334155;
+  border-right: 2.5px solid #334155;
 }
 
 .t-cell.border-row-2 {
-  border-bottom: 3px solid #334155;
+  border-bottom: 2.5px solid #334155;
 }
 
 /* 单元格形态状态 */
@@ -305,21 +479,11 @@
     box-shadow: inset 0 0 0 3px #eab308, 0 0 0 0 rgba(234, 179, 8, 0.6);
   }
   50% {
-    box-shadow: inset 0 0 0 4px #ca8a04, 0 0 15px 4px rgba(234, 179, 8, 0.4);
+    box-shadow: inset 0 0 0 3.5px #ca8a04, 0 0 12px 3px rgba(234, 179, 8, 0.4);
   }
   100% {
     box-shadow: inset 0 0 0 3px #eab308, 0 0 0 0 rgba(234, 179, 8, 0.6);
   }
-}
-
-/* 唯余法：十字雷达光照 (所在行、列、宫) */
-.t-cell.is-radar-peer {
-  background: rgba(224, 242, 254, 0.55);
-}
-
-.t-cell.is-radar-peer.is-clue {
-  background: rgba(186, 230, 253, 0.65);
-  color: #0369a1;
 }
 
 /* 摒除法：目标 2x2 宫城堡高亮 */
@@ -337,7 +501,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
@@ -353,13 +517,13 @@
 
 @keyframes laserPulse {
   0% {
-    box-shadow: inset 0 0 0 3px #ef4444, 0 0 8px rgba(239, 68, 68, 0.7);
+    box-shadow: inset 0 0 0 3px #ef4444, 0 0 6px rgba(239, 68, 68, 0.7);
   }
   50% {
-    box-shadow: inset 0 0 0 4px #dc2626, 0 0 18px rgba(239, 68, 68, 0.9);
+    box-shadow: inset 0 0 0 3.5px #dc2626, 0 0 14px rgba(239, 68, 68, 0.9);
   }
   100% {
-    box-shadow: inset 0 0 0 3px #ef4444, 0 0 8px rgba(239, 68, 68, 0.7);
+    box-shadow: inset 0 0 0 3px #ef4444, 0 0 6px rgba(239, 68, 68, 0.7);
   }
 }
 
@@ -372,42 +536,30 @@
 }
 
 .laser-beam-overlay.beam-row {
-  height: 6px;
+  height: 5px;
   background: linear-gradient(90deg, rgba(239, 68, 68, 0.9) 0%, rgba(248, 113, 113, 0.8) 100%);
-  box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.8);
   animation: laserSweepX 1.2s infinite alternate ease-in-out;
 }
 
 .laser-beam-overlay.beam-col {
-  width: 6px;
+  width: 5px;
   background: linear-gradient(180deg, rgba(239, 68, 68, 0.9) 0%, rgba(248, 113, 113, 0.8) 100%);
-  box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.8);
   animation: laserSweepY 1.2s infinite alternate ease-in-out;
 }
 
 @keyframes laserSweepX {
-  0% {
-    opacity: 0.7;
-    filter: brightness(1);
-  }
-  100% {
-    opacity: 1;
-    filter: brightness(1.3);
-  }
+  0% { opacity: 0.7; filter: brightness(1); }
+  100% { opacity: 1; filter: brightness(1.3); }
 }
 
 @keyframes laserSweepY {
-  0% {
-    opacity: 0.7;
-    filter: brightness(1);
-  }
-  100% {
-    opacity: 1;
-    filter: brightness(1.3);
-  }
+  0% { opacity: 0.7; filter: brightness(1); }
+  100% { opacity: 1; filter: brightness(1.3); }
 }
 
-/* 单元格填入内容动画 */
+/* 单元格填入内容与答对高亮 (绝不遮挡盘面) */
 .t-cell-val {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -415,19 +567,15 @@
 .t-cell.correct-filled {
   background: #dcfce7 !important;
   color: #15803d !important;
-  animation: correctBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: inset 0 0 0 3.5px #22c55e, 0 0 12px rgba(34, 197, 94, 0.4);
+  animation: correctBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
 }
 
 @keyframes correctBounce {
-  0% {
-    transform: scale(0.6);
-  }
-  60% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0.7); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 /* 答错抖动 */
@@ -437,59 +585,21 @@
 
 @keyframes shakeHoriz {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
-}
-
-/* 答对庆祝大红勾与彩花浮层 */
-.success-celebrate-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(2px);
-  z-index: 20;
-  border-radius: 12px;
-  animation: fadeIn 0.25s ease;
-}
-
-.celebrate-icon {
-  font-size: 4rem;
-  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.celebrate-text {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #16a34a;
-  margin-top: 6px;
-  animation: popIn 0.5s ease;
-}
-
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  80% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
 /* 生动形象的分级引导卡片 */
 .training-hint-card {
   width: 100%;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 10px 14px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 12px;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .training-hint-card.level-1 {
@@ -511,21 +621,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .hint-title-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #0f172a;
 }
 
 .hint-level-tag {
-  font-size: 0.75rem;
-  padding: 2px 8px;
+  font-size: 0.72rem;
+  padding: 2px 7px;
   border-radius: 9999px;
   font-weight: 700;
   background: #e2e8f0;
@@ -533,29 +643,29 @@
 }
 
 .hint-desc {
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 0.88rem;
+  line-height: 1.45;
   color: #334155;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 /* 唯余法：数字收集池 */
 .naked-chips-pool {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px dashed rgba(203, 213, 225, 0.6);
 }
 
 .naked-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
   background: #f1f5f9;
   color: #64748b;
@@ -572,26 +682,26 @@
   color: #15803d;
   border: 1px solid #86efac;
   font-weight: 800;
-  animation: popIn 0.4s ease;
+  animation: popIn 0.3s ease;
 }
 
 /* 摒除法：房间安全状态池 */
 .hidden-chips-pool {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px dashed rgba(203, 213, 225, 0.6);
 }
 
 .hidden-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -613,50 +723,56 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 /* 大号触控选择按键 */
 .training-keypad {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
 .training-keypad-btn {
-  height: 64px;
+  height: 54px;
   background: #ffffff;
   border: 2px solid #cbd5e1;
-  border-radius: 16px;
-  font-size: 1.8rem;
+  border-radius: 14px;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #0f172a;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.05);
   transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   -webkit-tap-highlight-color: transparent;
 }
 
-.training-keypad-btn:hover {
+.training-keypad-btn:hover:not(:disabled) {
   border-color: #3b82f6;
   background: #eff6ff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 5px 10px rgba(59, 130, 246, 0.15);
 }
 
-.training-keypad-btn:active {
+.training-keypad-btn:active:not(:disabled) {
   transform: translateY(1px) scale(0.96);
   box-shadow: none;
+}
+
+.training-keypad-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 下方工具按钮行 (魔法提示 & 下一题) */
 .training-tools-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -665,35 +781,53 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-size: 0.98rem;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.94rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
 }
 
 .btn-magic-hint {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: #ffffff;
-  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.22);
 }
 
-.btn-magic-hint:hover {
+.btn-magic-hint:hover:not(:disabled) {
   background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
   transform: translateY(-1px);
+}
+
+.btn-magic-hint:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .btn-next-question {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.22);
+}
+
+.btn-next-question.is-correct-next {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+  animation: pulseGreen 1.5s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 .btn-next-question:hover {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
 
@@ -714,24 +848,24 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 16px;
+  padding: 14px;
 }
 
 .tutorial-modal-card {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 20px;
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: modalScaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes modalScaleUp {
-  from { transform: scale(0.9); opacity: 0; }
+  from { transform: scale(0.92); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
@@ -739,24 +873,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
+  padding: 14px 18px;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
 }
 
 .tutorial-modal-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .btn-close-modal {
   background: transparent;
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #94a3b8;
   cursor: pointer;
   line-height: 1;
@@ -770,33 +904,33 @@
 }
 
 .tutorial-modal-body {
-  padding: 20px 24px;
+  padding: 16px 18px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .tutorial-section {
   background: #f8fafc;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 14px;
   border: 1px solid #e2e8f0;
 }
 
 .tutorial-section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.05rem;
+  gap: 6px;
+  font-size: 0.98rem;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .tutorial-badge {
-  font-size: 0.75rem;
-  padding: 2px 8px;
+  font-size: 0.72rem;
+  padding: 2px 7px;
   border-radius: 9999px;
   font-weight: 700;
 }
@@ -812,46 +946,110 @@
 }
 
 .tutorial-text {
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: 0.88rem;
+  line-height: 1.5;
   color: #475569;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tutorial-analogy-box {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px;
   border-left: 4px solid #3b82f6;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: #334155;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .tutorial-analogy-box.box-hidden {
   border-left-color: #f59e0b;
 }
 
-/* 响应式调整 */
+/* ==========================================================================
+   移动端响应式深度适配 (手机屏幕单屏贴合、不挤出、优雅换行)
+   ========================================================================== */
 @media (max-width: 640px) {
   .training-header {
-    padding: 10px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 12px;
+    gap: 8px;
   }
-  .training-mode-pills {
-    gap: 2px;
+
+  .training-header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
-  .mode-pill-btn {
-    padding: 4px 10px;
+
+  .training-header-left {
+    gap: 8px;
+  }
+
+  .btn-back-paper {
+    padding: 5px 10px;
     font-size: 0.8rem;
   }
+
+  /* 模式选择在移动端平铺整行，手感绝佳 */
+  .training-mode-pills {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 2px;
+  }
+
+  .mode-pill-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+
   .training-main {
-    padding: 10px;
+    padding: 8px 12px 24px;
   }
+
+  .training-task-card {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+  }
+
+  .task-title-text {
+    font-size: 0.88rem;
+  }
+
+  /* 移动端盘面尺寸优化：防止把下方键盘挤跑 */
+  .training-board-wrapper {
+    max-width: min(84vw, 300px, 40vh);
+    padding: 6px;
+    margin-bottom: 8px;
+  }
+
   .t-cell {
-    font-size: 1.7rem;
+    font-size: 1.55rem;
   }
+
+  .training-hint-card {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+  }
+
+  .hint-desc {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+
   .training-keypad-btn {
-    height: 56px;
-    font-size: 1.6rem;
+    height: 48px;
+    font-size: 1.45rem;
+    border-radius: 12px;
+  }
+
+  .btn-training-tool {
+    padding: 9px 12px;
+    font-size: 0.88rem;
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <div class="training-container">
-    <!-- 顶部状态导航栏 -->
+    <!-- 顶部状态导航栏 (针对移动端自适应分层，桌面端平铺一行) -->
     <header class="training-header">
-      <div class="training-header-left">
+      <div class="training-header-top-row">
         <button
           type="button"
           class="btn-back-paper"
@@ -12,57 +12,57 @@
           <span>← 试卷模式</span>
         </button>
 
-        <!-- 技巧分类选择胶囊 -->
-        <div class="training-mode-pills">
+        <div class="training-header-right">
+          <!-- 连胜统计 -->
+          <div class="training-stat-badge streak-badge" title="当前连续答对题数">
+            <span>🔥</span>
+            <span>连对 {{ stats.currentStreak }}</span>
+          </div>
+
+          <!-- 星星奖励 -->
+          <div class="training-stat-badge star-badge" title="累计获得思维之星">
+            <span>⭐</span>
+            <span>{{ stats.stars }}</span>
+          </div>
+
+          <!-- 小百科教程入口 -->
           <button
             type="button"
-            class="mode-pill-btn"
-            :class="{ active: mode === 'naked' }"
-            @click="switchMode('naked')"
+            class="btn-tutorial-open"
+            title="查看唯余与摒除技巧图解"
+            @click="isTutorialOpen = true"
           >
-            🔍 唯余专项
-          </button>
-          <button
-            type="button"
-            class="mode-pill-btn"
-            :class="{ active: mode === 'hidden' }"
-            @click="switchMode('hidden')"
-          >
-            ⚡ 摒除专项
-          </button>
-          <button
-            type="button"
-            class="mode-pill-btn"
-            :class="{ active: mode === 'mixed' }"
-            @click="switchMode('mixed')"
-          >
-            🎯 综合实战
+            <span>📖</span>
+            <span>小百科</span>
           </button>
         </div>
       </div>
 
-      <div class="training-header-right">
-        <!-- 连胜统计 -->
-        <div class="training-stat-badge streak-badge" title="当前连续答对题数">
-          <span>🔥</span>
-          <span>连对 {{ stats.currentStreak }}</span>
-        </div>
-
-        <!-- 星星奖励 -->
-        <div class="training-stat-badge star-badge" title="累计获得思维之星">
-          <span>⭐</span>
-          <span>{{ stats.stars }}</span>
-        </div>
-
-        <!-- 小百科教程入口 -->
+      <!-- 技巧分类选择胶囊 (移动端第二行全宽平铺，桌面端自然排列在中间) -->
+      <div class="training-mode-pills">
         <button
           type="button"
-          class="btn-tutorial-open"
-          title="查看唯余与摒除技巧图解"
-          @click="isTutorialOpen = true"
+          class="mode-pill-btn"
+          :class="{ active: mode === 'naked' }"
+          @click="switchMode('naked')"
         >
-          <span>📖</span>
-          <span>小百科</span>
+          🔍 唯余专项
+        </button>
+        <button
+          type="button"
+          class="mode-pill-btn"
+          :class="{ active: mode === 'hidden' }"
+          @click="switchMode('hidden')"
+        >
+          ⚡ 摒除专项
+        </button>
+        <button
+          type="button"
+          class="mode-pill-btn"
+          :class="{ active: mode === 'mixed' }"
+          @click="switchMode('mixed')"
+        >
+          🎯 综合实战
         </button>
       </div>
     </header>
@@ -99,25 +99,31 @@
         </div>
       </div>
 
-      <!-- 4x4 生动数独盘面 -->
+      <!-- 答对轻量提示横幅 (绝不遮挡题盘，方便孩子仔细复盘) -->
+      <div v-if="isCorrect" class="success-floating-banner">
+        <span>🎉</span>
+        <span>太棒啦！锁定正解！可查看下方复盘提示</span>
+      </div>
+
+      <!-- 4x4 生动数独盘面 (绝无全屏遮挡，支持唯余三色流光与摒除激光) -->
       <TrainingBoard
         v-if="currentQuestion"
         :question="currentQuestion"
         :hint-level="hintLevel"
         :user-val="userSelectedVal"
         :is-correct="isCorrect"
-        :is-success-pop="isSuccessPop"
         :is-wrong-shake="isWrongShake"
         :symbol-map="currentSymbolMap"
         @select-target="handleSelectTarget"
       />
 
-      <!-- 生动形象的分级引导卡片 -->
+      <!-- 生动形象的分级引导与复盘卡片 -->
       <TrainingHintCard
         v-if="currentQuestion"
         :question="currentQuestion"
         :hint-level="hintLevel"
         :symbol-map="currentSymbolMap"
+        :is-correct="isCorrect"
       />
 
       <!-- 底部输入与操作区 -->
@@ -151,9 +157,10 @@
           <button
             type="button"
             class="btn-training-tool btn-next-question"
+            :class="{ 'is-correct-next': isCorrect }"
             @click="nextQuestion"
           >
-            <span>{{ isCorrect ? '🎉 下一题' : '⏭️ 换一题' }}</span>
+            <span>{{ isCorrect ? '🎉 下一题 →' : '⏭️ 换一题' }}</span>
           </button>
         </div>
       </div>
@@ -197,7 +204,6 @@ const {
   userSelectedVal,
   isCorrect,
   isWrongShake,
-  isSuccessPop,
   isTutorialOpen,
   stats,
   nextQuestion,
@@ -238,7 +244,6 @@ const hintButtonText = computed<string>(() => {
 });
 
 function handleSelectTarget() {
-  // 点击目标格可触发一次提示或聚焦
   if (hintLevel.value === 0) {
     requestHint();
   }

@@ -4,15 +4,57 @@
     :class="{ 'shake-anim': isWrongShake }"
   >
     <div class="training-board-grid">
-      <!-- 激光射线层 (摒除法提示开启时展现) -->
-      <template v-if="question.technique === 'hidden_single' && hintLevel >= 2">
+      <!-- ==============================================================
+           唯余法：排、列、宫三色动态滚动虚线框图层 (Marching Ants SVG)
+           ============================================================== -->
+      <svg
+        v-if="question.technique === 'naked_single' && (hintLevel >= 2 || isCorrect)"
+        class="naked-marching-svg-layer"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <!-- 1. 排 (行)：蓝色滚动虚线框 -->
+        <rect
+          class="marching-rect marching-row"
+          x="0.6"
+          :y="question.targetCell.r * 25 + 0.6"
+          width="98.8"
+          height="23.8"
+          rx="2.5"
+        />
+
+        <!-- 2. 列：紫色滚动虚线框 -->
+        <rect
+          class="marching-rect marching-col"
+          :x="question.targetCell.c * 25 + 0.6"
+          y="0.6"
+          width="23.8"
+          height="98.8"
+          rx="2.5"
+        />
+
+        <!-- 3. 小宫格 (2x2 宫)：金橙色滚动虚线框 -->
+        <rect
+          class="marching-rect marching-block"
+          :x="(targetBlockIndex % 2) * 50 + 0.6"
+          :y="Math.floor(targetBlockIndex / 2) * 50 + 0.6"
+          width="48.8"
+          height="48.8"
+          rx="3.5"
+        />
+      </svg>
+
+      <!-- ==============================================================
+           摒除法：激光射线层 (发射激光封锁其他空格)
+           ============================================================== -->
+      <template v-if="question.technique === 'hidden_single' && (hintLevel >= 2 || isCorrect)">
         <template v-for="(laser, idx) in question.hiddenDetails?.laserBeams" :key="`laser-${idx}`">
           <!-- 行激光 -->
           <div
             v-if="laser.direction === 'row'"
             class="laser-beam-overlay beam-row"
             :style="{
-              top: `calc(${laser.lineIndex * 25}% + 12.5% - 3px)`,
+              top: `calc(${laser.lineIndex * 25}% + 12.5% - 2.5px)`,
               left: '0%',
               width: '100%',
             }"
@@ -22,7 +64,7 @@
             v-else
             class="laser-beam-overlay beam-col"
             :style="{
-              left: `calc(${laser.lineIndex * 25}% + 12.5% - 3px)`,
+              left: `calc(${laser.lineIndex * 25}% + 12.5% - 2.5px)`,
               top: '0%',
               height: '100%',
             }"
@@ -40,7 +82,6 @@
               r === 2 ? 'border-row-2' : '',
               isClue(r - 1, c - 1) ? 'is-clue' : 'is-empty',
               isTargetCell(r - 1, c - 1) ? 'is-target' : '',
-              isRadarPeer(r - 1, c - 1) ? 'is-radar-peer' : '',
               isCastleUnit(r - 1, c - 1) ? 'is-castle-unit' : '',
               isBlockedCell(r - 1, c - 1) ? 'is-blocked-cell' : '',
               isLaserSource(r - 1, c - 1) ? 'is-laser-source' : '',
@@ -69,13 +110,17 @@
           </div>
         </template>
       </template>
-
-      <!-- 答对庆祝大红勾与弹跳效果 -->
-      <div v-if="isSuccessPop" class="success-celebrate-overlay">
-        <div class="celebrate-icon">🌟</div>
-        <div class="celebrate-text">太棒啦！锁定正解！</div>
-      </div>
     </div>
+  </div>
+
+  <!-- 唯余法：三色动态滚动虚线图例栏 (生动解释排、列、宫的三重汇聚) -->
+  <div
+    v-if="question.technique === 'naked_single' && (hintLevel >= 2 || isCorrect)"
+    class="naked-legend-bar"
+  >
+    <span class="legend-item row-item">🔵 蓝色流光: 第 {{ question.targetCell.r + 1 }} 排</span>
+    <span class="legend-item col-item">🟣 紫色流光: 第 {{ question.targetCell.c + 1 }} 列</span>
+    <span class="legend-item block-item">🟠 橙色流光: 第 {{ targetBlockIndex + 1 }} 宫</span>
   </div>
 </template>
 
@@ -89,7 +134,6 @@ const props = defineProps<{
   hintLevel: 0 | 1 | 2 | 3;
   userVal: number | null;
   isCorrect: boolean;
-  isSuccessPop: boolean;
   isWrongShake: boolean;
   symbolMap: Record<number, string>;
 }>();
@@ -97,6 +141,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "selectTarget"): void;
 }>();
+
+const targetBlockIndex = computed<number>(() => {
+  return getBlockIndex(props.question.targetCell.r, props.question.targetCell.c);
+});
 
 // 是否是已知线索
 function isClue(r: number, c: number): boolean {
@@ -111,35 +159,29 @@ function isTargetCell(r: number, c: number): boolean {
   );
 }
 
-// 唯余法：是否属于目标格的十字雷达范围 (同行、同列、同宫)
-function isRadarPeer(r: number, c: number): boolean {
-  if (props.question.technique !== "naked_single" || props.hintLevel < 2) return false;
-  if (isTargetCell(r, c)) return false;
-
-  const tr = props.question.targetCell.r;
-  const tc = props.question.targetCell.c;
-  const targetBlock = getBlockIndex(tr, tc);
-
-  return r === tr || c === tc || getBlockIndex(r, c) === targetBlock;
-}
-
 // 摒除法：是否属于目标 2x2 宫城堡
 function isCastleUnit(r: number, c: number): boolean {
-  if (props.question.technique !== "hidden_single" || props.hintLevel < 1) return false;
+  if (props.question.technique !== "hidden_single" || (props.hintLevel < 1 && !props.isCorrect)) {
+    return false;
+  }
   const targetBlock = props.question.hiddenDetails?.unitIndex;
   return getBlockIndex(r, c) === targetBlock;
 }
 
 // 摒除法：是否是被激光封锁的空格
 function isBlockedCell(r: number, c: number): boolean {
-  if (props.question.technique !== "hidden_single" || props.hintLevel < 2) return false;
+  if (props.question.technique !== "hidden_single" || (props.hintLevel < 2 && !props.isCorrect)) {
+    return false;
+  }
   const blockedList = props.question.hiddenDetails?.blockedCellsInUnit || [];
   return blockedList.some((cell) => cell.r === r && cell.c === c);
 }
 
 // 摒除法：是否是激光发射源
 function isLaserSource(r: number, c: number): boolean {
-  if (props.question.technique !== "hidden_single" || props.hintLevel < 2) return false;
+  if (props.question.technique !== "hidden_single" || (props.hintLevel < 2 && !props.isCorrect)) {
+    return false;
+  }
   const lasers = props.question.hiddenDetails?.laserBeams || [];
   return lasers.some((l) => l.sourceR === r && l.sourceC === c);
 }
