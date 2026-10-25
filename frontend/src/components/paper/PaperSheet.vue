@@ -28,6 +28,7 @@
         :active-cell="activeCell"
         :is-answer-sheet="isAnswerSheet"
         :corrected-puzzle-ids="correctedPuzzleIds"
+        :show-bottom-spacer="true"
         @select-cell="(elem, pId, r, c) => emit('selectCell', elem, pId, r, c)"
       />
     </div>

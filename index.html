@@ -624,8 +624,14 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         position: relative;
+      }
+
+      /* 题目下方预留的数字填写弹出框空白区域 */
+      .sudoku-card-bottom-spacer {
+        flex-shrink: 0;
+        pointer-events: none;
       }
 
       .sudoku-card-header {
@@ -2692,8 +2698,8 @@
           const totalSheets = appendAnswerPage ? totalPages * 2 : totalPages;
 
           // 尺寸适配
-          let boardSize = "146px";
-          let cellFontSize = "21px";
+          let boardSize = "140px";
+          let cellFontSize = "20px";
           if (rowsPerPage === 2) {
             boardSize = "198px";
             cellFontSize = "28px";
@@ -2701,11 +2707,11 @@
             boardSize = "172px";
             cellFontSize = "24px";
           } else if (rowsPerPage === 4) {
-            boardSize = "146px";
-            cellFontSize = "21px";
+            boardSize = "140px";
+            cellFontSize = "20px";
           } else if (rowsPerPage === 5) {
-            boardSize = "122px";
-            cellFontSize = "17px";
+            boardSize = "110px";
+            cellFontSize = "16px";
           }
 
           // 渲染试卷各页
@@ -2935,6 +2941,7 @@
             }
           }
 
+          const spacerHeight = (parseFloat(boardSize) * 0.375).toFixed(1);
           return `
             <div class="sudoku-card" id="card_puzzle_${id}">
               <div class="sudoku-card-header" style="max-width: ${boardSize};">
@@ -2944,6 +2951,7 @@
               <div class="sudoku-board" style="width: ${boardSize}; height: ${boardSize};">
                 ${cellsHtml}
               </div>
+              <div class="sudoku-card-bottom-spacer" style="height: ${spacerHeight}px; width: ${boardSize};"></div>
             </div>
           `;
         },
@@ -2967,6 +2975,7 @@
             }
           }
 
+          const spacerHeight = (parseFloat(boardSize) * 0.375).toFixed(1);
           return `
             <div class="sudoku-card" id="card_answer_${id}">
               <div class="sudoku-card-header" style="max-width: ${boardSize};">
@@ -2976,6 +2985,7 @@
               <div class="sudoku-board" style="width: ${boardSize}; height: ${boardSize};">
                 ${cellsHtml}
               </div>
+              <div class="sudoku-card-bottom-spacer" style="height: ${spacerHeight}px; width: ${boardSize};"></div>
             </div>
           `;
         },

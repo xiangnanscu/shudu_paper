@@ -3,8 +3,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+}
+
+/* 题目下方预留的数字填写弹出框空白区域 */
+.sudoku-card-bottom-spacer {
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .sudoku-card-header {

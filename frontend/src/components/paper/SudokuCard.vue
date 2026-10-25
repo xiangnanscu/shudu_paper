@@ -87,6 +87,14 @@
         <span v-if="isCorrected" class="teacher-check-sub">订正✓</span>
       </div>
     </div>
+
+    <!-- 每道题下方预留 1.5 倍数字宫格高度的空白区域，为数字填写弹出框预留空间 -->
+    <div
+      v-if="showBottomSpacer"
+      class="sudoku-card-bottom-spacer"
+      :style="{ height: bottomSpacerHeight, width: boardSize }"
+      aria-hidden="true"
+    />
   </div>
 </template>
 
@@ -109,10 +117,12 @@ const props = withDefaults(
     stepMap?: Record<string, number>;
     showStepBadge?: boolean;
     correctedPuzzleIds?: Set<number>;
+    showBottomSpacer?: boolean;
   }>(),
   {
     isAnswerSheet: false,
     showStepBadge: false,
+    showBottomSpacer: false,
   }
 );
 
@@ -172,5 +182,13 @@ const cardClasses = computed(() => {
     "is-wrong": isWrong.value,
     "is-corrected": isCorrected.value,
   };
+});
+
+// 每道题为 4x4 四宫格，单个数字宫格高度为 boardSize / 4
+// 1.5 倍数字宫格高度 = 1.5 * (boardSize / 4) = boardSize * 0.375
+const bottomSpacerHeight = computed(() => {
+  const sizeNum = parseFloat(props.boardSize);
+  if (isNaN(sizeNum) || sizeNum <= 0) return "0px";
+  return `${sizeNum * 0.375}px`;
 });
 </script>

@@ -22,11 +22,11 @@ export function useSudoku(config: PaperConfig) {
       case 3:
         return "172px";
       case 4:
-        return "146px";
+        return "140px";
       case 5:
-        return "122px";
+        return "110px";
       default:
-        return "146px";
+        return "140px";
     }
   });
 
@@ -37,11 +37,11 @@ export function useSudoku(config: PaperConfig) {
       case 3:
         return "24px";
       case 4:
-        return "21px";
+        return "20px";
       case 5:
-        return "17px";
+        return "16px";
       default:
-        return "21px";
+        return "20px";
     }
   });
 
