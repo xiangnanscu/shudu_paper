@@ -1,0 +1,857 @@
+/* ==========================================================================
+   技巧训练模块专属样式 (生动形象、儿童启蒙友好、支持动画与激光/十字雷达特效)
+   ========================================================================== */
+
+.training-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fef3c7 100%);
+  color: #1e293b;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* 顶部导航与状态条 */
+.training-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.training-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-back-paper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back-paper:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: translateX(-2px);
+}
+
+/* 技巧分类切换胶囊 */
+.training-mode-pills {
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 4px;
+}
+
+.mode-pill-btn {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mode-pill-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.mode-pill-btn:hover:not(.active) {
+  color: #334155;
+}
+
+/* 顶部右侧统计区 */
+.training-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.training-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.training-stat-badge.streak-badge {
+  color: #ea580c;
+  background: #fff7ed;
+  border-color: #ffedd5;
+}
+
+.training-stat-badge.star-badge {
+  color: #d97706;
+  background: #fefce8;
+  border-color: #fef08a;
+}
+
+.btn-tutorial-open {
+  padding: 6px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  color: #1d4ed8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.btn-tutorial-open:hover {
+  background: #dbeafe;
+}
+
+/* 主内容主体区 */
+.training-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 任务标题引导卡片 */
+.training-task-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.task-tag.tag-naked {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.task-tag.tag-hidden {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.task-title-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.task-symbol-selector {
+  display: flex;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.symbol-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 6px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.symbol-tab-btn.active {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 4x4 数独盘面包装容器 */
+.training-board-wrapper {
+  position: relative;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  border: 2px solid #e2e8f0;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+}
+
+.training-board-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  width: 100%;
+  height: 100%;
+  border: 3px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+}
+
+/* 单元格 */
+.t-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px dashed #cbd5e1;
+  border-bottom: 1px dashed #cbd5e1;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
+}
+
+/* 2x2 宫粗分界线 */
+.t-cell.border-col-2 {
+  border-right: 3px solid #334155;
+}
+
+.t-cell.border-row-2 {
+  border-bottom: 3px solid #334155;
+}
+
+/* 单元格形态状态 */
+.t-cell.is-clue {
+  background: #f8fafc;
+  color: #334155;
+  cursor: default;
+}
+
+.t-cell.is-empty {
+  background: #ffffff;
+}
+
+/* 目标格（需要被解出的关键格）高亮呼吸光环 */
+.t-cell.is-target {
+  background: #fef08a !important;
+  box-shadow: inset 0 0 0 3px #eab308;
+  animation: targetPulse 2s infinite ease-in-out;
+  z-index: 5;
+}
+
+@keyframes targetPulse {
+  0% {
+    box-shadow: inset 0 0 0 3px #eab308, 0 0 0 0 rgba(234, 179, 8, 0.6);
+  }
+  50% {
+    box-shadow: inset 0 0 0 4px #ca8a04, 0 0 15px 4px rgba(234, 179, 8, 0.4);
+  }
+  100% {
+    box-shadow: inset 0 0 0 3px #eab308, 0 0 0 0 rgba(234, 179, 8, 0.6);
+  }
+}
+
+/* 唯余法：十字雷达光照 (所在行、列、宫) */
+.t-cell.is-radar-peer {
+  background: rgba(224, 242, 254, 0.55);
+}
+
+.t-cell.is-radar-peer.is-clue {
+  background: rgba(186, 230, 253, 0.65);
+  color: #0369a1;
+}
+
+/* 摒除法：目标 2x2 宫城堡高亮 */
+.t-cell.is-castle-unit {
+  background: rgba(254, 249, 195, 0.5);
+}
+
+/* 摒除法：被激光封锁的空格 */
+.t-cell.is-blocked-cell {
+  background: rgba(254, 226, 226, 0.7) !important;
+}
+
+.blocked-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+/* 摒除法：激光发射源 */
+.t-cell.is-laser-source {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  box-shadow: inset 0 0 0 3px #ef4444;
+  z-index: 6;
+  animation: laserPulse 1.5s infinite;
+}
+
+@keyframes laserPulse {
+  0% {
+    box-shadow: inset 0 0 0 3px #ef4444, 0 0 8px rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: inset 0 0 0 4px #dc2626, 0 0 18px rgba(239, 68, 68, 0.9);
+  }
+  100% {
+    box-shadow: inset 0 0 0 3px #ef4444, 0 0 8px rgba(239, 68, 68, 0.7);
+  }
+}
+
+/* 激光光束层 (绘制在整个盘面上方) */
+.laser-beam-overlay {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+.laser-beam-overlay.beam-row {
+  height: 6px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.9) 0%, rgba(248, 113, 113, 0.8) 100%);
+  box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.8);
+  animation: laserSweepX 1.2s infinite alternate ease-in-out;
+}
+
+.laser-beam-overlay.beam-col {
+  width: 6px;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.9) 0%, rgba(248, 113, 113, 0.8) 100%);
+  box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.8);
+  animation: laserSweepY 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes laserSweepX {
+  0% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes laserSweepY {
+  0% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+/* 单元格填入内容动画 */
+.t-cell-val {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.t-cell.correct-filled {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  animation: correctBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes correctBounce {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 答错抖动 */
+.shake-anim {
+  animation: shakeHoriz 0.4s ease-in-out;
+}
+
+@keyframes shakeHoriz {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* 答对庆祝大红勾与彩花浮层 */
+.success-celebrate-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+  border-radius: 12px;
+  animation: fadeIn 0.25s ease;
+}
+
+.celebrate-icon {
+  font-size: 4rem;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.celebrate-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #16a34a;
+  margin-top: 6px;
+  animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 生动形象的分级引导卡片 */
+.training-hint-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.training-hint-card.level-1 {
+  border-left: 5px solid #3b82f6;
+  background: #f8fafc;
+}
+
+.training-hint-card.level-2 {
+  border-left: 5px solid #f59e0b;
+  background: #fffbeb;
+}
+
+.training-hint-card.level-3 {
+  border-left: 5px solid #10b981;
+  background: #f0fdf4;
+}
+
+.hint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.hint-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.hint-level-tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.hint-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #334155;
+  margin-bottom: 10px;
+}
+
+/* 唯余法：数字收集池 */
+.naked-chips-pool {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(203, 213, 225, 0.6);
+}
+
+.naked-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.naked-chip.chip-seen {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.naked-chip.chip-target {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  font-weight: 800;
+  animation: popIn 0.4s ease;
+}
+
+/* 摒除法：房间安全状态池 */
+.hidden-chips-pool {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(203, 213, 225, 0.6);
+}
+
+.hidden-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hidden-chip.chip-blocked {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.hidden-chip.chip-safe {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  font-weight: 800;
+}
+
+/* 底部操作与键盘区域 */
+.training-action-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 大号触控选择按键 */
+.training-keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.training-keypad-btn {
+  height: 64px;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.training-keypad-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.15);
+}
+
+.training-keypad-btn:active {
+  transform: translateY(1px) scale(0.96);
+  box-shadow: none;
+}
+
+/* 下方工具按钮行 (魔法提示 & 下一题) */
+.training-tools-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-training-tool {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-magic-hint {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+}
+
+.btn-magic-hint:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  transform: translateY(-1px);
+}
+
+.btn-next-question {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+.btn-next-question:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+}
+
+.btn-training-tool:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* ==========================================================================
+   技巧小百科弹窗 (Tutorial Modal)
+   ========================================================================== */
+.tutorial-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.tutorial-modal-card {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.tutorial-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.tutorial-modal-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.btn-close-modal:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tutorial-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tutorial-section {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.tutorial-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.tutorial-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+.badge-naked {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-hidden {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.tutorial-text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 12px;
+}
+
+.tutorial-analogy-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  border-left: 4px solid #3b82f6;
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.tutorial-analogy-box.box-hidden {
+  border-left-color: #f59e0b;
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+  .training-header {
+    padding: 10px 12px;
+  }
+  .training-mode-pills {
+    gap: 2px;
+  }
+  .mode-pill-btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  .training-main {
+    padding: 10px;
+  }
+  .t-cell {
+    font-size: 1.7rem;
+  }
+  .training-keypad-btn {
+    height: 56px;
+    font-size: 1.6rem;
+  }
+}

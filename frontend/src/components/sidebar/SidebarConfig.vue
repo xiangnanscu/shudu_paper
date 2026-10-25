@@ -40,6 +40,19 @@
       </div>
 
       <div class="sidebar-body">
+        <!-- 唯余与摒除技巧专项训练入口 -->
+        <div style="margin-bottom: 16px;">
+          <button
+            type="button"
+            class="btn"
+            style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; background: linear-gradient(135deg, #eff6ff 0%, #fef3c7 100%); color: #1e40af; border: 1.5px solid #bfdbfe; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 2px 5px rgba(37, 99, 235, 0.08);"
+            @click="emit('openTraining'); emit('close');"
+          >
+            <span>🎯</span>
+            <span>唯余与摒除技巧训练</span>
+          </button>
+        </div>
+
         <!-- 规格 -->
         <SpecSection
           :config="config"
@@ -141,6 +154,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "close"): void;
+  (e: "openTraining"): void;
   (e: "print"): void;
   (e: "regenerate"): void;
   (e: "changeStructure"): void;

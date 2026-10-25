@@ -15,6 +15,15 @@
         >
           <span>⚙️ 设置</span>
         </button>
+
+        <button
+          class="topbar-btn topbar-btn-training"
+          type="button"
+          title="进入唯余与摒除技巧专项训练"
+          @click="emit('openTraining')"
+        >
+          <span>🎯 技巧训练</span>
+        </button>
       </div>
 
       <div class="topbar-group topbar-group-right">
@@ -90,6 +99,15 @@
           <span>⚙️ 设置</span>
         </button>
 
+        <button
+          class="topbar-btn topbar-btn-training"
+          type="button"
+          title="进入唯余与摒除技巧专项训练"
+          @click="emit('openTraining')"
+        >
+          <span>🎯 技巧训练</span>
+        </button>
+
         <div class="topbar-timer-pill is-finished" title="本次答题总耗时">
           <span class="timer-icon">⏱️</span>
           <span class="timer-digits">{{ formattedTime }}</span>
@@ -141,6 +159,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "openSidebar"): void;
+  (e: "openTraining"): void;
   (e: "startExam"): void;
   (e: "submitExam"): void;
   (e: "restartExam"): void;

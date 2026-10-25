@@ -1,5 +1,12 @@
 <template>
-  <div class="app-layout">
+  <!-- 唯余与摒除技巧专项训练模块 -->
+  <TrainingModule
+    v-if="currentModule === 'training'"
+    :initial-symbol-type="config.symbolType"
+    @back-to-paper="currentModule = 'paper'"
+  />
+
+  <div v-else class="app-layout">
     <!-- 侧边栏配置 -->
     <SidebarConfig
       :config="config"
@@ -8,6 +15,7 @@
       @print="handlePrint"
       @regenerate="handleRegenerate"
       @change-structure="handleStructureChange"
+      @open-training="handleOpenTraining"
     />
 
     <!-- 右侧主预览与做题区 -->
@@ -24,6 +32,7 @@
         :filled-count="exam.filledCount.value"
         :total-holes="sudoku.totalHoles.value"
         @open-sidebar="isSidebarOpen = true"
+        @open-training="handleOpenTraining"
         @start-exam="handleStartExam"
         @submit-exam="handleSubmitExam"
         @restart-exam="handleRestartExam"
@@ -210,6 +219,9 @@ import ExamReviewModal from "./components/review/ExamReviewModal.vue";
 import SingleRedoModal from "./components/review/SingleRedoModal.vue";
 import IosInstallGuideModal from "./components/exam/IosInstallGuideModal.vue";
 import ConfirmDialog from "./components/common/ConfirmDialog.vue";
+import TrainingModule from "./components/training/TrainingModule.vue";
+
+const currentModule = ref<"paper" | "training">("paper");
 
 const { showIOSGuide, closeIOSGuide } = usePWAInstall();
 
@@ -361,6 +373,17 @@ async function confirmAbandonExam(reason: string): Promise<boolean> {
     confirmText: "放弃并继续",
     cancelText: "继续作答",
   });
+}
+
+// 切换进入唯余与摒除技巧专项训练
+async function handleOpenTraining() {
+  if (exam.status.value === "doing") {
+    const ok = await confirmAbandonExam("前往技巧训练");
+    if (!ok) return;
+    exam.resetExam();
+    timer.reset();
+  }
+  currentModule.value = "training";
 }
 
 // 监听答案透显设置切换 body 类名

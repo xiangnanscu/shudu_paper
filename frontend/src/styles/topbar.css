@@ -100,6 +100,20 @@
   color: #1d4ed8;
 }
 
+/* 专项训练按钮 (琥珀橙/活力蓝，微胶囊感) */
+.topbar-btn-training {
+  color: #ea580c;
+  font-weight: 700;
+  background: #fff7ed;
+  border-radius: 9999px;
+  padding: 0 10px;
+}
+
+.topbar-btn-training:hover {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
 /* 主操作：开始做题 (高亮蓝，纯粹无边框背景) */
 .topbar-btn-primary {
   color: #2563eb;
