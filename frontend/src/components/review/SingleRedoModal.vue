@@ -197,18 +197,16 @@ const formattedTimer = computed(() => formatTime(elapsedSeconds.value));
 // 难度标签
 const difficultyText = computed(() => {
   if (!props.puzzle) return "";
-  if (props.puzzle.difficultyTier) {
-    const tierNames: Record<string, string> = {
-      easy: "简单",
-      medium: "适中",
-      hard: "困难",
-    };
-    const tier = tierNames[props.puzzle.difficultyTier] || "";
-    return `${tier} · 给 ${props.puzzle.cluesCount} 数`;
+  const p = props.puzzle;
+  if (p.tierName) {
+    if (p.totalTiers && p.totalTiers > 3) {
+      return `${p.tierName} (${(p.tierIndex ?? 0) + 1}/${p.totalTiers}档) · 给 ${p.cluesCount} 数`;
+    }
+    return `${p.tierName} · 给 ${p.cluesCount} 数`;
   }
-  if (props.puzzle.hypoType === "direct") return "假设·直接排除";
-  if (props.puzzle.hypoType === "deep") return "假设·深度尝试";
-  return `给 ${props.puzzle.cluesCount} 数`;
+  if (p.hypoType === "direct") return "假设·直接排除";
+  if (p.hypoType === "deep") return "假设·深度尝试";
+  return `给 ${p.cluesCount} 数`;
 });
 
 // 是否为初始已知数格

@@ -187,6 +187,7 @@ import type { ExamRecordDetail } from "./types/record";
 import type { SudokuPuzzle } from "./types/sudoku";
 import type { ExamResult } from "./types/exam";
 import { SYMBOL_SETS } from "./core/symbols";
+import { getDifficultyDisplayLabel } from "./core/difficulty";
 import { useSudoku } from "./composables/useSudoku";
 import { useExamTimer } from "./composables/useExamTimer";
 import { useExam } from "./composables/useExam";
@@ -236,6 +237,7 @@ const correctedPuzzleIds = ref<Set<number>>(new Set());
 const config = reactive<PaperConfig>({
   pagesCount: 1,
   rowsPerPage: 2, // 默认 2 行 (6 题 · 启蒙特大 · 推荐)
+  tierDivision: 3,
   difficulty: "medium",
   symbolType: "numbers",
   paperTitle: "四宫格数独 · 启蒙思维训练卷",
@@ -318,12 +320,14 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 const appliedStructure = {
   pagesCount: config.pagesCount,
   rowsPerPage: config.rowsPerPage,
+  tierDivision: config.tierDivision,
   difficulty: config.difficulty as string,
 };
 
 function snapshotAppliedStructure() {
   appliedStructure.pagesCount = config.pagesCount;
   appliedStructure.rowsPerPage = config.rowsPerPage;
+  appliedStructure.tierDivision = config.tierDivision;
   appliedStructure.difficulty = config.difficulty;
 }
 
@@ -339,7 +343,7 @@ async function confirmStartExam(): Promise<boolean> {
     stats: [
       { label: "题目数量", value: `${sudoku.flatPuzzles.value.length} 题` },
       { label: "待填空格", value: `${sudoku.totalHoles.value} 格` },
-      { label: "试卷难度", value: DIFFICULTY_LABELS[config.difficulty] || config.difficulty },
+      { label: "试卷难度", value: getDifficultyDisplayLabel(config.difficulty) },
     ],
   });
 }
@@ -712,11 +716,12 @@ function applyRegenerate() {
   });
 }
 
-// 试卷结构改变（页数、行数、难度改变时自动重新生成，含防误触确认）
+// 试卷结构改变（页数、行数、难度分档、难度改变时自动重新生成，含防误触确认）
 async function handleStructureChange() {
   const structureChanged =
     config.pagesCount !== appliedStructure.pagesCount ||
     config.rowsPerPage !== appliedStructure.rowsPerPage ||
+    config.tierDivision !== appliedStructure.tierDivision ||
     config.difficulty !== appliedStructure.difficulty;
   if (!structureChanged) return;
 
@@ -724,6 +729,7 @@ async function handleStructureChange() {
     // 取消修改：回滚下拉框到当前试卷实际采用的规格
     config.pagesCount = appliedStructure.pagesCount;
     config.rowsPerPage = appliedStructure.rowsPerPage;
+    config.tierDivision = appliedStructure.tierDivision;
     config.difficulty = appliedStructure.difficulty as any;
     return;
   }

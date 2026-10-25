@@ -1,22 +1,36 @@
-import type { DifficultyTier, Grid4x4, SudokuPuzzle } from "../types/sudoku";
-import classesJson from "./sudoku-classes.json";
+import type { Grid4x4, SudokuPuzzle } from "../types/sudoku";
+import rawClassesCsv from "./sudoku-classes.csv?raw";
 
-export type RawClassTuple = [
-  id: number,
-  puzzle: string,
-  solution: string,
-  workloadNaked: number,
-  blanks: number,
-  roundsNaked: number
-];
-
-export interface SudokuClassesData {
-  easy: RawClassTuple[];
-  medium: RawClassTuple[];
-  hard: RawClassTuple[];
+export interface SudokuClassRecord {
+  puzzle: string;
+  solution: string;
+  workloadNaked: number;
 }
 
-const CLASSES_DATA = classesJson as SudokuClassesData;
+/**
+ * 解析按 workloadNaked 升序排好序的原始 CSV 表格数据
+ * 列：puzzle,solution,workloadNaked
+ */
+function parseClassesCsv(csv: string): SudokuClassRecord[] {
+  const lines = csv.trim().split(/\r?\n/);
+  const records: SudokuClassRecord[] = [];
+  // 跳过第 0 行表头
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const parts = line.split(",");
+    if (parts.length >= 3) {
+      records.push({
+        puzzle: parts[0],
+        solution: parts[1],
+        workloadNaked: parseFloat(parts[2]),
+      });
+    }
+  }
+  return records;
+}
+
+export const SUDOKU_CLASSES: SudokuClassRecord[] = parseClassesCsv(rawClassesCsv);
 
 // ---------------------------------------------------------------- 几何结构与对称变换群
 export const UNITS: number[][] = (() => {
@@ -95,13 +109,12 @@ export function transform(str: string, m: number[], dp: number[]): string {
 }
 
 export function instantiate(
-  cls: { id: number; puzzle: string; solution: string },
+  cls: { puzzle: string; solution: string },
   rng: () => number = Math.random
-): { classId: number; puzzle: string; solution: string } {
+): { puzzle: string; solution: string } {
   const m = CELL_MAPS[Math.floor(rng() * CELL_MAPS.length)];
   const dp = DIGIT_PERMS[Math.floor(rng() * DIGIT_PERMS.length)];
   return {
-    classId: cls.id,
     puzzle: transform(cls.puzzle, m, dp),
     solution: transform(cls.solution, m, dp),
   };
@@ -238,6 +251,23 @@ export function profile(
   };
 }
 
+// ---------------------------------------------------------------- 动态分档切片算法
+/**
+ * 根据当前分档制（totalTiers）与指定档位（tierIndex: 0 到 totalTiers - 1），
+ * 计算对应的类库索引区间 [startIndex, endIndex)
+ */
+export function getTierSlice(
+  tierIndex: number,
+  totalTiers: number
+): { start: number; end: number; count: number } {
+  const total = SUDOKU_CLASSES.length;
+  const clampedTotal = Math.max(1, totalTiers);
+  const clampedIndex = Math.max(0, Math.min(clampedTotal - 1, tierIndex));
+  const start = Math.floor((clampedIndex * total) / clampedTotal);
+  const end = Math.floor(((clampedIndex + 1) * total) / clampedTotal);
+  return { start, end, count: end - start };
+}
+
 // ---------------------------------------------------------------- 四宫格数独主引擎
 export class Sudoku4x4Engine {
   /**
@@ -265,53 +295,63 @@ export class Sudoku4x4Engine {
   }
 
   /**
-   * 获取题库类别数据
+   * 获取按 workloadNaked 升序排列的全部类库数据
    */
-  static getClassesData(): SudokuClassesData {
-    return CLASSES_DATA;
+  static getAllClasses(): SudokuClassRecord[] {
+    return SUDOKU_CLASSES;
   }
 
   /**
-   * 核心出题方法：根据 workloadNaked 划分的 3 档（easy / medium / hard）生成试题
-   * 严格保障唯一解，并保留 workloadNaked 与轮数元信息
+   * 核心出题方法：根据动态难度档位生成试题
+   *
+   * @param tierIndex 当前档位索引 (0 到 totalTiers - 1)
+   * @param totalTiers 总档位数 (默认 3，可调整为 5、6 档等)
+   * @param tierName 档位名称（如 "简单", "适中", "4级" 等）
+   * @param id 题目编号
+   * @param usedIndices 本试卷已使用的题目索引集合，避免试卷内拓扑重复
+   * @param rng 随机数生成器
    */
-  static generatePuzzleByTier(
-    tier: DifficultyTier,
+  static generatePuzzleByDynamicTier(
+    tierIndex: number,
+    totalTiers = 3,
+    tierName = "",
     id = 1,
-    usedClassIds?: Set<number>,
+    usedIndices?: Set<number>,
     rng: () => number = Math.random
   ): SudokuPuzzle {
-    const pool = CLASSES_DATA[tier] || CLASSES_DATA.medium;
-    if (pool.length === 0) {
-      throw new Error(`Empty class pool for tier ${tier}`);
+    const { start, end } = getTierSlice(tierIndex, totalTiers);
+
+    // 候选索引列表：优先选本套卷子尚未用过的等价类
+    let chosenIdx: number;
+    const candidates: number[] = [];
+    if (usedIndices) {
+      for (let i = start; i < end; i++) {
+        if (!usedIndices.has(i)) candidates.push(i);
+      }
     }
 
-    // 优先选择本卷尚未使用的等价类，确保试题多样性
-    let chosen: RawClassTuple;
-    if (usedClassIds && usedClassIds.size < pool.length) {
-      const candidates = pool.filter(([cid]) => !usedClassIds.has(cid));
-      chosen =
-        candidates.length > 0
-          ? candidates[Math.floor(rng() * candidates.length)]
-          : pool[Math.floor(rng() * pool.length)];
+    if (candidates.length > 0) {
+      chosenIdx = candidates[Math.floor(rng() * candidates.length)];
     } else {
-      chosen = pool[Math.floor(rng() * pool.length)];
+      chosenIdx = start + Math.floor(rng() * (end - start));
     }
 
-    const [classId, rawPuzzle, rawSolution, workloadNaked, blanks, roundsNaked] = chosen;
-    if (usedClassIds) {
-      usedClassIds.add(classId);
+    if (usedIndices) {
+      usedIndices.add(chosenIdx);
     }
 
-    // 在 3072 种对称与数字变换中均匀随机抽取并实例化
-    const inst = instantiate(
-      { id: classId, puzzle: rawPuzzle, solution: rawSolution },
-      rng
-    );
+    const cls = SUDOKU_CLASSES[chosenIdx];
+    // 随机施加 3072 种对称与置换变换
+    const inst = instantiate(cls, rng);
+
+    // 计算实际已知数（线索数）
+    let cluesCount = 0;
+    for (let i = 0; i < 16; i++) {
+      if (inst.puzzle[i] !== "0") cluesCount++;
+    }
 
     const puzzleGrid = stringToGrid(inst.puzzle);
     const solutionGrid = stringToGrid(inst.solution);
-    const cluesCount = 16 - blanks;
 
     return {
       id,
@@ -319,30 +359,39 @@ export class Sudoku4x4Engine {
       cluesCount,
       puzzle: puzzleGrid,
       solution: solutionGrid,
-      difficultyTier: tier,
-      workloadNaked,
-      roundsNaked,
-      classId,
+      workloadNaked: cls.workloadNaked,
+      tierIndex,
+      totalTiers,
+      tierName,
     };
   }
 
   /**
-   * 兼容方法：支持根据难度或目标线索数出题
+   * 兼容方法：快速生成试题
    */
   static generatePuzzle(
-    targetCluesOrTier: number | DifficultyTier = "medium",
+    targetCluesOrTier: number | string = "medium",
     id = 1
   ): SudokuPuzzle {
-    let tier: DifficultyTier = "medium";
-    if (typeof targetCluesOrTier === "string") {
-      tier = targetCluesOrTier;
+    let tierIndex = 1;
+    const totalTiers = 3;
+    if (typeof targetCluesOrTier === "number") {
+      if (targetCluesOrTier >= 9) tierIndex = 0;
+      else if (targetCluesOrTier >= 6) tierIndex = 1;
+      else tierIndex = 2;
+    } else if (targetCluesOrTier === "easy") {
+      tierIndex = 0;
+    } else if (targetCluesOrTier === "hard") {
+      tierIndex = 2;
     } else {
-      // 若传入数字，按线索数映射到最贴近的 workload 档位
-      if (targetCluesOrTier >= 9) tier = "easy";
-      else if (targetCluesOrTier >= 6) tier = "medium";
-      else tier = "hard";
+      tierIndex = 1;
     }
-    return Sudoku4x4Engine.generatePuzzleByTier(tier, id);
+    return Sudoku4x4Engine.generatePuzzleByDynamicTier(
+      tierIndex,
+      totalTiers,
+      tierIndex === 0 ? "简单" : tierIndex === 1 ? "适中" : "困难",
+      id
+    );
   }
 
   /**
@@ -422,13 +471,13 @@ export class Sudoku4x4Engine {
   }
 
   /**
-   * 兼容保留：假设专题出题（默认对应适中难度）
+   * 兼容保留：假设专题出题
    */
   static generateHypothesisPuzzle(
     targetType: "direct" | "deep",
     id = 1
   ): SudokuPuzzle {
-    const puzzle = Sudoku4x4Engine.generatePuzzleByTier("medium", id);
+    const puzzle = Sudoku4x4Engine.generatePuzzleByDynamicTier(1, 3, "适中", id);
     puzzle.hypoType = targetType;
     return puzzle;
   }

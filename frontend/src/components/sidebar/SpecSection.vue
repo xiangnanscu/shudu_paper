@@ -51,20 +51,38 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="difficulty">⚡ 难度</label>
-      <select
-        id="difficulty"
-        v-model="config.difficulty"
-        class="form-select"
-        @change="emit('changeStructure')"
-      >
-        <option value="easy">★ 简单 (基础唯余)</option>
-        <option value="medium">★★ 适中 (综合进阶)</option>
-        <option value="hard">★★★ 困难 (深度推演)</option>
-        <option value="mixed_page">📈 阶梯递进</option>
-        <option value="random">🎲 全库随机</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tierDivision">🎚️ 难度分档</label>
+        <select
+          id="tierDivision"
+          v-model.number="config.tierDivision"
+          class="form-select"
+          @change="onTierDivisionChange"
+        >
+          <option :value="3">3 档制 (默认)</option>
+          <option :value="5">5 档制 (进阶细分)</option>
+          <option :value="6">6 档制 (精准能力)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">⚡ 题库难度</label>
+        <select
+          id="difficulty"
+          v-model="config.difficulty"
+          class="form-select"
+          @change="emit('changeStructure')"
+        >
+          <option
+            v-for="opt in difficultyOptions"
+            :key="opt.value"
+            :value="opt.value"
+          >
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <div class="form-group">
@@ -85,13 +103,42 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import type { PaperConfig } from "../../types/config";
+import type { TierDivision } from "../../types/sudoku";
+import { getDifficultyOptions } from "../../core/difficulty";
 
-defineProps<{
+const props = defineProps<{
   config: PaperConfig;
 }>();
 
 const emit = defineEmits<{
   (e: "changeStructure"): void;
 }>();
+
+const difficultyOptions = computed(() => {
+  return getDifficultyOptions(props.config.tierDivision || 3);
+});
+
+function onTierDivisionChange() {
+  const div: TierDivision = props.config.tierDivision || 3;
+  const current = props.config.difficulty;
+
+  // 如果当前是通用模式（mixed_page 或 random），保持不变
+  if (current === "mixed_page" || current === "random") {
+    emit("changeStructure");
+    return;
+  }
+
+  // 否则自动切换到对应分档制的中位推荐档
+  if (div === 5) {
+    props.config.difficulty = "tier_5_3";
+  } else if (div === 6) {
+    props.config.difficulty = "tier_6_3";
+  } else {
+    props.config.difficulty = "medium";
+  }
+
+  emit("changeStructure");
+}
 </script>

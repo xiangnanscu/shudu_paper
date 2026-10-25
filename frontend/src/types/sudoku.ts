@@ -1,19 +1,35 @@
 export type Grid4x4 = number[][]; // 4x4 矩阵，0 表示空格，1-4 表示填入数字
 
 /**
- * 按 workloadNaked 划分的 3 档核心难度
- * easy: workloadNaked < 8.0 (1805类，基础唯余)
- * medium: 8.0 <= workloadNaked < 11.0 (1552类，综合进阶)
- * hard: workloadNaked >= 11.0 (1351类，深度推演)
+ * 难度分档制：默认 3 档，支持调整为 5 档、6 档等细化分级
  */
-export type DifficultyTier = "easy" | "medium" | "hard";
+export type TierDivision = 3 | 5 | 6;
 
+/**
+ * 难度模式枚举
+ */
 export type DifficultyMode =
+  // 通用/动态
+  | "mixed_page"
+  | "random"
+  // 3 档制 (默认)
   | "easy"
   | "medium"
   | "hard"
-  | "mixed_page"
-  | "random"
+  // 5 档制 (入门 -> 挑战)
+  | "tier_5_1"
+  | "tier_5_2"
+  | "tier_5_3"
+  | "tier_5_4"
+  | "tier_5_5"
+  // 6 档制 (1级 -> 6级)
+  | "tier_6_1"
+  | "tier_6_2"
+  | "tier_6_3"
+  | "tier_6_4"
+  | "tier_6_5"
+  | "tier_6_6"
+  // 历史兼容
   | "starter"
   | "medium_hypo_direct"
   | "medium_hypo_deep"
@@ -33,8 +49,8 @@ export interface SudokuPuzzle {
   puzzle: Grid4x4;
   solution: Grid4x4;
   hypoType?: "direct" | "deep";
-  difficultyTier?: DifficultyTier;
   workloadNaked?: number;
-  roundsNaked?: number;
-  classId?: number;
+  tierIndex?: number;    // 当前处于的档位索引 (0 到 totalTiers - 1)
+  totalTiers?: number;   // 当前采用的总档位数 (3, 5, 6 等)
+  tierName?: string;     // 档位名称 (如 "简单", "适中", "困难", "进阶", "4级")
 }

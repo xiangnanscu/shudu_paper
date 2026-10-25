@@ -1,6 +1,6 @@
 'use strict';
 /**
- * 预构建四宫格数独等价类题库脚本
+ * 预构建四宫格数独等价类 CSV 题库脚本
  * 运行方式: node scripts/generate-classes.js
  */
 const fs = require('fs');
@@ -12,35 +12,33 @@ const t0 = Date.now();
 const classes = buildClasses().filter((c) => c.blanks > 0);
 console.log(`Built ${classes.length} valid classes in ${Date.now() - t0} ms`);
 
-const easy = [];
-const medium = [];
-const hard = [];
-
-for (const c of classes) {
-  // [id, puzzle, solution, workloadNaked, blanks, roundsNaked]
-  const item = [
-    c.id,
-    c.puzzle,
-    c.solution,
-    c.workloadNaked,
-    c.blanks,
-    c.roundsNaked,
-  ];
-  if (c.workloadNaked < 8.0) {
-    easy.push(item);
-  } else if (c.workloadNaked < 11.0) {
-    medium.push(item);
-  } else {
-    hard.push(item);
+// 按 workloadNaked 升序排列；若工作量相同按 puzzle 字符串排序保证绝对稳定
+classes.sort((a, b) => {
+  if (a.workloadNaked !== b.workloadNaked) {
+    return a.workloadNaked - b.workloadNaked;
   }
+  return a.puzzle.localeCompare(b.puzzle);
+});
+
+console.log('Workload range:');
+console.log(`  Min: ${classes[0].workloadNaked} (puzzle: ${classes[0].puzzle})`);
+console.log(`  Max: ${classes[classes.length - 1].workloadNaked} (puzzle: ${classes[classes.length - 1].puzzle})`);
+
+// 按 CSV 保存原始表格数据：puzzle,solution,workloadNaked
+const rows = ['puzzle,solution,workloadNaked'];
+for (const c of classes) {
+  rows.push(`${c.puzzle},${c.solution},${c.workloadNaked}`);
 }
+const csvContent = rows.join('\n') + '\n';
 
-console.log(`Partitioned by workloadNaked:`);
-console.log(`  Easy   (< 8.0):       ${easy.length} classes`);
-console.log(`  Medium (8.0 ~ 11.0):  ${medium.length} classes`);
-console.log(`  Hard   (>= 11.0):     ${hard.length} classes`);
-
-const outPath = path.resolve(__dirname, '../frontend/src/core/sudoku-classes.json');
-fs.writeFileSync(outPath, JSON.stringify({ easy, medium, hard }));
+const outPath = path.resolve(__dirname, '../frontend/src/core/sudoku-classes.csv');
+fs.writeFileSync(outPath, csvContent, 'utf8');
 const sizeKb = (fs.statSync(outPath).size / 1024).toFixed(1);
-console.log(`Successfully wrote ${outPath} (${sizeKb} KB)`);
+console.log(`Successfully wrote ${outPath} (${sizeKb} KB, ${classes.length} rows)`);
+
+// 清理旧的 json 文件
+const oldJsonPath = path.resolve(__dirname, '../frontend/src/core/sudoku-classes.json');
+if (fs.existsSync(oldJsonPath)) {
+  fs.unlinkSync(oldJsonPath);
+  console.log(`Removed obsolete file: ${oldJsonPath}`);
+}

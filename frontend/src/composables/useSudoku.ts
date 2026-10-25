@@ -2,7 +2,7 @@ import { ref, computed } from "vue";
 import type { SudokuPuzzle } from "../types/sudoku";
 import type { PaperConfig } from "../types/config";
 import { Sudoku4x4Engine } from "../core/engine";
-import { getDifficultyTier } from "../core/difficulty";
+import { resolveTierForPuzzle } from "../core/difficulty";
 import { SYMBOL_SETS } from "../core/symbols";
 
 export function useSudoku(config: PaperConfig) {
@@ -70,16 +70,22 @@ export function useSudoku(config: PaperConfig) {
     const pages: SudokuPuzzle[][] = [];
     const itemsPerPage = config.rowsPerPage * 3;
     let currentId = 1;
-    const usedClassIds = new Set<number>();
+    const usedIndices = new Set<number>();
 
     for (let p = 0; p < config.pagesCount; p++) {
       const pageList: SudokuPuzzle[] = [];
       for (let i = 0; i < itemsPerPage; i++) {
-        const tier = getDifficultyTier(config.difficulty, i, itemsPerPage);
-        const puzzleObj = Sudoku4x4Engine.generatePuzzleByTier(
-          tier,
+        const { tierIndex, totalTiers, tierName } = resolveTierForPuzzle(
+          config,
+          i,
+          itemsPerPage
+        );
+        const puzzleObj = Sudoku4x4Engine.generatePuzzleByDynamicTier(
+          tierIndex,
+          totalTiers,
+          tierName,
           currentId++,
-          usedClassIds
+          usedIndices
         );
         pageList.push(puzzleObj);
       }

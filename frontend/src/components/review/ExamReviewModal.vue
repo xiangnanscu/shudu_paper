@@ -164,6 +164,7 @@ import type { PaperConfig } from "../../types/config";
 import type { ExamResult } from "../../types/exam";
 import ReviewPaperOverview from "./ReviewPaperOverview.vue";
 import ReviewStepPlayer from "./ReviewStepPlayer.vue";
+import { getDifficultyDisplayLabel } from "../../core/difficulty";
 
 const props = withDefaults(
   defineProps<{
@@ -220,18 +221,7 @@ const scoreBadgeClass = computed(() => {
 
 const difficultyText = computed(() => {
   if (!props.record) return "数独练习";
-  const diffLabels: Record<string, string> = {
-    easy: "简单 (基础唯余)",
-    medium: "适中 (综合进阶)",
-    hard: "困难 (深度推演)",
-    mixed_page: "阶梯递进",
-    random: "随机练习",
-    starter: "入门级 (13-14数)",
-    medium_hypo_direct: "中级假设·直接排除",
-    medium_hypo_deep: "中级假设·深度尝试",
-    medium_hypo_mixed: "中级假设·综合专项",
-  };
-  return diffLabels[props.record.difficulty] || "数独练习";
+  return getDifficultyDisplayLabel(props.record.difficulty);
 });
 
 const formattedDuration = computed(() => {

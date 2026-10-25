@@ -260,18 +260,16 @@ const currentPuzzle = computed<SudokuPuzzle | null>(() => {
 // 难度标签文字
 const difficultyText = computed(() => {
   if (!currentPuzzle.value) return "";
-  if (currentPuzzle.value.difficultyTier) {
-    const tierNames: Record<string, string> = {
-      easy: "简单",
-      medium: "适中",
-      hard: "困难",
-    };
-    const tier = tierNames[currentPuzzle.value.difficultyTier] || "";
-    return `${tier} · 给 ${currentPuzzle.value.cluesCount} 数`;
+  const p = currentPuzzle.value;
+  if (p.tierName) {
+    if (p.totalTiers && p.totalTiers > 3) {
+      return `${p.tierName} (${(p.tierIndex ?? 0) + 1}/${p.totalTiers}档) · 给 ${p.cluesCount} 数`;
+    }
+    return `${p.tierName} · 给 ${p.cluesCount} 数`;
   }
-  if (currentPuzzle.value.hypoType === "direct") return "假设·直显";
-  if (currentPuzzle.value.hypoType === "deep") return "假设·深度";
-  return `给 ${currentPuzzle.value.cluesCount} 数`;
+  if (p.hypoType === "direct") return "假设·直显";
+  if (p.hypoType === "deep") return "假设·深度";
+  return `给 ${p.cluesCount} 数`;
 });
 
 // 是否为已知线索格
