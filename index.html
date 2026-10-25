@@ -608,35 +608,15 @@
         100% { transform: scale(1) rotate(-3deg); opacity: 1; }
       }
 
-      /* 核心网格布局：严格一行放 3 个数独宫格，垂直方向上对齐 */
+      /* 核心网格布局：严格一行放 3 个数独宫格，上下两端对齐，多余空白平均填充到中间行 */
       .paper-grid-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         flex: 1;
-        align-content: start;
-        row-gap: 24px;
-        margin-top: 16px;
-        margin-bottom: 8px;
-      }
-
-      .paper-grid-container.rows-2 {
-        row-gap: 28px;
-        margin-top: 18px;
-      }
-
-      .paper-grid-container.rows-3 {
-        row-gap: 22px;
-        margin-top: 16px;
-      }
-
-      .paper-grid-container.rows-4 {
-        row-gap: 16px;
+        align-content: space-between;
+        row-gap: 10px;
         margin-top: 14px;
-      }
-
-      .paper-grid-container.rows-5 {
-        row-gap: 12px;
-        margin-top: 12px;
+        margin-bottom: 6px;
       }
 
       /* 单个数独卡片 */
