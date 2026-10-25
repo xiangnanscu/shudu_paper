@@ -12,7 +12,10 @@
     />
 
     <!-- 3列网格题区 -->
-    <div class="paper-grid-container">
+    <div
+      class="paper-grid-container"
+      :class="`rows-${config.rowsPerPage}`"
+    >
       <SudokuCard
         v-for="puzzle in puzzles"
         :key="puzzle.id"
