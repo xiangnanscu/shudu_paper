@@ -260,6 +260,15 @@ const currentPuzzle = computed<SudokuPuzzle | null>(() => {
 // 难度标签文字
 const difficultyText = computed(() => {
   if (!currentPuzzle.value) return "";
+  if (currentPuzzle.value.difficultyTier) {
+    const tierNames: Record<string, string> = {
+      easy: "简单",
+      medium: "适中",
+      hard: "困难",
+    };
+    const tier = tierNames[currentPuzzle.value.difficultyTier] || "";
+    return `${tier} · 给 ${currentPuzzle.value.cluesCount} 数`;
+  }
   if (currentPuzzle.value.hypoType === "direct") return "假设·直显";
   if (currentPuzzle.value.hypoType === "deep") return "假设·深度";
   return `给 ${currentPuzzle.value.cluesCount} 数`;

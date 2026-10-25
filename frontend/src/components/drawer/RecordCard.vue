@@ -107,15 +107,15 @@ const totalPuzzles = computed(
 
 const difficultyText = computed(() => {
   const diffLabels: Record<string, string> = {
+    easy: "简单 (基础唯余)",
+    medium: "适中 (综合进阶)",
+    hard: "困难 (深度推演)",
+    mixed_page: "阶梯递进",
+    random: "随机练习",
     starter: "入门级 (13-14数)",
-    easy: "初级 (9-12数)",
-    medium: "中级 (6-8数)",
     medium_hypo_direct: "中级假设·直接排除",
     medium_hypo_deep: "中级假设·深度尝试",
     medium_hypo_mixed: "中级假设·综合专项",
-    hard: "高级 (4-5数)",
-    mixed_page: "阶梯递进",
-    random: "随机混合",
   };
   return diffLabels[props.record.difficulty] || "数独练习";
 });

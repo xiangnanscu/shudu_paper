@@ -55,7 +55,7 @@
               </button>
             </div>
             <span class="review-tag">
-              {{ currentDisplayPuzzle.hypoType === 'direct' ? '假设·直接排除' : currentDisplayPuzzle.hypoType === 'deep' ? '假设·深度尝试' : '给 ' + currentDisplayPuzzle.cluesCount + ' 数' }}
+              {{ difficultyTagText }}
             </span>
           </div>
 
@@ -450,6 +450,22 @@ const diagnosisTitle = computed(() => {
     return `第 ${s.step} 步：发现数独规则冲突！`;
   }
   return `第 ${s.step} 步：填入 ${props.symbolMap[s.val]} (推导失误)`;
+});
+
+const difficultyTagText = computed(() => {
+  const p = currentDisplayPuzzle.value;
+  if (!p) return "";
+  if (p.difficultyTier) {
+    const map: Record<string, string> = {
+      easy: "简单",
+      medium: "适中",
+      hard: "困难",
+    };
+    return `${map[p.difficultyTier] || ""} · 给 ${p.cluesCount} 数`;
+  }
+  if (p.hypoType === "direct") return "假设·直接排除";
+  if (p.hypoType === "deep") return "假设·深度尝试";
+  return `给 ${p.cluesCount} 数`;
 });
 
 const diagnosisMessage = computed(() => {

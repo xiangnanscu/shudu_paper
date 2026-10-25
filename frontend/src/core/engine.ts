@@ -1,8 +1,244 @@
-import type { Grid4x4, SudokuPuzzle } from "../types/sudoku";
+import type { DifficultyTier, Grid4x4, SudokuPuzzle } from "../types/sudoku";
+import classesJson from "./sudoku-classes.json";
+
+export type RawClassTuple = [
+  id: number,
+  puzzle: string,
+  solution: string,
+  workloadNaked: number,
+  blanks: number,
+  roundsNaked: number
+];
+
+export interface SudokuClassesData {
+  easy: RawClassTuple[];
+  medium: RawClassTuple[];
+  hard: RawClassTuple[];
+}
+
+const CLASSES_DATA = classesJson as SudokuClassesData;
+
+// ---------------------------------------------------------------- 几何结构与对称变换群
+export const UNITS: number[][] = (() => {
+  const u: number[][] = [];
+  for (let r = 0; r < 4; r++) u.push([0, 1, 2, 3].map((c) => r * 4 + c));
+  for (let c = 0; c < 4; c++) u.push([0, 1, 2, 3].map((r) => r * 4 + c));
+  for (let b = 0; b < 4; b++) {
+    const br = (b >> 1) * 2;
+    const bc = (b & 1) * 2;
+    u.push([[0, 0], [0, 1], [1, 0], [1, 1]].map(([dr, dc]) => (br + dr) * 4 + bc + dc));
+  }
+  return u;
+})();
+
+export const PEERS: number[][] = (() => {
+  const p = Array.from({ length: 16 }, () => new Set<number>());
+  for (const u of UNITS) {
+    for (const i of u) {
+      for (const j of u) {
+        if (i !== j) p[i].add(j);
+      }
+    }
+  }
+  return p.map((s) => [...s]);
+})();
+
+function permutations(arr: number[]): number[][] {
+  if (arr.length <= 1) return [arr.slice()];
+  const out: number[][] = [];
+  arr.forEach((x, i) => {
+    const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+    for (const p of permutations(rest)) out.push([x, ...p]);
+  });
+  return out;
+}
+
+/** 128 个格子位置变换：行重排(8) × 列重排(8) × 转置(2)；行重排只在带内换行或整带互换 */
+export const CELL_MAPS: number[][] = (() => {
+  const perms = permutations([0, 1, 2, 3]).filter(
+    (p) => (p[0] >> 1) === (p[1] >> 1) && (p[2] >> 1) === (p[3] >> 1)
+  );
+  const maps: number[][] = [];
+  for (const rp of perms) {
+    for (const cp of perms) {
+      for (const t of [0, 1]) {
+        const m = new Array(16);
+        for (let i = 0; i < 16; i++) {
+          let nr = rp[i >> 2];
+          let nc = cp[i & 3];
+          if (t) [nr, nc] = [nc, nr];
+          m[i] = nr * 4 + nc;
+        }
+        maps.push(m);
+      }
+    }
+  }
+  return maps;
+})();
+
+/** 24 个数字重命名：dp[d-1] 为数字 d 的新名字 */
+export const DIGIT_PERMS: number[][] = permutations([1, 2, 3, 4]);
+
+function popcount(x: number): number {
+  x -= (x >> 1) & 0x5;
+  return (x & 0x3) + ((x >> 2) & 0x3);
+}
+
+// ---------------------------------------------------------------- 变换与求解
+export function transform(str: string, m: number[], dp: number[]): string {
+  const out = new Array(16);
+  for (let i = 0; i < 16; i++) {
+    const d = str.charCodeAt(i) - 48;
+    out[m[i]] = d ? dp[d - 1] : 0;
+  }
+  return out.join("");
+}
+
+export function instantiate(
+  cls: { id: number; puzzle: string; solution: string },
+  rng: () => number = Math.random
+): { classId: number; puzzle: string; solution: string } {
+  const m = CELL_MAPS[Math.floor(rng() * CELL_MAPS.length)];
+  const dp = DIGIT_PERMS[Math.floor(rng() * DIGIT_PERMS.length)];
+  return {
+    classId: cls.id,
+    puzzle: transform(cls.puzzle, m, dp),
+    solution: transform(cls.solution, m, dp),
+  };
+}
+
+export function stringToGrid(str: string): Grid4x4 {
+  const grid: Grid4x4 = [];
+  for (let r = 0; r < 4; r++) {
+    const row: number[] = [];
+    for (let c = 0; c < 4; c++) {
+      row.push(Number(str[r * 4 + c]));
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
+export function gridToString(grid: Grid4x4): string {
+  let str = "";
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      str += grid[r][c];
+    }
+  }
+  return str;
+}
 
 /**
- * 四宫格数独生成与求解校验引擎 (4x4 Sudoku Core Engine)
+ * 回溯求解，最多数到 limit 个解；返回 { count, first }
  */
+export function solve(
+  puzzle: string | number[],
+  limit = 2
+): { count: number; first: string | null } {
+  const g = Array.from(puzzle, Number);
+  let count = 0;
+  let first: string | null = null;
+  const rec = () => {
+    if (count >= limit) return;
+    let best = -1;
+    let bestMask = 0;
+    let bestN = 5;
+    for (let i = 0; i < 16; i++) {
+      if (g[i]) continue;
+      let seen = 0;
+      for (const j of PEERS[i]) if (g[j]) seen |= 1 << (g[j] - 1);
+      const free = 15 & ~seen;
+      const n = popcount(free);
+      if (n < bestN) {
+        bestN = n;
+        best = i;
+        bestMask = free;
+        if (n === 0) return;
+      }
+    }
+    if (best < 0) {
+      count++;
+      if (!first) first = g.join("");
+      return;
+    }
+    for (let d = 0; d < 4; d++) {
+      if ((bestMask >> d) & 1) {
+        g[best] = d + 1;
+        rec();
+        g[best] = 0;
+      }
+    }
+  };
+  rec();
+  return { count, first };
+}
+
+/**
+ * 计算工作量模型
+ * mode: 'naked' 只用唯余法；'full' 唯余 + 摒除
+ */
+export function profile(
+  puzzleDigits: number[],
+  mode: "naked" | "full" = "naked"
+): { widths: number[]; rounds: number; workload: number } {
+  const cand = new Array(16).fill(15);
+  const placed = new Array(16).fill(false);
+  const place = (i: number, d: number) => {
+    const bit = 1 << (d - 1);
+    if (!(cand[i] & bit)) throw new Error("inconsistent puzzle");
+    cand[i] = bit;
+    placed[i] = true;
+    for (const j of PEERS[i]) cand[j] &= ~bit;
+  };
+  for (let i = 0; i < 16; i++) {
+    if (puzzleDigits[i]) place(i, puzzleDigits[i]);
+  }
+
+  let remaining = placed.filter((x) => !x).length;
+  const widths: number[] = [];
+  let cost = 0;
+  while (remaining > 0) {
+    const moves = new Map<number, number>();
+    for (let i = 0; i < 16; i++) {
+      if (!placed[i] && popcount(cand[i]) === 1) {
+        moves.set(i, Math.log2(cand[i]) + 1);
+      }
+    }
+    if (mode === "full") {
+      for (const u of UNITS) {
+        for (let d = 0; d < 4; d++) {
+          let cnt = 0;
+          let last = -1;
+          for (const i of u) {
+            if ((cand[i] >> d) & 1) {
+              cnt++;
+              last = i;
+            }
+          }
+          if (cnt === 1 && !placed[last] && !moves.has(last)) {
+            moves.set(last, d + 1);
+          }
+        }
+      }
+    }
+    if (moves.size === 0) {
+      throw new Error("stuck: needs a technique beyond singles");
+    }
+    const n = moves.size;
+    cost += n * (1 + Math.log(remaining / n));
+    widths.push(n);
+    for (const [i, d] of moves) place(i, d);
+    remaining -= n;
+  }
+  return {
+    widths,
+    rounds: widths.length,
+    workload: Math.round(cost * 1e4) / 1e4,
+  };
+}
+
+// ---------------------------------------------------------------- 四宫格数独主引擎
 export class Sudoku4x4Engine {
   /**
    * 检查在 (r, c) 填入 val 是否合法（满足 4x4 行、列、2x2 宫格规则）
@@ -22,133 +258,91 @@ export class Sudoku4x4Engine {
   }
 
   /**
-   * 生成合法的完整终盘（基于回溯 + 随机洗牌）
-   */
-  static generateCompleteBoard(): Grid4x4 {
-    const grid: Grid4x4 = Array.from({ length: 4 }, () => Array(4).fill(0));
-
-    function fill(pos: number): boolean {
-      if (pos === 16) return true;
-      const r = Math.floor(pos / 4);
-      const c = pos % 4;
-      const nums = [1, 2, 3, 4].sort(() => Math.random() - 0.5);
-      for (const val of nums) {
-        if (Sudoku4x4Engine.isValid(grid, r, c, val)) {
-          grid[r][c] = val;
-          if (fill(pos + 1)) return true;
-          grid[r][c] = 0;
-        }
-      }
-      return false;
-    }
-
-    fill(0);
-    return grid;
-  }
-
-  /**
    * 统计解的数量，用来严格保障唯一解
    */
   static countSolutions(grid: Grid4x4, limit = 2): number {
-    let count = 0;
-    const work: Grid4x4 = grid.map((row) => [...row]);
-
-    function backtrack(pos: number): boolean {
-      if (pos === 16) {
-        count++;
-        return count >= limit;
-      }
-      const r = Math.floor(pos / 4);
-      const c = pos % 4;
-      if (work[r][c] !== 0) {
-        return backtrack(pos + 1);
-      }
-      for (let val = 1; val <= 4; val++) {
-        if (Sudoku4x4Engine.isValid(work, r, c, val)) {
-          work[r][c] = val;
-          if (backtrack(pos + 1)) return true;
-          work[r][c] = 0;
-        }
-      }
-      return false;
-    }
-
-    backtrack(0);
-    return count;
+    return solve(gridToString(grid), limit).count;
   }
 
   /**
-   * 单次尝试挖空生成题目
+   * 获取题库类别数据
    */
-  static generatePuzzleSingle(targetClues: number): {
-    puzzle: Grid4x4;
-    solution: Grid4x4;
-    cluesCount: number;
-  } {
-    const complete = Sudoku4x4Engine.generateCompleteBoard();
-    const puzzle: Grid4x4 = complete.map((row) => [...row]);
-
-    const positions: number[] = [];
-    for (let i = 0; i < 16; i++) positions.push(i);
-    positions.sort(() => Math.random() - 0.5);
-
-    const holesToDig = 16 - targetClues;
-    let dug = 0;
-
-    for (const pos of positions) {
-      if (dug >= holesToDig) break;
-      const r = Math.floor(pos / 4);
-      const c = pos % 4;
-      const original = puzzle[r][c];
-
-      puzzle[r][c] = 0;
-
-      // 校验是否唯一解
-      if (Sudoku4x4Engine.countSolutions(puzzle, 2) === 1) {
-        dug++;
-      } else {
-        puzzle[r][c] = original; // 发生多解，恢复原数
-      }
-    }
-
-    return {
-      puzzle,
-      solution: complete,
-      cluesCount: 16 - dug,
-    };
+  static getClassesData(): SudokuClassesData {
+    return CLASSES_DATA;
   }
 
   /**
-   * 挖空生成题目，严格保证唯一解
+   * 核心出题方法：根据 workloadNaked 划分的 3 档（easy / medium / hard）生成试题
+   * 严格保障唯一解，并保留 workloadNaked 与轮数元信息
    */
-  static generatePuzzle(
-    targetClues: number,
-    id = 1
+  static generatePuzzleByTier(
+    tier: DifficultyTier,
+    id = 1,
+    usedClassIds?: Set<number>,
+    rng: () => number = Math.random
   ): SudokuPuzzle {
-    const maxAttempts = targetClues <= 5 ? 8 : 1;
-    let best: {
-      puzzle: Grid4x4;
-      solution: Grid4x4;
-      cluesCount: number;
-    } | null = null;
-
-    for (let i = 0; i < maxAttempts; i++) {
-      const res = Sudoku4x4Engine.generatePuzzleSingle(targetClues);
-      if (!best || res.cluesCount < best.cluesCount) {
-        best = res;
-      }
-      if (best.cluesCount <= targetClues) {
-        break;
-      }
+    const pool = CLASSES_DATA[tier] || CLASSES_DATA.medium;
+    if (pool.length === 0) {
+      throw new Error(`Empty class pool for tier ${tier}`);
     }
+
+    // 优先选择本卷尚未使用的等价类，确保试题多样性
+    let chosen: RawClassTuple;
+    if (usedClassIds && usedClassIds.size < pool.length) {
+      const candidates = pool.filter(([cid]) => !usedClassIds.has(cid));
+      chosen =
+        candidates.length > 0
+          ? candidates[Math.floor(rng() * candidates.length)]
+          : pool[Math.floor(rng() * pool.length)];
+    } else {
+      chosen = pool[Math.floor(rng() * pool.length)];
+    }
+
+    const [classId, rawPuzzle, rawSolution, workloadNaked, blanks, roundsNaked] = chosen;
+    if (usedClassIds) {
+      usedClassIds.add(classId);
+    }
+
+    // 在 3072 种对称与数字变换中均匀随机抽取并实例化
+    const inst = instantiate(
+      { id: classId, puzzle: rawPuzzle, solution: rawSolution },
+      rng
+    );
+
+    const puzzleGrid = stringToGrid(inst.puzzle);
+    const solutionGrid = stringToGrid(inst.solution);
+    const cluesCount = 16 - blanks;
 
     return {
       id,
-      targetClues,
-      cluesCount: best!.cluesCount,
-      puzzle: best!.puzzle,
-      solution: best!.solution,
+      targetClues: cluesCount,
+      cluesCount,
+      puzzle: puzzleGrid,
+      solution: solutionGrid,
+      difficultyTier: tier,
+      workloadNaked,
+      roundsNaked,
+      classId,
     };
+  }
+
+  /**
+   * 兼容方法：支持根据难度或目标线索数出题
+   */
+  static generatePuzzle(
+    targetCluesOrTier: number | DifficultyTier = "medium",
+    id = 1
+  ): SudokuPuzzle {
+    let tier: DifficultyTier = "medium";
+    if (typeof targetCluesOrTier === "string") {
+      tier = targetCluesOrTier;
+    } else {
+      // 若传入数字，按线索数映射到最贴近的 workload 档位
+      if (targetCluesOrTier >= 9) tier = "easy";
+      else if (targetCluesOrTier >= 6) tier = "medium";
+      else tier = "hard";
+    }
+    return Sudoku4x4Engine.generatePuzzleByTier(tier, id);
   }
 
   /**
@@ -156,40 +350,22 @@ export class Sudoku4x4Engine {
    */
   static getUnits(): [number, number][][] {
     const units: [number, number][][] = [];
-    // 4 行
     for (let r = 0; r < 4; r++) {
-      units.push([
-        [r, 0],
-        [r, 1],
-        [r, 2],
-        [r, 3],
-      ]);
+      units.push([[r, 0], [r, 1], [r, 2], [r, 3]]);
     }
-    // 4 列
     for (let c = 0; c < 4; c++) {
-      units.push([
-        [0, c],
-        [1, c],
-        [2, c],
-        [3, c],
-      ]);
+      units.push([[0, c], [1, c], [2, c], [3, c]]);
     }
-    // 4 宫
     for (let b = 0; b < 4; b++) {
       const br = Math.floor(b / 2) * 2;
       const bc = (b % 2) * 2;
-      units.push([
-        [br, bc],
-        [br, bc + 1],
-        [br + 1, bc],
-        [br + 1, bc + 1],
-      ]);
+      units.push([[br, bc], [br, bc + 1], [br + 1, bc], [br + 1, bc + 1]]);
     }
     return units;
   }
 
   /**
-   * 检查盘面两格假设（二选一试数）的特征
+   * 兼容保留：两格假设特征分析
    */
   static analyzeHypothesisFeatures(
     puzzle: Grid4x4,
@@ -208,7 +384,6 @@ export class Sudoku4x4Engine {
     let rowDirectCount = 0;
     let rowDeepCount = 0;
 
-    // 检查所有 12 个基本单元（4行、4列、4宫）
     for (let uIdx = 0; uIdx < units.length; uIdx++) {
       const cells = units[uIdx];
       const empty = cells.filter(([r, c]) => puzzle[r][c] === 0);
@@ -219,11 +394,9 @@ export class Sudoku4x4Engine {
         const v1Corr = solution[c1[0]][c1[1]];
         const v2Corr = solution[c2[0]][c2[1]];
 
-        // 另一种组合为交换两个数字
         const v1Wrong = v2Corr;
         const v2Wrong = v1Corr;
 
-        // 校验试填错误组合时，所填空格所在排/列/宫是否引发直接矛盾
         const valid1 = Sudoku4x4Engine.isValid(puzzle, c1[0], c1[1], v1Wrong);
         const valid2 = Sudoku4x4Engine.isValid(puzzle, c2[0], c2[1], v2Wrong);
 
@@ -231,14 +404,10 @@ export class Sudoku4x4Engine {
 
         if (isDirect) {
           directCount++;
-          if (uIdx < 4) {
-            rowDirectCount++;
-          }
+          if (uIdx < 4) rowDirectCount++;
         } else {
           deepCount++;
-          if (uIdx < 4) {
-            rowDeepCount++;
-          }
+          if (uIdx < 4) rowDeepCount++;
         }
       }
     }
@@ -253,83 +422,14 @@ export class Sudoku4x4Engine {
   }
 
   /**
-   * 生成符合两格假设特征（直接排除 或 深度尝试）的专题训练题目
+   * 兼容保留：假设专题出题（默认对应适中难度）
    */
   static generateHypothesisPuzzle(
     targetType: "direct" | "deep",
     id = 1
   ): SudokuPuzzle {
-    // 深度尝试题目需锁定在 5~6 数，严格保证所有两空格排均无直接排除
-    const targetCluesPool = targetType === "deep" ? [5, 6] : [6, 7];
-    const maxAttempts = 180;
-
-    let fallbackPuzzle: Grid4x4 | null = null;
-    let fallbackSolution: Grid4x4 | null = null;
-    let fallbackClues = 6;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const targetClues =
-        targetCluesPool[Math.floor(Math.random() * targetCluesPool.length)];
-      const res = Sudoku4x4Engine.generatePuzzleSingle(targetClues);
-
-      const features = Sudoku4x4Engine.analyzeHypothesisFeatures(
-        res.puzzle,
-        res.solution
-      );
-
-      // 无论何种假设题目，开局绝不能有只剩 1 空格的单元
-      if (features.has1HoleUnit) {
-        if (!fallbackPuzzle) {
-          fallbackPuzzle = res.puzzle;
-          fallbackSolution = res.solution;
-          fallbackClues = res.cluesCount;
-        }
-        continue;
-      }
-
-      if (targetType === "deep") {
-        // 深度尝试的核心铁律：
-        // 1. 绝不允许任何一排（行）存在可以直接排除的两格情形（杜绝做题者从某一排顺着直接排除一路平推解完）
-        // 2. 必须存在至少一排刚好剩 2 个空格，且无论填入哪种组合，所填空格所在的排、列、小宫格局部均不引起任何矛盾
-        if (features.rowDirectCount === 0 && features.rowDeepCount > 0) {
-          return {
-            id,
-            targetClues,
-            cluesCount: res.cluesCount,
-            puzzle: res.puzzle,
-            solution: res.solution,
-            hypoType: "deep",
-          };
-        }
-      } else {
-        // 直接排除的核心规范：
-        // 必须存在可以直接排除的两格排（一试填立刻在交叉列/宫出现相同数字发生矛盾）
-        if (features.rowDirectCount > 0) {
-          return {
-            id,
-            targetClues,
-            cluesCount: res.cluesCount,
-            puzzle: res.puzzle,
-            solution: res.solution,
-            hypoType: "direct",
-          };
-        }
-      }
-
-      if (!fallbackPuzzle) {
-        fallbackPuzzle = res.puzzle;
-        fallbackSolution = res.solution;
-        fallbackClues = res.cluesCount;
-      }
-    }
-
-    return {
-      id,
-      targetClues: fallbackClues,
-      cluesCount: fallbackClues,
-      puzzle: fallbackPuzzle!,
-      solution: fallbackSolution!,
-      hypoType: targetType,
-    };
+    const puzzle = Sudoku4x4Engine.generatePuzzleByTier("medium", id);
+    puzzle.hypoType = targetType;
+    return puzzle;
   }
 }

@@ -163,7 +163,7 @@ const resolvedPaperConfig = computed<PaperConfig>(() => {
   return {
     pagesCount: 1,
     rowsPerPage: (r?.rows_per_page ?? r?.rowsPerPage ?? 2) as 2 | 3,
-    difficulty: (r?.difficulty ?? "medium_hypo_direct") as any,
+    difficulty: (r?.difficulty ?? "medium") as any,
     symbolType: (r?.symbol_type ?? r?.symbolType ?? "numbers") as any,
     paperTitle: "四宫格数独思维训练",
     paperSubtitle: "培养专注力 · 建立数感 · 锻炼逻辑推理",
@@ -193,7 +193,7 @@ const overviewExamResult = computed<ExamResult | null>(() => {
     totalHoles,
     correctHoles,
     wrongHoles: totalHoles - correctHoles,
-    difficulty: (r.difficulty ?? "medium_hypo_direct") as any,
+    difficulty: (r.difficulty ?? "medium") as any,
     symbolType: (r.symbol_type ?? r.symbolType ?? "numbers") as any,
     studentName: r.student_name ?? r.studentName ?? "",
     studentClass: r.student_class ?? r.studentClass ?? "",

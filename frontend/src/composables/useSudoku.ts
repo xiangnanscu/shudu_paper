@@ -2,7 +2,7 @@ import { ref, computed } from "vue";
 import type { SudokuPuzzle } from "../types/sudoku";
 import type { PaperConfig } from "../types/config";
 import { Sudoku4x4Engine } from "../core/engine";
-import { getDifficultyClues } from "../core/difficulty";
+import { getDifficultyTier } from "../core/difficulty";
 import { SYMBOL_SETS } from "../core/symbols";
 
 export function useSudoku(config: PaperConfig) {
@@ -70,37 +70,17 @@ export function useSudoku(config: PaperConfig) {
     const pages: SudokuPuzzle[][] = [];
     const itemsPerPage = config.rowsPerPage * 3;
     let currentId = 1;
+    const usedClassIds = new Set<number>();
 
     for (let p = 0; p < config.pagesCount; p++) {
       const pageList: SudokuPuzzle[] = [];
       for (let i = 0; i < itemsPerPage; i++) {
-        let puzzleObj: SudokuPuzzle;
-
-        if (config.difficulty === "medium_hypo_direct") {
-          puzzleObj = Sudoku4x4Engine.generateHypothesisPuzzle(
-            "direct",
-            currentId++
-          );
-        } else if (config.difficulty === "medium_hypo_deep") {
-          puzzleObj = Sudoku4x4Engine.generateHypothesisPuzzle(
-            "deep",
-            currentId++
-          );
-        } else if (config.difficulty === "medium_hypo_mixed") {
-          const type = (p * itemsPerPage + i) % 2 === 0 ? "direct" : "deep";
-          puzzleObj = Sudoku4x4Engine.generateHypothesisPuzzle(
-            type,
-            currentId++
-          );
-        } else {
-          const targetClues = getDifficultyClues(
-            config.difficulty,
-            i,
-            itemsPerPage
-          );
-          puzzleObj = Sudoku4x4Engine.generatePuzzle(targetClues, currentId++);
-        }
-
+        const tier = getDifficultyTier(config.difficulty, i, itemsPerPage);
+        const puzzleObj = Sudoku4x4Engine.generatePuzzleByTier(
+          tier,
+          currentId++,
+          usedClassIds
+        );
         pageList.push(puzzleObj);
       }
       pages.push(pageList);

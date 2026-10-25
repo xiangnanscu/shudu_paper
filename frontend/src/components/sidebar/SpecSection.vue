@@ -59,15 +59,11 @@
         class="form-select"
         @change="emit('changeStructure')"
       >
-        <option value="starter">★ 入门</option>
-        <option value="easy">★★ 初级</option>
-        <option value="medium">★★★ 中级</option>
-        <option value="medium_hypo_direct">🎯 假设·直显</option>
-        <option value="medium_hypo_deep">🎯 假设·深度</option>
-        <option value="medium_hypo_mixed">🎯 假设·综合</option>
-        <option value="hard">★★★★ 高级</option>
-        <option value="mixed_page">📈 阶梯</option>
-        <option value="random">🎲 随机</option>
+        <option value="easy">★ 简单 (基础唯余)</option>
+        <option value="medium">★★ 适中 (综合进阶)</option>
+        <option value="hard">★★★ 困难 (深度推演)</option>
+        <option value="mixed_page">📈 阶梯递进</option>
+        <option value="random">🎲 全库随机</option>
       </select>
     </div>
 

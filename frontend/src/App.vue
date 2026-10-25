@@ -236,10 +236,10 @@ const correctedPuzzleIds = ref<Set<number>>(new Set());
 const config = reactive<PaperConfig>({
   pagesCount: 1,
   rowsPerPage: 2, // 默认 2 行 (6 题 · 启蒙特大 · 推荐)
-  difficulty: "medium_hypo_direct",
+  difficulty: "medium",
   symbolType: "numbers",
-  paperTitle: "四宫格数独 · 中级假设专项训练卷",
-  paperSubtitle: "专项要点：包含两格二选一情形，运用假设试数法进行排除与推导",
+  paperTitle: "四宫格数独 · 启蒙思维训练卷",
+  paperSubtitle: "专项要点：唯余法阶梯训练 · 科学量化工作量",
   studentName: "",
   studentClass: "",
   showName: true,
@@ -303,15 +303,15 @@ useKeyboard({
 
 // 难度值对应的展示名称（与规格面板选项一致）
 const DIFFICULTY_LABELS: Record<string, string> = {
+  easy: "简单",
+  medium: "适中",
+  hard: "困难",
+  mixed_page: "阶梯",
+  random: "随机",
   starter: "入门",
-  easy: "初级",
-  medium: "中级",
   medium_hypo_direct: "假设·直显",
   medium_hypo_deep: "假设·深度",
   medium_hypo_mixed: "假设·综合",
-  hard: "高级",
-  mixed_page: "阶梯",
-  random: "随机",
 };
 
 // 当前试卷实际采用的规格快照（用于取消修改时回滚下拉框）
@@ -510,7 +510,7 @@ const reviewPaperConfig = computed<PaperConfig>(() => {
   return {
     pagesCount: reviewPagesData.value.length || 1,
     rowsPerPage: (r?.rows_per_page ?? r?.rowsPerPage ?? 2) as 2 | 3,
-    difficulty: (r?.difficulty ?? "medium_hypo_direct") as any,
+    difficulty: (r?.difficulty ?? "medium") as any,
     symbolType: (r?.symbol_type ?? r?.symbolType ?? "numbers") as any,
     paperTitle: config.paperTitle || "四宫格数独思维训练",
     paperSubtitle: config.paperSubtitle || "培养专注力 · 建立数感 · 锻炼逻辑推理",
@@ -539,7 +539,7 @@ const reviewExamResult = computed<ExamResult | null>(() => {
     totalHoles,
     correctHoles,
     wrongHoles: totalHoles - correctHoles,
-    difficulty: (r.difficulty ?? "medium_hypo_direct") as any,
+    difficulty: (r.difficulty ?? "medium") as any,
     symbolType: (r.symbol_type ?? r.symbolType ?? "numbers") as any,
     studentName: r.student_name ?? r.studentName ?? config.studentName ?? "",
     studentClass: r.student_class ?? r.studentClass ?? config.studentClass ?? "",
