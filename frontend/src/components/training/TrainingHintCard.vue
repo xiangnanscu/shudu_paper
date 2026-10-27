@@ -121,7 +121,7 @@ const currentHintDescription = computed<string>(() => {
   if (props.hintLevel === 0) {
     return props.question.technique === "naked_single"
       ? "观察黄色闪烁的小格子，看它的行、列和同一个宫内，其余 3 个伙伴是不是都已经到齐了？"
-      : `目标：在提示的区域内找到【${targetSym}】的家！外部的同伴会发射激光排除其他房间哦~`;
+      : "观察提示区域所在的小城堡与外部排除情况，想想这里应该填什么？需要帮助可以点击【魔法提示】哦~";
   }
   const step = props.question.hints.find((h) => h.level === props.hintLevel);
   return step ? step.description : "";

@@ -114,14 +114,14 @@
   </div>
 
   <!-- 唯余法：三色动态滚动虚线图例栏 (生动解释排、列、宫的三重汇聚) -->
-  <div
+  <!-- <div
     v-if="question.technique === 'naked_single' && (hintLevel >= 2 || isCorrect)"
     class="naked-legend-bar"
   >
     <span class="legend-item row-item">🔵 蓝色流光: 第 {{ question.targetCell.r + 1 }} 排</span>
     <span class="legend-item col-item">🟣 紫色流光: 第 {{ question.targetCell.c + 1 }} 列</span>
     <span class="legend-item block-item">🟠 橙色流光: 第 {{ targetBlockIndex + 1 }} 宫</span>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">

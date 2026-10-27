@@ -230,9 +230,7 @@ const taskTitle = computed<string>(() => {
   if (currentQuestion.value.technique === "naked_single") {
     return "找出黄色闪烁格子的唯一可能数！";
   } else {
-    const val = currentQuestion.value.targetValue;
-    const sym = currentSymbolMap.value[val];
-    return `给【${sym}】在城堡中找到唯一的安全房间！`;
+    return "提示区域应该填什么";
   }
 });
 
