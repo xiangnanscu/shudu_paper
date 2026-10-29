@@ -249,8 +249,8 @@ const correctedPuzzleIds = ref<Set<number>>(new Set());
 const config = reactive<PaperConfig>({
   pagesCount: 1,
   rowsPerPage: 2, // 默认 2 行 (6 题 · 启蒙特大 · 推荐)
-  tierDivision: 3,
-  difficulty: "medium",
+  tierDivision: 6,
+  difficulty: "tier_6_6",
   symbolType: "numbers",
   paperTitle: "四宫格数独 · 启蒙思维训练卷",
   paperSubtitle: "专项要点：唯余法阶梯训练 · 科学量化工作量",

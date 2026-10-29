@@ -60,9 +60,9 @@
           class="form-select"
           @change="onTierDivisionChange"
         >
-          <option :value="3">3 档制 (默认)</option>
+          <option :value="6">6 档制 (默认 · 精准能力)</option>
           <option :value="5">5 档制 (进阶细分)</option>
-          <option :value="6">6 档制 (精准能力)</option>
+          <option :value="3">3 档制 (经典三档)</option>
         </select>
       </div>
 
@@ -117,11 +117,11 @@ const emit = defineEmits<{
 }>();
 
 const difficultyOptions = computed(() => {
-  return getDifficultyOptions(props.config.tierDivision || 3);
+  return getDifficultyOptions(props.config.tierDivision || 6);
 });
 
 function onTierDivisionChange() {
-  const div: TierDivision = props.config.tierDivision || 3;
+  const div: TierDivision = props.config.tierDivision || 6;
   const current = props.config.difficulty;
 
   // 如果当前是通用模式（mixed_page 或 random），保持不变
@@ -130,11 +130,11 @@ function onTierDivisionChange() {
     return;
   }
 
-  // 否则自动切换到对应分档制的中位推荐档
-  if (div === 5) {
+  // 否则自动切换到对应分档制（6 档切至专家极境 6 级，3/5 档切至中位档）
+  if (div === 6) {
+    props.config.difficulty = "tier_6_6";
+  } else if (div === 5) {
     props.config.difficulty = "tier_5_3";
-  } else if (div === 6) {
-    props.config.difficulty = "tier_6_3";
   } else {
     props.config.difficulty = "medium";
   }

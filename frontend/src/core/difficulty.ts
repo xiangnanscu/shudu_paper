@@ -13,7 +13,7 @@ export interface TierInfo {
 }
 
 /**
- * 3 档制配置元数据（默认）
+ * 3 档制配置元数据
  */
 const TIERS_3 = [
   { value: "easy", name: "简单", label: "★ 简单 (L1 · 基础唯余)" },
@@ -33,7 +33,7 @@ const TIERS_5 = [
 ] as const;
 
 /**
- * 6 档制配置元数据
+ * 6 档制配置元数据（默认）
  */
 const TIERS_6 = [
   { value: "tier_6_1", name: "1级", label: "★ 1级·起步 (萌芽探索)" },
@@ -47,14 +47,14 @@ const TIERS_6 = [
 /**
  * 获取当前分档制下的具体难度选项列表
  */
-export function getDifficultyOptions(division: TierDivision = 3): DifficultyOption[] {
+export function getDifficultyOptions(division: TierDivision = 6): DifficultyOption[] {
   let list: readonly { value: string; label: string }[];
   if (division === 5) {
     list = TIERS_5;
-  } else if (division === 6) {
-    list = TIERS_6;
-  } else {
+  } else if (division === 3) {
     list = TIERS_3;
+  } else {
+    list = TIERS_6;
   }
 
   const result: DifficultyOption[] = list.map((item) => ({
@@ -83,7 +83,7 @@ export function resolveTierForPuzzle(
   indexOnPage: number,
   totalOnPage: number
 ): TierInfo {
-  const division: TierDivision = config.tierDivision || 3;
+  const division: TierDivision = config.tierDivision || 6;
   const diff = config.difficulty;
 
   // 1. 处理阶梯递进模式 (mixed_page)
@@ -211,7 +211,7 @@ export function getDifficultyClues(
   totalOnPage: number
 ): number {
   const { tierIndex, totalTiers } = resolveTierForPuzzle(
-    { difficulty: diffType, tierDivision: 3 } as PaperConfig,
+    { difficulty: diffType, tierDivision: 6 } as PaperConfig,
     indexOnPage,
     totalOnPage
   );

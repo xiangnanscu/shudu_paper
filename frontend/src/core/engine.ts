@@ -305,15 +305,15 @@ export class Sudoku4x4Engine {
    * 核心出题方法：根据动态难度档位生成试题
    *
    * @param tierIndex 当前档位索引 (0 到 totalTiers - 1)
-   * @param totalTiers 总档位数 (默认 3，可调整为 5、6 档等)
-   * @param tierName 档位名称（如 "简单", "适中", "4级" 等）
+   * @param totalTiers 总档位数 (默认 6，可调整为 3、5 档等)
+   * @param tierName 档位名称（如 "简单", "适中", "4级", "6级" 等）
    * @param id 题目编号
    * @param usedIndices 本试卷已使用的题目索引集合，避免试卷内拓扑重复
    * @param rng 随机数生成器
    */
   static generatePuzzleByDynamicTier(
     tierIndex: number,
-    totalTiers = 3,
+    totalTiers = 6,
     tierName = "",
     id = 1,
     usedIndices?: Set<number>,
